@@ -24,9 +24,9 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 requires-python = ">=3.10"
-# NOTE: Runtime dependencies (websockets, cryptography, pydantic, ...) will be added alongside the
-#       WalletConnect v2 protocol implementation, not as part of this packaging modernization.
-dependencies = []
+dependencies = [
+    "pydantic>=2.6,<3",
+]
 dynamic = ["version"]
 
 [project.urls]
@@ -73,6 +73,7 @@ write_to = "walletconnect/version.py"
 
 [tool.mypy]
 exclude = "build/"
+plugins = ["pydantic.mypy"]
 
 [tool.ruff]
 line-length = 100
