@@ -29,6 +29,11 @@ dependencies = [
 ]
 dynamic = ["version"]
 
+[project.optional-dependencies]
+qr = [
+    "segno>=1.6,<2",  # Terminal QR codes for pairing URIs
+]
+
 [project.urls]
 Homepage = "https://github.com/ApeWorX/walletconnect-py"
 Issues = "https://github.com/ApeWorX/walletconnect-py/issues"
@@ -39,6 +44,7 @@ test = [
     "pytest-xdist",
     "pytest-cov",
     "hypothesis>=6.2.0,<7",
+    "segno>=1.6,<2",  # Exercise the optional `qr` extra
 ]
 lint = [
     "mypy>=1.15.0,<2",
