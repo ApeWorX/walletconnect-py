@@ -2,67 +2,77 @@ on: ["push", "pull_request"]
 
 name: Test
 
+concurrency:
+  # Cancel older, in-progress jobs from the same PR, same workflow.
+  # use run_id if the job is triggered by a push to ensure
+  # push-triggered jobs to not get canceled.
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
     linting:
         runs-on: ubuntu-latest
 
         steps:
-        - uses: actions/checkout@v2
+        - uses: actions/checkout@v6
 
-        - name: Setup Python
-          uses: actions/setup-python@v2
+        - name: Install uv
+          uses: astral-sh/setup-uv@v7
           with:
-              python-version: 3.8
+              python-version: "3.10"
 
         - name: Install Dependencies
-          run: pip install .[lint]
+          run: uv sync --group lint
 
-        - name: Run Black
-          run: black --check .
+        - name: Run Ruff Linter
+          run: uv run ruff check .
 
-        - name: Run flake8
-          run: flake8 ./walletconnect ./tests ./setup.py
+        - name: Run Ruff Formatter
+          run: uv run ruff format --check .
 
-        - name: Run isort
-          run: isort --check-only --diff ./walletconnect ./tests
+        - name: Run mdformat
+          run: uv run mdformat --check *.md
 
     type-check:
         runs-on: ubuntu-latest
 
         steps:
-        - uses: actions/checkout@v2
+        - uses: actions/checkout@v6
 
-        - name: Setup Python
-          uses: actions/setup-python@v2
+        - name: Install uv
+          uses: astral-sh/setup-uv@v7
           with:
-              python-version: 3.8
+              python-version: "3.10"
 
         - name: Install Dependencies
-          run: pip install .[lint]
+          run: uv sync --group lint --group test
 
         - name: Run MyPy
-          run: mypy -p walletconnect
+          run: uv run mypy .
 
     functional:
-        runs-on: ubuntu-latest
+        runs-on: ${{ matrix.os }}
 
         strategy:
             matrix:
-                python-version: [3.6, 3.7, 3.8]
+                os: [ubuntu-latest, macos-latest]   # eventually add `windows-latest`
+                python-version: ["3.10", "3.11", "3.12", "3.13"]
 
         steps:
-        - uses: actions/checkout@v2
+        - uses: actions/checkout@v6
+          with:
+            fetch-depth: 0
 
-        - name: Setup Python
-          uses: actions/setup-python@v2
+        - name: Install uv
+          uses: astral-sh/setup-uv@v7
           with:
               python-version: ${{ matrix.python-version }}
 
         - name: Install Dependencies
-          run: pip install .[test]
+          run: uv sync --group test
 
         - name: Run Tests
-          run: pytest -m "not fuzzing"
+          run: uv run pytest -m "not fuzzing" -s --cov=walletconnect -n auto
 
 # NOTE: uncomment this block after you've marked tests with @pytest.mark.fuzzing
 #    fuzzing:
@@ -72,15 +82,15 @@ jobs:
 #            fail-fast: true
 #
 #        steps:
-#        - uses: actions/checkout@v2
+#        - uses: actions/checkout@v6
 #
-#        - name: Setup Python
-#          uses: actions/setup-python@v2
+#        - name: Install uv
+#          uses: astral-sh/setup-uv@v7
 #          with:
-#              python-version: 3.8
+#              python-version: "3.10"
 #
 #        - name: Install Dependencies
-#          run: pip install .[test]
+#          run: uv sync --group test
 #
 #        - name: Run Tests
-#          run: pytest -m "fuzzing" --no-cov -s
+#          run: uv run pytest -m "fuzzing" --no-cov -s
