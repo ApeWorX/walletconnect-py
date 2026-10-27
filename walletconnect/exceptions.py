@@ -32,6 +32,14 @@ class InvalidPairingURIError(WalletConnectError, ValueError):
     """Raised when a ``wc:`` pairing URI is malformed or unsupported (e.g. WalletConnect v1)."""
 
 
+class InvalidKeyError(WalletConnectError, ValueError):
+    """Raised when a hex-encoded crypto key is malformed."""
+
+
+class InvalidEnvelopeError(WalletConnectError, ValueError):
+    """Raised when a typed envelope cannot be decoded or decrypted."""
+
+
 class WalletConnectTimeoutError(WalletConnectError, TimeoutError):
     """Raised when the peer or relay does not respond in time."""
 
