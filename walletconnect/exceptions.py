@@ -36,6 +36,10 @@ class InvalidKeyError(WalletConnectError, ValueError):
     """Raised when a hex-encoded crypto key is malformed."""
 
 
+class InvalidJWTError(WalletConnectError, ValueError):
+    """Raised when a did-JWT is malformed or its signature does not verify."""
+
+
 class InvalidEnvelopeError(WalletConnectError, ValueError):
     """Raised when a typed envelope cannot be decoded or decrypted."""
 
