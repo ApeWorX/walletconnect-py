@@ -1,0 +1,39 @@
+name: Docs
+
+on:
+  push:
+    branches: [main]
+  release:
+    types: [released]
+  pull_request:
+    types: [opened, synchronize]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        python-version: "3.10"
+
+    - name: Install Dependencies
+      run: uv sync --group docs
+
+    - name: Add venv to PATH
+      run: echo "${{ github.workspace }}/.venv/bin" >> $GITHUB_PATH
+
+    - name: Ape Docs
+      uses: apeworx/sphinx-ape@main
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
