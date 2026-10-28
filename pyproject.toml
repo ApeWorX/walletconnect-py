@@ -73,7 +73,7 @@ dev = [
 include-package-data = true
 
 [tool.setuptools.packages.find]
-exclude = ["tests", "tests.*"]
+exclude = ["tests", "tests.*", "e2e-js", "e2e-js.*", "examples", "examples.*"]
 
 [tool.setuptools.package-data]
 walletconnect = ["py.typed"]
@@ -118,6 +118,7 @@ ignore = [
 "__init__.py" = ["F401"]
 "tests/**/*.py" = ["ARG001", "ARG002"]  # Pytest fixtures may appear unused
 "examples/**/*.py" = ["T20"]  # CLI scripts print to stdout
+"e2e-js/**/*.py" = ["T20", "E402", "I001"]  # harness: prints + path bootstrap
 
 [tool.ruff.lint.isort]
 force-wrap-aliases = true

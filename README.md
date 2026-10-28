@@ -95,6 +95,8 @@ print_qr(uri)
 `print_qr` draws for a dark terminal background by default; pass `invert=False` for light
 backgrounds. Live relay tests skip unless `WALLETCONNECT_PROJECT_ID` is set.
 
+For an automated interoperability check against the official JS Sign client (wallet peer), see [`e2e-js/`](e2e-js/).
+
 ## Development
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Comments, questions, criticisms and pull requests are welcomed.

@@ -5,7 +5,18 @@ from __future__ import annotations
 import json
 from typing import Any
 
+from walletconnect.utils.rpc_id import encode_rpc_id
+
 from .envelope import TYPE_0, decrypt, encrypt
+
+
+def _prepare_for_json(payload: dict[str, Any]) -> dict[str, Any]:
+    """Return a shallow copy with a JS-safe ``id`` field when present."""
+    if "id" not in payload:
+        return payload
+    out = dict(payload)
+    out["id"] = encode_rpc_id(payload["id"])
+    return out
 
 
 def encode_jsonrpc(
@@ -16,7 +27,7 @@ def encode_jsonrpc(
     sender_public_key: str | None = None,
 ) -> str:
     """Serialize ``payload`` to JSON and seal it in a typed envelope."""
-    message = json.dumps(payload, separators=(",", ":"), ensure_ascii=False)
+    message = json.dumps(_prepare_for_json(payload), separators=(",", ":"), ensure_ascii=False)
     return encrypt(
         sym_key=sym_key,
         message=message,

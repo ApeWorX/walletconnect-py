@@ -1,0 +1,6 @@
+node_modules/
+wc-uri.txt
+wallet-done.txt
+*.log
+.env
+.env.*

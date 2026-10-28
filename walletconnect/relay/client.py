@@ -31,6 +31,7 @@ from walletconnect.exceptions import (
     RelayError,
     WalletConnectTimeoutError,
 )
+from walletconnect.utils.rpc_id import coerce_rpc_id
 
 from .rpc import RelayRPCError, make_request, make_result
 
@@ -177,7 +178,7 @@ class RelayClient:
         if not self.connected:
             raise RelayConnectionError("Not connected to the relay")
         payload = make_request(method, params)
-        request_id = int(payload["id"])
+        request_id = coerce_rpc_id(payload["id"])
         loop = asyncio.get_running_loop()
         fut: asyncio.Future[Any] = loop.create_future()
         self._pending[request_id] = fut
@@ -274,7 +275,11 @@ class RelayClient:
         request_id = message.get("id")
         if request_id is None:
             return
-        fut = self._pending.get(int(request_id))
+        try:
+            pending_key = coerce_rpc_id(request_id)
+        except ValueError:
+            return
+        fut = self._pending.get(pending_key)
         if fut is None or fut.done():
             return
         if "error" in message:

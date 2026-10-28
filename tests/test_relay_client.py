@@ -20,7 +20,7 @@ def test_make_request_id_shape():
     assert req["jsonrpc"] == "2.0"
     assert req["method"] == "irn_publish"
     assert isinstance(req["id"], int)
-    assert len(str(req["id"])) >= 19
+    assert abs(req["id"]) <= 2**53 - 1  # JS-safe (matches @walletconnect/jsonrpc-utils)
 
 
 @pytest.mark.asyncio
