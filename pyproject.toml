@@ -86,7 +86,7 @@ walletconnect = ["py.typed"]
 write_to = "walletconnect/version.py"
 
 [tool.mypy]
-exclude = "build/"
+exclude = ["build/", "examples/", "e2e-js/"]
 plugins = ["pydantic.mypy"]
 
 [tool.ruff]
