@@ -28,6 +28,10 @@ class InvalidCAIPIdentifierError(WalletConnectError, ValueError):
     """Raised when a CAIP-2 chain ID or CAIP-10 account ID is malformed."""
 
 
+class InvalidPairingURIError(WalletConnectError, ValueError):
+    """Raised when a ``wc:`` pairing URI is malformed or unsupported (e.g. WalletConnect v1)."""
+
+
 class WalletConnectTimeoutError(WalletConnectError, TimeoutError):
     """Raised when the peer or relay does not respond in time."""
 

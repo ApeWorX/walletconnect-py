@@ -44,7 +44,22 @@ uv run prek install
 
 ## Quick Usage
 
-TODO: Usage examples will be added once the v2 Sign API client lands.
+The v2 Sign API client is not implemented yet. What exists today:
+
+```python
+from walletconnect import PairingURI
+from walletconnect.qr import print_qr  # requires `pip install "walletconnect[qr]"`
+
+uri = PairingURI.generate()  # fresh pairing (random symKey, 5-minute expiry)
+print(uri)  # wc:<topic>@2?relay-protocol=irn&symKey=...&expiryTimestamp=...
+print_qr(uri)  # compact Unicode QR code for the terminal
+print_qr(uri, compact=False)  # pure ASCII (`##`), safe for logs and bot messages
+
+PairingURI.parse("wc:...@2?relay-protocol=irn&symKey=...")  # validate a URI from a dApp
+```
+
+`print_qr` draws for a dark terminal background by default; pass `invert=False` for light
+backgrounds.
 
 ## Development
 
