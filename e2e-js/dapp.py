@@ -8,10 +8,10 @@ then issues personal_sign (and optionally eth_signTypedData_v4).
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import os
 import sys
-import time
 from pathlib import Path
 
 # Prefer the local checkout (parent of e2e-js/).
@@ -119,10 +119,8 @@ def main() -> int:
         print(f"[dapp] FAILED: {exc}", file=sys.stderr)
         return 1
     finally:
-        try:
+        with contextlib.suppress(Exception):
             client.disconnect()
-        except Exception:  # noqa: BLE001
-            pass
         client.close()
         # Keep URI file for debugging; orchestrator cleans up.
 
