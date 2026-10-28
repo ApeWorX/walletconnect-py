@@ -98,9 +98,10 @@ class SyncSignClient:
     def close(self) -> None:
         if self._closed:
             return
-        self._closed = True
         with contextlib.suppress(Exception):
-            self._submit(self._client.close())
+            fut = asyncio.run_coroutine_threadsafe(self._client.close(), self._loop)
+            fut.result(timeout=10)
+        self._closed = True
         self._loop.call_soon_threadsafe(self._loop.stop)
         self._thread.join(timeout=5)
 

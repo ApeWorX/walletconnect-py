@@ -81,7 +81,16 @@ async def test_request_without_connect_fails():
 
 @pytest.mark.live
 @pytest.mark.asyncio
-async def test_live_relay_connect_skips_without_id(monkeypatch):
-    monkeypatch.delenv("WALLETCONNECT_PROJECT_ID", raising=False)
+async def test_live_relay_connect():
     if not os.environ.get("WALLETCONNECT_PROJECT_ID"):
         pytest.skip("WALLETCONNECT_PROJECT_ID not set")
+    client = RelayClient()
+    await client.connect()
+    assert client.connected
+    assert client.client_id.startswith("did:key:z")
+    topic = "cc" * 32
+    sub_id = await client.subscribe(topic)
+    assert isinstance(sub_id, str)
+    assert sub_id
+    await client.unsubscribe(topic)
+    await client.close()
