@@ -7,9 +7,10 @@ and relay signing requests to them.
 ## Status
 
 > [!WARNING]
-> This project is being revived and is **pre-alpha**. There is no working protocol implementation yet.
+> This project is being revived and is **pre-alpha**. Core Sign API flow works against the public relay
+> for manual testing; APIs may still change.
 
-- **Target:** WalletConnect v2 / Reown **Sign API** (relay at `relay.walletconnect.com`, `irn` JSON-RPC,
+- **Target:** WalletConnect v2 / Reown **Sign API** (default relay `wss://relay.walletconnect.org`, `irn` JSON-RPC,
   X25519 + ChaCha20-Poly1305 envelopes, a project ID from [cloud.reown.com](https://cloud.reown.com)).
 - **WalletConnect v1 is dead.** The v1 bridge servers were shut down, and this library will never
   implement the v1 protocol.
@@ -44,22 +45,55 @@ uv run prek install
 
 ## Quick Usage
 
-The v2 Sign API client is not implemented yet. What exists today:
+### Terminal → mobile wallet (manual demo)
+
+1. Create a free project at [cloud.reown.com](https://cloud.reown.com) and copy the project ID.
+2. Install from this repo (with the optional QR extra):
+
+```bash
+git clone https://github.com/ApeWorX/walletconnect-py.git
+cd walletconnect-py
+uv sync --extra qr --group test
+export WALLETCONNECT_PROJECT_ID=your_32_char_project_id
+uv run --extra qr python examples/terminal_connect.py
+```
+
+Or with pip from a checkout:
+
+```bash
+pip install -e ".[qr]"
+export WALLETCONNECT_PROJECT_ID=your_32_char_project_id
+python examples/terminal_connect.py
+```
+
+Scan the QR with MetaMask / Rainbow / etc., approve the session, then approve `personal_sign` on the phone.
+
+```python
+from walletconnect.qr import print_qr
+from walletconnect.sign import SyncSignClient
+from walletconnect.types import Metadata
+
+client = SyncSignClient(
+    project_id="...",  # or set WALLETCONNECT_PROJECT_ID
+    metadata=Metadata(name="my-script", description="", url="https://example.com", icons=[]),
+)
+session = client.connect(chains=(1,), on_uri=print_qr)
+sig = client.personal_sign("hello", session.eip155_accounts[0].split(":")[-1])
+client.close()
+```
+
+Lower-level helpers still work without a relay connection:
 
 ```python
 from walletconnect import PairingURI
 from walletconnect.qr import print_qr  # requires `pip install "walletconnect[qr]"`
 
-uri = PairingURI.generate()  # fresh pairing (random symKey, 5-minute expiry)
-print(uri)  # wc:<topic>@2?relay-protocol=irn&symKey=...&expiryTimestamp=...
-print_qr(uri)  # compact Unicode QR code for the terminal
-print_qr(uri, compact=False)  # pure ASCII (`##`), safe for logs and bot messages
-
-PairingURI.parse("wc:...@2?relay-protocol=irn&symKey=...")  # validate a URI from a dApp
+uri = PairingURI.generate()
+print_qr(uri)
 ```
 
 `print_qr` draws for a dark terminal background by default; pass `invert=False` for light
-backgrounds.
+backgrounds. Live relay tests skip unless `WALLETCONNECT_PROJECT_ID` is set.
 
 ## Development
 

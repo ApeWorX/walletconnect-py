@@ -27,6 +27,8 @@ requires-python = ">=3.10"
 dependencies = [
     "pydantic>=2.6,<3",
     "cryptography>=42,<47",
+    "websockets>=13,<16",
+    "platformdirs>=4,<5",
 ]
 dynamic = ["version"]
 
@@ -43,6 +45,7 @@ Issues = "https://github.com/ApeWorX/walletconnect-py/issues"
 test = [
     "pytest>=6.0",
     "pytest-xdist",
+    "pytest-asyncio>=0.24",
     "pytest-cov",
     "hypothesis>=6.2.0,<7",
     "segno>=1.6,<2",  # Exercise the optional `qr` extra
@@ -114,6 +117,7 @@ ignore = [
 "version.py" = ["ALL"]
 "__init__.py" = ["F401"]
 "tests/**/*.py" = ["ARG001", "ARG002"]  # Pytest fixtures may appear unused
+"examples/**/*.py" = ["T20"]  # CLI scripts print to stdout
 
 [tool.ruff.lint.isort]
 force-wrap-aliases = true
@@ -133,7 +137,12 @@ addopts = """
 """
 python_files = "test_*.py"
 testpaths = "tests"
-markers = "fuzzing: Run Hypothesis fuzz test suite"
+markers = [
+    "fuzzing: Run Hypothesis fuzz test suite",
+    "live: Opt-in tests that talk to the real WalletConnect relay",
+]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 
 [tool.mdformat]
 number = true

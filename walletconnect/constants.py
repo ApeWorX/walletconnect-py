@@ -17,6 +17,9 @@ DEFAULT_RELAY_URL: Final = "wss://relay.walletconnect.org"
 RELAY_PROTOCOL: Final = "irn"
 """The only relay protocol currently defined for WalletConnect v2."""
 
+USER_AGENT: Final = "walletconnect-py/0.x"
+"""Sent as the ``ua`` query param on the relay WebSocket."""
+
 PROJECT_ID_ENV_VAR: Final = "WALLETCONNECT_PROJECT_ID"
 """Environment variable used as a fallback source for the Reown project ID."""
 

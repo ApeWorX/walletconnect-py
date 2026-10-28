@@ -44,6 +44,14 @@ class InvalidEnvelopeError(WalletConnectError, ValueError):
     """Raised when a typed envelope cannot be decoded or decrypted."""
 
 
+class RelayError(WalletConnectError):
+    """Raised when the WalletConnect relay returns a JSON-RPC error or protocol fault."""
+
+
+class RelayConnectionError(RelayError, ConnectionError):
+    """Raised when the relay WebSocket cannot be established or drops unexpectedly."""
+
+
 class WalletConnectTimeoutError(WalletConnectError, TimeoutError):
     """Raised when the peer or relay does not respond in time."""
 
