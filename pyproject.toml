@@ -73,7 +73,7 @@ dev = [
 include-package-data = true
 
 [tool.setuptools.packages.find]
-exclude = ["tests", "tests.*"]
+exclude = ["tests", "tests.*", "e2e-js", "e2e-js.*", "examples", "examples.*"]
 
 [tool.setuptools.package-data]
 walletconnect = ["py.typed"]

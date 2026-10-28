@@ -1,0 +1,20 @@
+{
+  "name": "e2e",
+  "version": "1.0.0",
+  "description": "E2E: Python walletconnect-py dApp vs @walletconnect/sign-client wallet",
+  "main": "index.js",
+  "scripts": {
+    "e2e": "./run.sh",
+    "e2e:typed": "./run.sh --typed-data"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@walletconnect/sign-client": "^2.26.0",
+    "@walletconnect/utils": "^2.26.0",
+    "ethers": "^6.17.0"
+  },
+  "private": true
+}

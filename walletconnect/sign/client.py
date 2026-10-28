@@ -38,6 +38,7 @@ from walletconnect.relay.client import RelayClient, RelayMessage
 from walletconnect.storage.kv import KeyValueStorage
 from walletconnect.types import Metadata, ProposalNamespace
 from walletconnect.utils.ids import payload_id
+from walletconnect.utils.rpc_id import coerce_rpc_id
 
 logger = logging.getLogger(__name__)
 
@@ -422,7 +423,12 @@ class SignClient:
         request_id = payload.get("id")
         if request_id is None:
             return
-        fut = self._pending.get(int(request_id))
+        try:
+            pending_key = coerce_rpc_id(request_id)
+        except ValueError:
+            logger.debug("Ignoring message with invalid id: %r", request_id)
+            return
+        fut = self._pending.get(pending_key)
         if fut is None or fut.done():
             return
         if "error" in payload:
