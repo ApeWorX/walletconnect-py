@@ -68,6 +68,15 @@ python examples/terminal_connect.py
 
 Scan the QR with MetaMask / Rainbow / etc., approve the session, then approve `personal_sign` on the phone.
 
+Async Cyclopts variant (uses `SignClient` instead of `SyncSignClient`):
+
+```bash
+uv sync --extra cli
+export WALLETCONNECT_PROJECT_ID=your_32_char_project_id
+uv run --extra cli python examples/async_cli.py
+# or: uv run --with 'cyclopts>=3,<6' --extra qr python examples/async_cli.py
+```
+
 ```python
 from walletconnect.qr import print_qr
 from walletconnect.sign import SyncSignClient
