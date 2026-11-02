@@ -107,6 +107,11 @@ class RelayClient:
     def connected(self) -> bool:
         return self._connected and self._ws is not None
 
+    @property
+    def subscriptions(self) -> dict[str, str]:
+        """Active subscriptions as ``{topic: subscription_id}`` (a copy)."""
+        return dict(self._subscriptions)
+
     def on_message(self, handler: MessageHandler) -> None:
         """Register a callback invoked for every ``irn_subscription`` message."""
         self._handlers.append(handler)

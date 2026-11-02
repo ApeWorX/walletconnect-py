@@ -15,7 +15,6 @@ from walletconnect.crypto.keys import derive_sym_key, generate_key_pair, topic_f
 from walletconnect.pairing.uri import PairingURI
 from walletconnect.relay.client import RelayClient
 from walletconnect.sign.client import SignClient
-from walletconnect.storage import KeyValueStorage
 from walletconnect.types import Metadata
 from walletconnect.utils.ids import payload_id
 
@@ -27,6 +26,7 @@ async def scripted_wallet(
     project_id: str = "test",
     account: str = "eip155:1:0x1111111111111111111111111111111111111111",
     seen: dict | None = None,
+    n_requests: int = 1,
 ) -> None:
     """Minimal wallet: answer propose, settle, then answer personal_sign."""
     uri = PairingURI.parse(uri_str)
@@ -67,8 +67,10 @@ async def scripted_wallet(
         )
 
         done = asyncio.Event()
+        answered = 0
 
         async def on_session(message) -> None:
+            nonlocal answered
             if message.topic != session_topic:
                 return
             payload = decode_jsonrpc(message.message, sym_key=sym_key)
@@ -85,7 +87,9 @@ async def scripted_wallet(
                     ttl=ropts.ttl,
                     tag=ropts.tag,
                 )
-                done.set()
+                answered += 1
+                if answered >= n_requests:
+                    done.set()
 
         wallet.on_message(on_session)
         await wallet.subscribe(session_topic)
@@ -124,6 +128,10 @@ async def scripted_wallet(
             tag=sopts.tag,
         )
 
+        if seen is not None:
+            seen["session_topic"] = session_topic
+            seen["sym_key"] = sym_key
+            seen["wallet"] = wallet
         await asyncio.wait_for(done.wait(), timeout=10)
 
 
@@ -133,7 +141,6 @@ async def test_connect_and_personal_sign(tmp_path):
         client = SignClient(
             project_id="test",
             relay_url=base_url,
-            storage=KeyValueStorage(tmp_path),
             metadata=Metadata(name="test-dapp", description="", url="", icons=[]),
             connect_timeout=10,
             request_timeout=10,
@@ -155,7 +162,6 @@ async def _propose_metadata(tmp_path, metadata) -> dict:
         client = SignClient(
             project_id="test",
             relay_url=base_url,
-            storage=KeyValueStorage(tmp_path),
             metadata=metadata,
             connect_timeout=10,
             request_timeout=10,
@@ -210,7 +216,7 @@ def test_sync_client_accepts_metadata(tmp_path):
     from walletconnect.sign import SyncSignClient
 
     meta = Metadata.default(name="WalletConnect CLI Demo")
-    client = SyncSignClient(project_id="test", metadata=meta, storage=KeyValueStorage(tmp_path))
+    client = SyncSignClient(project_id="test", metadata=meta)
     try:
         assert client.metadata is meta
         assert client._client.metadata.name == "WalletConnect CLI Demo"

@@ -93,6 +93,11 @@ sig = client.personal_sign("hello", session.eip155_accounts[0].split(":")[-1])
 client.close()
 ```
 
+The client is stateless: it never writes to disk. To keep sessions across restarts, save
+`client.export_state().model_dump_json()` wherever you like (file, database, S3) and pass it back
+with `SyncSignClient(state=ClientState.model_validate_json(blob))`. The state contains secret
+keys, so store it securely. See the [connecting guide](docs/userguides/connecting.md).
+
 Lower-level helpers still work without a relay connection:
 
 ```python

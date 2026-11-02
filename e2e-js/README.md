@@ -24,6 +24,7 @@ cd .. && uv sync --group test
 cd e2e-js
 ./run.sh                 # personal_sign only
 ./run.sh --typed-data    # + eth_signTypedData_v4
+./run.sh --typed-data --restore  # export state, resume in a new client, then sign
 ```
 
 Exit `0` and `[run] E2E PASSED` mean pair → settle → sign succeeded.

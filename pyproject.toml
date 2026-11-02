@@ -28,7 +28,6 @@ dependencies = [
     "pydantic>=2.6,<3",
     "cryptography>=42,<47",
     "websockets>=13,<16",
-    "platformdirs>=4,<5",
 ]
 dynamic = ["version"]
 

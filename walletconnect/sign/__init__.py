@@ -1,6 +1,7 @@
 """WalletConnect Sign API (dApp / proposer side)."""
 
-from .client import Session, SignClient
+from .client import SignClient
+from .state import ClientState, Session
 from .sync import SyncSignClient
 
-__all__ = ["Session", "SignClient", "SyncSignClient"]
+__all__ = ["ClientState", "Session", "SignClient", "SyncSignClient"]

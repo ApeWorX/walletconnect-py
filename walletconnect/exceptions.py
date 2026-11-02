@@ -56,6 +56,14 @@ class WalletConnectTimeoutError(WalletConnectError, TimeoutError):
     """Raised when the peer or relay does not respond in time."""
 
 
+class NoActiveSessionError(WalletConnectError):
+    """Raised when a call needs a session but none (or several, without ``topic=``) exist."""
+
+
+class SessionExpiredError(WalletConnectError):
+    """Raised when using a session whose ``expiry`` has passed (it is dropped from state)."""
+
+
 class SdkError(WalletConnectError):
     """
     An error returned by the peer as a JSON-RPC error with a WalletConnect SDK error code.

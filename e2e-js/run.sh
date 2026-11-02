@@ -26,10 +26,13 @@ rm -f "$URI_FILE" "$DONE_FILE"
 
 TYPED_ARGS=()
 WALLET_TYPED=()
-if [[ "${1:-}" == "--typed-data" ]]; then
-  TYPED_ARGS=(--typed-data)
-  WALLET_TYPED=(--typed-data)
-fi
+for arg in "$@"; do
+  case "$arg" in
+    --typed-data) TYPED_ARGS+=(--typed-data); WALLET_TYPED=(--typed-data) ;;
+    --restore) TYPED_ARGS+=(--restore) ;;
+    *) echo "unknown arg: $arg" >&2; exit 2 ;;
+  esac
+done
 
 cleanup() {
   if [[ -n "${WALLET_PID:-}" ]] && kill -0 "$WALLET_PID" 2>/dev/null; then
@@ -42,13 +45,13 @@ trap cleanup EXIT
 
 cd "$ROOT"
 echo "[run] starting JS wallet…"
-E2E_EXPECT_DAPP_NAME="${E2E_EXPECT_DAPP_NAME:-walletconnect-py e2e dApp}" node wallet.mjs --uri-file "$URI_FILE" --done-file "$DONE_FILE" "${WALLET_TYPED[@]}" &
+E2E_EXPECT_DAPP_NAME="${E2E_EXPECT_DAPP_NAME:-walletconnect-py e2e dApp}" node wallet.mjs --uri-file "$URI_FILE" --done-file "$DONE_FILE" ${WALLET_TYPED[@]+"${WALLET_TYPED[@]}"} &
 WALLET_PID=$!
 
 echo "[run] starting Python dApp…"
 cd "$REPO"
 set +e
-uv run python "$ROOT/dapp.py" --uri-file "$URI_FILE" "${TYPED_ARGS[@]}"
+uv run python "$ROOT/dapp.py" --uri-file "$URI_FILE" ${TYPED_ARGS[@]+"${TYPED_ARGS[@]}"}
 DAPP_RC=$?
 set -e
 
