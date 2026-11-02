@@ -91,6 +91,7 @@ const proposalHandled = new Promise((resolve, reject) => {
       console.log(`[wallet] session_proposal id=${proposal.id}`);
       const pm = proposal.params.proposer?.metadata ?? {};
       console.log(`[wallet] proposer name=${JSON.stringify(pm.name)} url=${JSON.stringify(pm.url)}`);
+      console.log(`[wallet] verifyContext=${JSON.stringify(proposal.verifyContext?.verified)}`);
       const want = process.env.E2E_EXPECT_DAPP_NAME;
       if (want && pm.name !== want) {
         throw new Error(`proposer metadata name ${JSON.stringify(pm.name)} != ${JSON.stringify(want)}`);

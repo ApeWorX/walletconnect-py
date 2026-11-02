@@ -198,8 +198,12 @@ async def test_dict_metadata_sent_in_proposal(tmp_path):
 async def test_default_metadata_sent_in_proposal(tmp_path):
     sent = await _propose_metadata(tmp_path, None)
     assert sent == Metadata.default().to_json()
-    assert sent["name"] == "walletconnect-py"
-    assert "github.com" not in sent["url"]
+    assert sent == {
+        "name": "WalletConnect Python App",
+        "description": "A Python application connecting over WalletConnect",
+        "url": "https://example.com",
+        "icons": [],
+    }
 
 
 def test_sync_client_accepts_metadata(tmp_path):
@@ -212,3 +216,29 @@ def test_sync_client_accepts_metadata(tmp_path):
         assert client._client.metadata.name == "WalletConnect CLI Demo"
     finally:
         client.close()
+
+
+def test_outbound_metadata_validation(tmp_path, caplog):
+    import logging
+
+    from walletconnect.sign.client import _resolve_metadata
+
+    with pytest.raises(ValueError, match="name"):
+        _resolve_metadata(Metadata(name="  ", url="https://example.com"))
+    with pytest.raises(ValueError, match="http"):
+        _resolve_metadata({"name": "x", "url": "example.com"})
+    with caplog.at_level(logging.WARNING, logger="walletconnect.sign.client"):
+        meta = _resolve_metadata(Metadata(name="x", url=""))
+    assert meta.url == ""
+    assert "MetaMask" in caplog.text
+
+
+def test_default_metadata_logs_nudge(caplog):
+    import logging
+
+    from walletconnect.sign.client import _resolve_metadata
+
+    with caplog.at_level(logging.INFO, logger="walletconnect.sign.client"):
+        meta = _resolve_metadata(None)
+    assert meta == Metadata.default()
+    assert "Pass metadata=" in caplog.text

@@ -17,6 +17,8 @@ from typing import Any
 from walletconnect.constants import (
     DEFAULT_EIP155_EVENTS,
     DEFAULT_EIP155_METHODS,
+    DEFAULT_METADATA_NAME,
+    DEFAULT_METADATA_URL,
     DEFAULT_RELAY_URL,
     EIP155_NAMESPACE,
     PAIRING_PROPOSAL_EXPIRY,
@@ -104,15 +106,27 @@ class Session:
 
 
 def _resolve_metadata(metadata: Metadata | dict[str, Any] | None) -> Metadata:
-    if isinstance(metadata, Metadata):
-        return metadata
+    """Return the outbound dApp metadata, validating what wallets will see."""
     if metadata is None:
         logger.info(
-            "No dApp metadata passed; wallets will show the walletconnect-py default. "
-            "Pass metadata=Metadata(name=..., url=...) to identify your app."
+            "No dApp metadata passed; wallets will show the neutral default "
+            "(%r, %s). Pass metadata=Metadata(name=..., url=...) to identify your app.",
+            DEFAULT_METADATA_NAME,
+            DEFAULT_METADATA_URL,
         )
         return Metadata.default()
-    return Metadata.model_validate(metadata)
+
+    resolved = metadata if isinstance(metadata, Metadata) else Metadata.model_validate(metadata)
+    if not resolved.name.strip():
+        raise ValueError("metadata name must not be empty")
+    if not resolved.url.strip():
+        logger.warning(
+            "dApp metadata url is empty; some wallets (e.g. MetaMask Mobile) reject session "
+            "proposals without a valid url. Set metadata url to your app's https URL."
+        )
+    elif not resolved.url.startswith(("https://", "http://")):
+        raise ValueError("metadata url must be an http(s) URL, e.g. 'https://example.com'")
+    return resolved
 
 
 class SignClient:

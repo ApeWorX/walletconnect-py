@@ -26,11 +26,14 @@ PROJECT_ID_ENV_VAR: Final = "WALLETCONNECT_PROJECT_ID"
 PROJECT_ID_URL: Final = "https://cloud.reown.com"
 """Where users create a (free) project ID."""
 
-# Default dApp metadata (shown by wallets when the caller does not pass ``metadata=``)
-DEFAULT_METADATA_NAME: Final = "walletconnect-py"
-DEFAULT_METADATA_DESCRIPTION: Final = "Python WalletConnect v2 client"
-DEFAULT_METADATA_URL: Final = "https://www.apeworx.io"
-DEFAULT_METADATA_ICONS: Final = ("https://www.apeworx.io/assets/logo.png",)
+# Default dApp metadata, sent when the caller does not pass ``metadata=``.
+# Deliberately brand-neutral: it must not borrow the credibility of any real organization.
+# ``url`` uses the RFC 2606 reserved domain because an empty url is rejected by some wallets
+# (MetaMask Mobile rejects session proposals whose metadata url is not a valid URL).
+DEFAULT_METADATA_NAME: Final = "WalletConnect Python App"
+DEFAULT_METADATA_DESCRIPTION: Final = "A Python application connecting over WalletConnect"
+DEFAULT_METADATA_URL: Final = "https://example.com"
+DEFAULT_METADATA_ICONS: Final[tuple[str, ...]] = ()
 
 # Protocol version (as used in the pairing URI, e.g. ``wc:<topic>@2?...``)
 PROTOCOL_VERSION: Final = 2

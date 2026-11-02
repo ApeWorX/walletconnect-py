@@ -7,8 +7,10 @@ wallet to approve on the phone.
 
 ## Requirements
 
-- A project ID from [Reown Cloud](https://cloud.reown.com). Pass it as `project_id=` or set the
-  `WALLETCONNECT_PROJECT_ID` environment variable.
+- A project ID. For connection-only use (like this library) create it on the
+  [WalletConnect Dashboard](https://dashboard.walletconnect.com); IDs created on the older
+  Reown Cloud / [Reown Dashboard](https://dashboard.reown.com) work too. Pass it as `project_id=`
+  or set the `WALLETCONNECT_PROJECT_ID` environment variable.
 - The optional `qr` extra if you want terminal QR codes: `pip install "walletconnect[qr]"`.
 
 ## Synchronous client
@@ -80,9 +82,15 @@ Every session proposal carries your dApp's metadata (`proposer.metadata` in
 - `description` is shown by some wallets on the connect screen.
 
 Pass `metadata=` to `SignClient` or `SyncSignClient` (a `Metadata` model or an equivalent dict).
-If you omit it, the library sends a neutral default (`Metadata.default()`: name
-`walletconnect-py`, url `https://www.apeworx.io`). `Metadata.default(name=...)` keeps the default
-fields and overrides just the ones you pass.
+If you omit it, the library sends a deliberately brand-neutral default (`Metadata.default()`):
+name `WalletConnect Python App`, url `https://example.com`, and no icon. Applications should
+always set their own metadata; the client logs a hint when the default is used.
+`Metadata.default(name=...)` keeps the default fields and overrides just the ones you pass.
+
+The default url is the [RFC 2606](https://www.rfc-editor.org/rfc/rfc2606) reserved domain
+`example.com` rather than an empty string because some wallets reject proposals without a valid
+url (MetaMask Mobile rejects session proposals whose metadata url is not a valid URL). The client
+raises `ValueError` for a non-http(s) url and logs a warning if you pass an empty one.
 
 ### Example: an Ape plugin
 
