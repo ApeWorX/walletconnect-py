@@ -21,10 +21,10 @@ USER_AGENT: Final = "walletconnect-py/0.x"
 """Sent as the ``ua`` query param on the relay WebSocket."""
 
 PROJECT_ID_ENV_VAR: Final = "WALLETCONNECT_PROJECT_ID"
-"""Environment variable used as a fallback source for the Reown project ID."""
+"""Environment variable used as a fallback source for the WalletConnect project ID."""
 
-PROJECT_ID_URL: Final = "https://cloud.reown.com"
-"""Where users create a (free) project ID."""
+PROJECT_ID_URL: Final = "https://dashboard.walletconnect.com"
+"""Where users create a (free) project ID (the WalletConnect Dashboard)."""
 
 # Default dApp metadata, sent when the caller does not pass ``metadata=``.
 # Deliberately brand-neutral: it must not borrow the credibility of any real organization.

@@ -15,11 +15,11 @@ class WalletConnectError(Exception):
 
 
 class MissingProjectIdError(WalletConnectError):
-    """Raised when no Reown project ID was provided."""
+    """Raised when no WalletConnect project ID was provided."""
 
     def __init__(self) -> None:
         super().__init__(
-            "A WalletConnect (Reown) project ID is required. Create a free project at "
+            "A WalletConnect project ID is required. Create a free project at "
             f"{PROJECT_ID_URL} and pass `project_id=...` or set ${PROJECT_ID_ENV_VAR}."
         )
 

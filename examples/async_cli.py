@@ -3,7 +3,7 @@
 Async Cyclopts CLI: pair a mobile wallet with SignClient, then personal_sign.
 
 Usage:
-  export WALLETCONNECT_PROJECT_ID=your_32_char_id   # from https://cloud.reown.com
+  export WALLETCONNECT_PROJECT_ID=your_32_char_id   # from https://dashboard.walletconnect.com
   # or: set -a && source .env.local && set +a
   uv run --extra cli python examples/async_cli.py
   # or without installing the extra:
@@ -72,7 +72,7 @@ async def connect(
     ] = False,
     origin: Annotated[
         str | None,
-        Parameter(help="Origin header if the Reown project allowlists one"),
+        Parameter(help="Origin header if the project allowlists one"),
     ] = None,
     name: Annotated[str, Parameter(help="dApp name shown in the wallet")] = (
         "WalletConnect CLI Demo"
@@ -95,7 +95,7 @@ async def connect(
     if not project_id:
         print(
             "Set WALLETCONNECT_PROJECT_ID or pass --project-id "
-            "(create a free project at https://cloud.reown.com).",
+            "(create a free project at https://dashboard.walletconnect.com).",
             file=sys.stderr,
         )
         return 1

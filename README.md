@@ -11,7 +11,7 @@ and relay signing requests to them.
 > for manual testing; APIs may still change.
 
 - **Target:** WalletConnect v2 / Reown **Sign API** (default relay `wss://relay.walletconnect.org`, `irn` JSON-RPC,
-  X25519 + ChaCha20-Poly1305 envelopes, a project ID from [cloud.reown.com](https://cloud.reown.com)).
+  X25519 + ChaCha20-Poly1305 envelopes, a project ID from the [WalletConnect Dashboard](https://dashboard.walletconnect.com)).
 - **WalletConnect v1 is dead.** The v1 bridge servers were shut down, and this library will never
   implement the v1 protocol.
   The `0.1.0a0` release on PyPI is an empty pre-v2 skeleton and should not be used.
@@ -47,7 +47,8 @@ uv run prek install
 
 ### Terminal → mobile wallet (manual demo)
 
-1. Create a free project at [cloud.reown.com](https://cloud.reown.com) and copy the project ID.
+1. Create a free project on the [WalletConnect Dashboard](https://dashboard.walletconnect.com) and copy the
+   project ID. Existing project IDs from Reown Cloud / the Reown Dashboard keep working.
 2. Install from this repo (with the optional QR extra):
 
 ```bash

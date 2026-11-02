@@ -3,7 +3,7 @@
 Connect a Python terminal to a mobile WalletConnect v2 wallet.
 
 Usage:
-  export WALLETCONNECT_PROJECT_ID=your_32_char_id   # from https://cloud.reown.com
+  export WALLETCONNECT_PROJECT_ID=your_32_char_id   # from https://dashboard.walletconnect.com
   uv run --extra qr python examples/terminal_connect.py
   # or: pip install 'walletconnect[qr]' && python examples/terminal_connect.py
 
@@ -31,7 +31,7 @@ def main() -> int:
         help="Message for personal_sign",
     )
     parser.add_argument(
-        "--origin", default=None, help="Origin header if the Reown project allowlists one"
+        "--origin", default=None, help="Origin header if the project allowlists one"
     )
     parser.add_argument(
         "--name", default="WalletConnect CLI Demo", help="dApp name shown in the wallet"
@@ -48,7 +48,7 @@ def main() -> int:
     if not args.project_id:
         print(
             "Set WALLETCONNECT_PROJECT_ID or pass --project-id "
-            "(create a free project at https://cloud.reown.com).",
+            "(create a free project at https://dashboard.walletconnect.com).",
             file=sys.stderr,
         )
         return 1
