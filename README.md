@@ -84,7 +84,8 @@ from walletconnect.types import Metadata
 
 client = SyncSignClient(
     project_id="...",  # or set WALLETCONNECT_PROJECT_ID
-    metadata=Metadata(name="my-script", description="", url="https://example.com", icons=[]),
+    # Shown in the wallet; many wallets display the url's host prominently.
+    metadata=Metadata(name="My Script", url="https://example.com"),
 )
 session = client.connect(chains=(1,), on_uri=print_qr)
 sig = client.personal_sign("hello", session.eip155_accounts[0].split(":")[-1])

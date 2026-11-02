@@ -23,10 +23,10 @@ from walletconnect.types import Metadata
 
 client = SyncSignClient(
     metadata=Metadata(
-        name="my-script",
+        name="My Script",  # shown in the wallet
         description="Signs things from Python",
-        url="https://example.com",
-        icons=[],
+        url="https://example.com",  # many wallets show this host prominently
+        icons=["https://example.com/icon.png"],
     ),
 )
 
@@ -53,10 +53,11 @@ import asyncio
 
 from walletconnect.qr import print_qr
 from walletconnect.sign import SignClient
+from walletconnect.types import Metadata
 
 
 async def main() -> None:
-    client = SignClient()
+    client = SignClient(metadata=Metadata(name="My Async App", url="https://example.com"))
     uri, session_task = await client.connect(chains=(1, 10))
     print_qr(uri)
     session = await client.wait_for_session(session_task)
@@ -66,6 +67,47 @@ async def main() -> None:
 
 asyncio.run(main())
 ```
+
+## App metadata (what the wallet shows)
+
+Every session proposal carries your dApp's metadata (`proposer.metadata` in
+`wc_sessionPropose`). Wallets show it on the connect sheet and on signing prompts:
+
+- `name` and `icons` appear on most wallets' connect screens.
+- The **host of `url`** is shown prominently by many wallets (MetaMask shows
+  "Request from example.com"). If you point `url` at a GitHub repo, the wallet says the request
+  comes from `github.com`.
+- `description` is shown by some wallets on the connect screen.
+
+Pass `metadata=` to `SignClient` or `SyncSignClient` (a `Metadata` model or an equivalent dict).
+If you omit it, the library sends a neutral default (`Metadata.default()`: name
+`walletconnect-py`, url `https://www.apeworx.io`). `Metadata.default(name=...)` keeps the default
+fields and overrides just the ones you pass.
+
+### Example: an Ape plugin
+
+```python
+from walletconnect import Metadata
+from walletconnect.sign import SyncSignClient
+
+client = SyncSignClient(
+    metadata=Metadata(
+        name="Ape",
+        description="Ape Framework account via WalletConnect",
+        url="https://www.apeworx.io",
+        icons=["https://www.apeworx.io/assets/logo.png"],
+    ),
+)
+```
+
+### Verify API and domain warnings
+
+WalletConnect's [Verify API](https://docs.reown.com/walletkit/web/verify) lets wallets check that a
+request really comes from the domain in `metadata.url`. Browser dApps get attested via their page
+origin; a Python process has no browser origin, so wallets will usually mark the request as
+**unverified** or "unknown domain". Some wallets also warn when `url` doesn't match the domains
+allowlisted for your project in Reown Cloud. This is expected for CLIs and scripts. To reduce
+warnings, use a `url` on a domain you control and list it under your project's allowed domains.
 
 ## Sending requests
 
@@ -101,3 +143,6 @@ The repository ships two runnable demos:
 - `examples/terminal_connect.py` uses `SyncSignClient`.
 - `examples/async_cli.py` is an async [Cyclopts](https://cyclopts.readthedocs.io) CLI (install the
   `cli` extra).
+
+Both show up in the wallet as "WalletConnect CLI Demo"; pass `--name`, `--url`, `--description`,
+and `--icon` to change what the wallet displays.

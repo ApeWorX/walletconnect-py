@@ -26,6 +26,7 @@ async def scripted_wallet(
     *,
     project_id: str = "test",
     account: str = "eip155:1:0x1111111111111111111111111111111111111111",
+    seen: dict | None = None,
 ) -> None:
     """Minimal wallet: answer propose, settle, then answer personal_sign."""
     uri = PairingURI.parse(uri_str)
@@ -43,6 +44,8 @@ async def scripted_wallet(
         wallet.on_message(on_msg)
         await wallet.subscribe(uri.topic)
         propose = await asyncio.wait_for(propose_box, timeout=5)
+        if seen is not None:
+            seen["propose"] = propose
         proposer_pub = propose["params"]["proposer"]["publicKey"]
 
         sym_key = derive_sym_key(wallet_key.private_key, proposer_pub)
@@ -144,3 +147,68 @@ async def test_connect_and_personal_sign(tmp_path):
         assert sig == "0xdeadbeef"
         await wallet_task
         await client.disconnect()
+
+
+async def _propose_metadata(tmp_path, metadata) -> dict:
+    seen: dict = {}
+    async with run_fake_relay() as (_fake, base_url):
+        client = SignClient(
+            project_id="test",
+            relay_url=base_url,
+            storage=KeyValueStorage(tmp_path),
+            metadata=metadata,
+            connect_timeout=10,
+            request_timeout=10,
+        )
+        uri, task = await client.connect(chains=(1,))
+        wallet_task = asyncio.create_task(scripted_wallet(base_url, uri, seen=seen))
+        session = await client.wait_for_session(task)
+        address = session.eip155_accounts[0].split(":")[-1]
+        await client.personal_sign("hi", address)
+        await wallet_task
+        await client.disconnect()
+    return seen["propose"]["params"]["proposer"]["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_custom_metadata_sent_in_proposal(tmp_path):
+    meta = Metadata(
+        name="Ape CLI",
+        description="Sign with ape",
+        url="https://apeworx.io",
+        icons=["https://apeworx.io/logo.png"],
+    )
+    sent = await _propose_metadata(tmp_path, meta)
+    assert sent == {
+        "name": "Ape CLI",
+        "description": "Sign with ape",
+        "url": "https://apeworx.io",
+        "icons": ["https://apeworx.io/logo.png"],
+    }
+
+
+@pytest.mark.asyncio
+async def test_dict_metadata_sent_in_proposal(tmp_path):
+    sent = await _propose_metadata(tmp_path, {"name": "Dict dApp", "url": "https://example.com"})
+    assert sent["name"] == "Dict dApp"
+    assert sent["url"] == "https://example.com"
+
+
+@pytest.mark.asyncio
+async def test_default_metadata_sent_in_proposal(tmp_path):
+    sent = await _propose_metadata(tmp_path, None)
+    assert sent == Metadata.default().to_json()
+    assert sent["name"] == "walletconnect-py"
+    assert "github.com" not in sent["url"]
+
+
+def test_sync_client_accepts_metadata(tmp_path):
+    from walletconnect.sign import SyncSignClient
+
+    meta = Metadata.default(name="WalletConnect CLI Demo")
+    client = SyncSignClient(project_id="test", metadata=meta, storage=KeyValueStorage(tmp_path))
+    try:
+        assert client.metadata is meta
+        assert client._client.metadata.name == "WalletConnect CLI Demo"
+    finally:
+        client.close()

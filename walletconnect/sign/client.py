@@ -103,8 +103,26 @@ class Session:
         )
 
 
+def _resolve_metadata(metadata: Metadata | dict[str, Any] | None) -> Metadata:
+    if isinstance(metadata, Metadata):
+        return metadata
+    if metadata is None:
+        logger.info(
+            "No dApp metadata passed; wallets will show the walletconnect-py default. "
+            "Pass metadata=Metadata(name=..., url=...) to identify your app."
+        )
+        return Metadata.default()
+    return Metadata.model_validate(metadata)
+
+
 class SignClient:
-    """Async dApp-side WalletConnect Sign client."""
+    """
+    Async dApp-side WalletConnect Sign client.
+
+    ``metadata`` identifies your app to the wallet (sent as ``proposer.metadata`` in
+    ``wc_sessionPropose``). Accepts a :class:`~walletconnect.types.Metadata` or an equivalent
+    dict; defaults to :meth:`Metadata.default`.
+    """
 
     def __init__(
         self,
@@ -118,19 +136,7 @@ class SignClient:
         connect_timeout: float = _CONNECT_TIMEOUT,
         request_timeout: float = _REQUEST_TIMEOUT,
     ) -> None:
-        self.metadata = (
-            metadata
-            if isinstance(metadata, Metadata)
-            else Metadata.model_validate(
-                metadata
-                or {
-                    "name": "walletconnect-py",
-                    "description": "Python WalletConnect v2 client",
-                    "url": "https://github.com/ApeWorX/walletconnect-py",
-                    "icons": [],
-                }
-            )
-        )
+        self.metadata = _resolve_metadata(metadata)
         self.storage = storage or KeyValueStorage()
         self.connect_timeout = connect_timeout
         self.request_timeout = request_timeout

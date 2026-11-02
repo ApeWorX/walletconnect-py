@@ -88,3 +88,28 @@ def test_validate_namespace_key(key):
 def test_validate_namespace_key_invalid():
     with pytest.raises(ValueError, match="Invalid CAIP-2"):
         validate_namespace_key("E!")
+
+
+def test_metadata_default_and_overrides():
+    from walletconnect.constants import DEFAULT_METADATA_NAME, DEFAULT_METADATA_URL
+    from walletconnect.types import Metadata
+
+    default = Metadata.default()
+    assert default.name == DEFAULT_METADATA_NAME
+    assert default.url == DEFAULT_METADATA_URL
+    custom = Metadata.default(name="WalletConnect CLI Demo", url=None)
+    assert custom.name == "WalletConnect CLI Demo"
+    assert custom.url == DEFAULT_METADATA_URL  # None overrides are ignored
+
+
+def test_metadata_validation():
+    import pytest
+    from pydantic import ValidationError
+
+    from walletconnect.types import Metadata
+
+    with pytest.raises(ValidationError, match="name"):
+        Metadata(name="  ")
+    with pytest.raises(ValidationError, match="http"):
+        Metadata(name="x", url="example.com")
+    assert Metadata(name="x", url="").url == ""

@@ -33,6 +33,16 @@ def main() -> int:
     parser.add_argument(
         "--origin", default=None, help="Origin header if the Reown project allowlists one"
     )
+    parser.add_argument(
+        "--name", default="WalletConnect CLI Demo", help="dApp name shown in the wallet"
+    )
+    parser.add_argument(
+        "--url",
+        default=None,
+        help="dApp URL shown in the wallet (many wallets display its host prominently)",
+    )
+    parser.add_argument("--description", default="Python terminal WalletConnect demo")
+    parser.add_argument("--icon", action="append", default=None, help="Icon URL (repeatable)")
     args = parser.parse_args()
 
     if not args.project_id:
@@ -59,11 +69,11 @@ def main() -> int:
 
     client = SyncSignClient(
         project_id=args.project_id,
-        metadata=Metadata(
-            name="walletconnect-py terminal",
-            description="Manual connect demo",
-            url="https://github.com/ApeWorX/walletconnect-py",
-            icons=[],
+        metadata=Metadata.default(
+            name=args.name,
+            description=args.description,
+            url=args.url,
+            icons=args.icon,
         ),
         origin=args.origin,
     )
