@@ -60,4 +60,5 @@ def test_user_rejection_codes():
 def test_missing_project_id_message():
     message = str(MissingProjectIdError())
     assert PROJECT_ID_ENV_VAR in message
-    assert "cloud.reown.com" in message
+    assert "dashboard.walletconnect.com" in message
+    assert "cloud.reown.com" not in message
