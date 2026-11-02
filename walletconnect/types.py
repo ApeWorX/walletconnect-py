@@ -10,7 +10,15 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from .constants import DEFAULT_EIP155_EVENTS, DEFAULT_EIP155_METHODS, RELAY_PROTOCOL
+from .constants import (
+    DEFAULT_EIP155_EVENTS,
+    DEFAULT_EIP155_METHODS,
+    DEFAULT_METADATA_DESCRIPTION,
+    DEFAULT_METADATA_ICONS,
+    DEFAULT_METADATA_NAME,
+    DEFAULT_METADATA_URL,
+    RELAY_PROTOCOL,
+)
 from .utils.caip import NAMESPACE_PATTERN, AccountId, ChainId
 
 
@@ -30,13 +38,45 @@ class Redirect(WalletConnectModel):
 
 
 class Metadata(WalletConnectModel):
-    """App or wallet metadata shown to the other peer."""
+    """
+    App or wallet metadata shown to the other peer.
+
+    For a dApp, wallets display this on the connection and signing prompts. Most wallets
+    show ``name`` and ``icons``; many (MetaMask in particular) show the **host of** ``url``
+    most prominently, e.g. "Request from example.com". Set all fields to your own app.
+    """
 
     name: str
     description: str = ""
     url: str = ""
     icons: list[str] = Field(default_factory=list)
     redirect: Redirect | None = None
+
+    @field_validator("name")
+    @classmethod
+    def _validate_name(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("metadata name must not be empty")
+        return value
+
+    @field_validator("url")
+    @classmethod
+    def _validate_url(cls, value: str) -> str:
+        if value and not value.startswith(("https://", "http://")):
+            raise ValueError("metadata url must be an http(s) URL, e.g. 'https://example.com'")
+        return value
+
+    @classmethod
+    def default(cls, **overrides: Any) -> "Metadata":
+        """Library default metadata, optionally overriding some fields (e.g. ``name=``)."""
+        data: dict[str, Any] = {
+            "name": DEFAULT_METADATA_NAME,
+            "description": DEFAULT_METADATA_DESCRIPTION,
+            "url": DEFAULT_METADATA_URL,
+            "icons": list(DEFAULT_METADATA_ICONS),
+        }
+        data.update({k: v for k, v in overrides.items() if v is not None})
+        return cls.model_validate(data)
 
 
 class Relay(WalletConnectModel):

@@ -42,7 +42,7 @@ trap cleanup EXIT
 
 cd "$ROOT"
 echo "[run] starting JS wallet…"
-node wallet.mjs --uri-file "$URI_FILE" --done-file "$DONE_FILE" "${WALLET_TYPED[@]}" &
+E2E_EXPECT_DAPP_NAME="${E2E_EXPECT_DAPP_NAME:-walletconnect-py e2e dApp}" node wallet.mjs --uri-file "$URI_FILE" --done-file "$DONE_FILE" "${WALLET_TYPED[@]}" &
 WALLET_PID=$!
 
 echo "[run] starting Python dApp…"

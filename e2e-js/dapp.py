@@ -69,7 +69,7 @@ def main() -> int:
         metadata=Metadata(
             name="walletconnect-py e2e dApp",
             description="E2E against @walletconnect/sign-client wallet",
-            url="https://github.com/ApeWorX/walletconnect-py",
+            url="https://www.apeworx.io",
             icons=[],
         ),
         storage=KeyValueStorage(args.storage),

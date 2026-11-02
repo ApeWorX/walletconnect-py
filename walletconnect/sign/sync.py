@@ -9,12 +9,18 @@ import threading
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any
 
-from walletconnect.constants import DEFAULT_EIP155_EVENTS, DEFAULT_EIP155_METHODS
+from walletconnect.constants import (
+    DEFAULT_EIP155_EVENTS,
+    DEFAULT_EIP155_METHODS,
+    DEFAULT_RELAY_URL,
+)
 
-from .client import Session, SignClient
+from .client import _CONNECT_TIMEOUT, _REQUEST_TIMEOUT, Session, SignClient
 
 if TYPE_CHECKING:
-    from walletconnect.types import ProposalNamespace
+    from walletconnect.crypto.jwt import AuthKeyPair
+    from walletconnect.storage import KeyValueStorage
+    from walletconnect.types import Metadata, ProposalNamespace
 
 
 class SyncSignClient:
@@ -25,13 +31,33 @@ class SyncSignClient:
     continue while the main thread blocks on ``connect()`` / ``request()``.
     """
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        project_id: str | None = None,
+        *,
+        metadata: Metadata | dict[str, Any] | None = None,
+        relay_url: str = DEFAULT_RELAY_URL,
+        storage: KeyValueStorage | None = None,
+        auth_key: AuthKeyPair | None = None,
+        origin: str | None = None,
+        connect_timeout: float = _CONNECT_TIMEOUT,
+        request_timeout: float = _REQUEST_TIMEOUT,
+    ) -> None:
         self._loop = asyncio.new_event_loop()
         self._thread = threading.Thread(
             target=self._run_loop, name="walletconnect-loop", daemon=True
         )
         self._thread.start()
-        self._client = SignClient(*args, **kwargs)
+        self._client = SignClient(
+            project_id,
+            metadata=metadata,
+            relay_url=relay_url,
+            storage=storage,
+            auth_key=auth_key,
+            origin=origin,
+            connect_timeout=connect_timeout,
+            request_timeout=request_timeout,
+        )
         self._closed = False
         atexit.register(self.close)
 
@@ -44,6 +70,11 @@ class SyncSignClient:
             raise RuntimeError("SyncSignClient is closed")
         fut = asyncio.run_coroutine_threadsafe(coro, self._loop)
         return fut.result()
+
+    @property
+    def metadata(self) -> Metadata:
+        """The dApp metadata sent to wallets in the session proposal."""
+        return self._client.metadata
 
     @property
     def session(self) -> Session | None:

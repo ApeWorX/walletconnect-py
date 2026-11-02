@@ -74,6 +74,20 @@ async def connect(
         str | None,
         Parameter(help="Origin header if the Reown project allowlists one"),
     ] = None,
+    name: Annotated[str, Parameter(help="dApp name shown in the wallet")] = (
+        "WalletConnect CLI Demo"
+    ),
+    url: Annotated[
+        str | None,
+        Parameter(help="dApp URL shown in the wallet (many wallets display its host)"),
+    ] = None,
+    description: Annotated[
+        str, Parameter(help="dApp description shown in the wallet")
+    ] = "Cyclopts async SignClient demo",
+    icon: Annotated[
+        list[str] | None,
+        Parameter(help="Icon URL shown in the wallet (repeatable)"),
+    ] = None,
 ) -> int:
     """Connect, show a terminal QR, wait for session, personal_sign, disconnect."""
     _load_dotenv_local()
@@ -92,12 +106,7 @@ async def connect(
 
     client = SignClient(
         project_id=project_id,
-        metadata=Metadata(
-            name="walletconnect-py async-cli",
-            description="Cyclopts async SignClient demo",
-            url="https://github.com/ApeWorX/walletconnect-py",
-            icons=[],
-        ),
+        metadata=Metadata.default(name=name, description=description, url=url, icons=icon),
         origin=origin,
     )
     try:
