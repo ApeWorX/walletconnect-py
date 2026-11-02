@@ -102,14 +102,20 @@ def test_metadata_default_and_overrides():
     assert custom.url == DEFAULT_METADATA_URL  # None overrides are ignored
 
 
-def test_metadata_validation():
-    import pytest
-    from pydantic import ValidationError
-
+def test_metadata_model_is_lenient_for_inbound_wallet_metadata():
     from walletconnect.types import Metadata
 
-    with pytest.raises(ValidationError, match="name"):
-        Metadata(name="  ")
-    with pytest.raises(ValidationError, match="http"):
-        Metadata(name="x", url="example.com")
-    assert Metadata(name="x", url="").url == ""
+    # Wallet-sent metadata must always parse, even if odd.
+    assert Metadata(name="", url="wallet.example").url == "wallet.example"
+
+
+def test_default_metadata_is_brand_neutral():
+    from walletconnect.types import Metadata
+
+    default = Metadata.default()
+    assert default.name == "WalletConnect Python App"
+    assert default.url == "https://example.com"  # RFC 2606 reserved domain
+    assert default.icons == []
+    blob = default.model_dump_json().lower()
+    for brand in ("apeworx", "walletconnect.com", "reown", "github"):
+        assert brand not in blob

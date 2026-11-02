@@ -44,6 +44,9 @@ class Metadata(WalletConnectModel):
     For a dApp, wallets display this on the connection and signing prompts. Most wallets
     show ``name`` and ``icons``; many (MetaMask in particular) show the **host of** ``url``
     most prominently, e.g. "Request from example.com". Set all fields to your own app.
+
+    The model is lenient so that metadata received *from* wallets always parses;
+    :class:`~walletconnect.sign.SignClient` validates the metadata it *sends*.
     """
 
     name: str
@@ -51,20 +54,6 @@ class Metadata(WalletConnectModel):
     url: str = ""
     icons: list[str] = Field(default_factory=list)
     redirect: Redirect | None = None
-
-    @field_validator("name")
-    @classmethod
-    def _validate_name(cls, value: str) -> str:
-        if not value.strip():
-            raise ValueError("metadata name must not be empty")
-        return value
-
-    @field_validator("url")
-    @classmethod
-    def _validate_url(cls, value: str) -> str:
-        if value and not value.startswith(("https://", "http://")):
-            raise ValueError("metadata url must be an http(s) URL, e.g. 'https://example.com'")
-        return value
 
     @classmethod
     def default(cls, **overrides: Any) -> "Metadata":

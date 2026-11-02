@@ -66,11 +66,11 @@ def main() -> int:
 
     client = SyncSignClient(
         project_id=args.project_id,
-        metadata=Metadata(
+        # Library default url unless E2E_DAPP_URL is set (e.g. E2E_DAPP_URL="" to test empty).
+        metadata=Metadata.default(
             name="walletconnect-py e2e dApp",
             description="E2E against @walletconnect/sign-client wallet",
-            url="https://www.apeworx.io",
-            icons=[],
+            url=os.environ.get("E2E_DAPP_URL"),
         ),
         storage=KeyValueStorage(args.storage),
         connect_timeout=90,
