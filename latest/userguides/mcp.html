@@ -89,8 +89,19 @@ data-aria-dark="Switch to auto color mode">
       <i class="i-lucide close"></i>
     </button>
     <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4"><div class="localtoc"><h3>On this page</h3><ul>
-<li><a class="reference internal" href="#run-it">Run it</a></li>
-<li><a class="reference internal" href="#tools">Tools</a></li>
+<li><a class="reference internal" href="#run-it">Run it</a><ul>
+<li><a class="reference internal" href="#claude-desktop">Claude Desktop</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tools">Tools</a><ul>
+<li><a class="reference internal" href="#pairing-and-the-qr-code">Pairing and the QR code</a></li>
+<li><a class="reference internal" href="#choosing-the-session-account-and-chain">Choosing the session, account and chain</a></li>
+<li><a class="reference internal" href="#typed-data">Typed data</a></li>
+<li><a class="reference internal" href="#amounts">Amounts</a></li>
+<li><a class="reference internal" href="#blocking-timeouts-and-errors">Blocking, timeouts and errors</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#planned-for-the-ape-plugin">Planned for the Ape plugin</a></li>
 <li><a class="reference internal" href="#testing">Testing</a></li>
 </ul>
 </div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div></div>
@@ -176,7 +187,7 @@ server (for example a Uniswap MCP) can reuse the same wallet tools instead of co
 <h2>Run it<a class="headerlink" href="#run-it" title="Link to this heading">#</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="nb">export</span><span class="w"> </span><span class="nv">WALLETCONNECT_PROJECT_ID</span><span class="o">=</span>your_32_char_id<span class="w">   </span><span class="c1"># from https://dashboard.walletconnect.com</span>
 </span><span data-line="2"><span class="nb">export</span><span class="w"> </span><span class="nv">WALLETCONNECT_STATE_FILE</span><span class="o">=</span>./wc-mcp.json<span class="w">     </span><span class="c1"># optional: keep sessions across restarts</span>
-</span><span data-line="3">uv<span class="w"> </span>run<span class="w"> </span>--group<span class="w"> </span>examples<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>examples.mcp_server
+</span><span data-line="3">uv<span class="w"> </span>run<span class="w"> </span>--group<span class="w"> </span>examples<span class="w"> </span>--extra<span class="w"> </span>qr<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>examples.mcp_server
 </span></pre></div>
 </div>
 <p>The server speaks MCP on stdin/stdout, and its logs go to stderr. Most MCP clients start it for you.
@@ -184,33 +195,61 @@ For example, in a client that uses the common <code class="docutils literal notr
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="p">{</span>
 </span><span data-line="2"><span class="w">  </span><span class="nt">"mcpServers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 </span><span data-line="3"><span class="w">    </span><span class="nt">"walletconnect"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span data-line="4"><span class="w">      </span><span class="nt">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uv"</span><span class="p">,</span>
+</span><span data-line="4"><span class="w">      </span><span class="nt">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/home/you/.local/bin/uv"</span><span class="p">,</span>
 </span><span data-line="5"><span class="w">      </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-</span><span data-line="6"><span class="w">        </span><span class="s2">"run"</span><span class="p">,</span><span class="w"> </span><span class="s2">"--directory"</span><span class="p">,</span><span class="w"> </span><span class="s2">"/path/to/walletconnect-py"</span><span class="p">,</span><span class="w"> </span><span class="s2">"--group"</span><span class="p">,</span><span class="w"> </span><span class="s2">"examples"</span><span class="p">,</span>
-</span><span data-line="7"><span class="w">        </span><span class="s2">"python"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-m"</span><span class="p">,</span><span class="w"> </span><span class="s2">"examples.mcp_server"</span>
-</span><span data-line="8"><span class="w">      </span><span class="p">],</span>
-</span><span data-line="9"><span class="w">      </span><span class="nt">"env"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span data-line="10"><span class="w">        </span><span class="nt">"WALLETCONNECT_PROJECT_ID"</span><span class="p">:</span><span class="w"> </span><span class="s2">"your_32_char_id"</span><span class="p">,</span>
-</span><span data-line="11"><span class="w">        </span><span class="nt">"WALLETCONNECT_STATE_FILE"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/path/to/wc-mcp.json"</span>
-</span><span data-line="12"><span class="w">      </span><span class="p">}</span>
-</span><span data-line="13"><span class="w">    </span><span class="p">}</span>
-</span><span data-line="14"><span class="w">  </span><span class="p">}</span>
-</span><span data-line="15"><span class="p">}</span>
+</span><span data-line="6"><span class="w">        </span><span class="s2">"run"</span><span class="p">,</span><span class="w"> </span><span class="s2">"--directory"</span><span class="p">,</span><span class="w"> </span><span class="s2">"/path/to/walletconnect-py"</span><span class="p">,</span>
+</span><span data-line="7"><span class="w">        </span><span class="s2">"--group"</span><span class="p">,</span><span class="w"> </span><span class="s2">"examples"</span><span class="p">,</span><span class="w"> </span><span class="s2">"--extra"</span><span class="p">,</span><span class="w"> </span><span class="s2">"qr"</span><span class="p">,</span>
+</span><span data-line="8"><span class="w">        </span><span class="s2">"python"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-m"</span><span class="p">,</span><span class="w"> </span><span class="s2">"examples.mcp_server"</span>
+</span><span data-line="9"><span class="w">      </span><span class="p">],</span>
+</span><span data-line="10"><span class="w">      </span><span class="nt">"env"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span data-line="11"><span class="w">        </span><span class="nt">"WALLETCONNECT_PROJECT_ID"</span><span class="p">:</span><span class="w"> </span><span class="s2">"your_32_char_id"</span><span class="p">,</span>
+</span><span data-line="12"><span class="w">        </span><span class="nt">"WALLETCONNECT_STATE_FILE"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/home/you/.local/share/wc-mcp.json"</span>
+</span><span data-line="13"><span class="w">      </span><span class="p">}</span>
+</span><span data-line="14"><span class="w">    </span><span class="p">}</span>
+</span><span data-line="15"><span class="w">  </span><span class="p">}</span>
+</span><span data-line="16"><span class="p">}</span>
 </span></pre></div>
 </div>
+<section id="claude-desktop">
+<h3>Claude Desktop<a class="headerlink" href="#claude-desktop" title="Link to this heading">#</a></h3>
+<p>On Linux the config file is <code class="docutils literal notranslate"><span class="pre">~/.config/Claude/claude_desktop_config.json</span></code> (also reachable from
+Claude’s Settings, under Developer, then Edit Config). Use the <strong>absolute path</strong> to <code class="docutils literal notranslate"><span class="pre">uv</span></code> (whatever
+<code class="docutils literal notranslate"><span class="pre">which</span> <span class="pre">uv</span></code> prints) as <code class="docutils literal notranslate"><span class="pre">command</span></code>: GUI apps often don’t inherit your shell’s <code class="docutils literal notranslate"><span class="pre">PATH</span></code>, and a bare
+<code class="docutils literal notranslate"><span class="pre">&quot;uv&quot;</span></code> fails with <code class="docutils literal notranslate"><span class="pre">spawn</span> <span class="pre">uv</span> <span class="pre">ENOENT</span></code>. Fully quit and reopen Claude Desktop after editing.</p>
 <p>Environment variables:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">WALLETCONNECT_PROJECT_ID</span></code> (required): your WalletConnect project ID.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">WALLETCONNECT_STATE_FILE</span></code> (optional): an explicit path. The server loads the client state from
 it on start and saves it on every change, with <code class="docutils literal notranslate"><span class="pre">0600</span></code> permissions. Without it, sessions only
 last as long as the process.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">WALLETCONNECT_QR_DIR</span></code> (optional): the folder where <code class="docutils literal notranslate"><span class="pre">pair</span></code> writes QR images. Without it, and
+without a <code class="docutils literal notranslate"><span class="pre">qr_path</span></code> argument, they go to a new file in the system temp directory.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">WALLETCONNECT_RELAY_URL</span></code> (optional): a different relay.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">WALLETCONNECT_REQUEST_TIMEOUT</span></code> (optional): how long to wait for the user to approve, in
 seconds. Defaults to 300.</p></li>
 </ul>
 </section>
+</section>
 <section id="tools">
 <h2>Tools<a class="headerlink" href="#tools" title="Link to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="n">pair</span><span class="p">(</span><span class="n">qr</span><span class="o">=</span><span class="s2">"png"</span><span class="p">,</span> <span class="n">qr_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_uri</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">include_image</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span data-line="2"><span class="n">wait_for_pairing</span><span class="p">(</span><span class="n">pairing_topic</span><span class="p">,</span> <span class="n">timeout_s</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+</span><span data-line="3"><span class="n">session_status</span><span class="p">(</span><span class="n">pairing_topic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">check_reachable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span data-line="4"><span class="n">disconnect</span><span class="p">(</span><span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span data-line="5"><span class="n">sign_message</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chain_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout_s</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span data-line="6"><span class="n">sign_typed_data</span><span class="p">(</span><span class="n">typed_data</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chain_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout_s</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span data-line="7"><span class="n">send_transaction</span><span class="p">(</span>
+</span><span data-line="8">    <span class="n">to</span><span class="p">,</span>
+</span><span data-line="9">    <span class="n">value_wei</span><span class="o">=</span><span class="s2">"0"</span><span class="p">,</span>
+</span><span data-line="10">    <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span data-line="11">    <span class="n">gas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span data-line="12">    <span class="n">from_address</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span data-line="13">    <span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span data-line="14">    <span class="n">chain_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span data-line="15">    <span class="n">timeout_s</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span data-line="16"><span class="p">)</span>
+</span></pre></div>
+</div>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
@@ -220,45 +259,162 @@ seconds. Defaults to 300.</p></li>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pair</span></code></p></td>
-<td><p>Starts a pairing. Returns the <code class="docutils literal notranslate"><span class="pre">wc:</span></code> URI, a <code class="docutils literal notranslate"><span class="pre">pairing_topic</span></code> and a QR code: <code class="docutils literal notranslate"><span class="pre">qr=&quot;text&quot;</span></code> (Unicode blocks), <code class="docutils literal notranslate"><span class="pre">&quot;svg&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;none&quot;</span></code>.</p></td>
+<td><p>Starts a pairing (asking for <code class="docutils literal notranslate"><span class="pre">eip155:1</span></code>). Writes the QR code to a file and returns <code class="docutils literal notranslate"><span class="pre">qr_path</span></code>, <code class="docutils literal notranslate"><span class="pre">pairing_topic</span></code>, <code class="docutils literal notranslate"><span class="pre">expires_at</span></code> and <code class="docutils literal notranslate"><span class="pre">seconds_remaining</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">session_status</span></code></p></td>
-<td><p>Lists sessions (topic, wallet name, accounts, expiry, reachable). Pass <code class="docutils literal notranslate"><span class="pre">pairing_topic</span></code> to see if a pairing settled.</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">wait_for_pairing</span></code></p></td>
+<td><p>Waits up to <code class="docutils literal notranslate"><span class="pre">timeout_s</span></code> (max 300) for the wallet to approve. Returns <code class="docutils literal notranslate"><span class="pre">settled</span></code> (with the session), <code class="docutils literal notranslate"><span class="pre">failed</span></code> (with <code class="docutils literal notranslate"><span class="pre">error</span></code>) or <code class="docutils literal notranslate"><span class="pre">pending</span></code> with seconds left.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">session_status</span></code></p></td>
+<td><p>Lists sessions: topic, wallet name, accounts, approved <code class="docutils literal notranslate"><span class="pre">chains</span></code>, <code class="docutils literal notranslate"><span class="pre">expiry</span></code> (unix), <code class="docutils literal notranslate"><span class="pre">expiry_iso</span></code> (UTC), <code class="docutils literal notranslate"><span class="pre">expires_in_s</span></code>, <code class="docutils literal notranslate"><span class="pre">reachable</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">disconnect</span></code></p></td>
+<td><p>Ends a session: tells the wallet (<code class="docutils literal notranslate"><span class="pre">wc_sessionDelete</span></code>) and forgets it.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sign_message</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">personal_sign</span></code> for a text message. Returns <code class="docutils literal notranslate"><span class="pre">address</span></code> and <code class="docutils literal notranslate"><span class="pre">signature</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">personal_sign</span></code> for a text message. Returns <code class="docutils literal notranslate"><span class="pre">address</span></code>, <code class="docutils literal notranslate"><span class="pre">chain_id</span></code> and <code class="docutils literal notranslate"><span class="pre">signature</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sign_typed_data</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">eth_signTypedData_v4</span></code> for an EIP-712 object. Returns <code class="docutils literal notranslate"><span class="pre">address</span></code> and <code class="docutils literal notranslate"><span class="pre">signature</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">eth_signTypedData_v4</span></code> for an EIP-712 object. Returns <code class="docutils literal notranslate"><span class="pre">address</span></code>, <code class="docutils literal notranslate"><span class="pre">chain_id</span></code>, <code class="docutils literal notranslate"><span class="pre">signature</span></code>, <code class="docutils literal notranslate"><span class="pre">added_eip712_domain</span></code> and, when needed, <code class="docutils literal notranslate"><span class="pre">warnings</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">send_transaction</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">eth_sendTransaction</span></code> with <code class="docutils literal notranslate"><span class="pre">to</span></code>, <code class="docutils literal notranslate"><span class="pre">value_wei</span></code>, <code class="docutils literal notranslate"><span class="pre">data</span></code> and <code class="docutils literal notranslate"><span class="pre">gas</span></code>. The wallet signs and broadcasts the transaction, and the tool returns <code class="docutils literal notranslate"><span class="pre">tx_hash</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">eth_sendTransaction</span></code> with <code class="docutils literal notranslate"><span class="pre">to</span></code>, <code class="docutils literal notranslate"><span class="pre">value_wei</span></code>, <code class="docutils literal notranslate"><span class="pre">data</span></code> and <code class="docutils literal notranslate"><span class="pre">gas</span></code>. The wallet signs and broadcasts the transaction, and the tool returns <code class="docutils literal notranslate"><span class="pre">tx_hash</span></code> (only that).</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>The signing tools pick the only open session and its first account unless you pass <code class="docutils literal notranslate"><span class="pre">topic</span></code>,
-<code class="docutils literal notranslate"><span class="pre">address</span></code> / <code class="docutils literal notranslate"><span class="pre">from_address</span></code>, or <code class="docutils literal notranslate"><span class="pre">chain_id</span></code> (CAIP-2, such as <code class="docutils literal notranslate"><span class="pre">eip155:1</span></code>). A rejection, a timeout, or a
-session that has ended comes back as a tool error the assistant can read, so it can tell the user
-or call <code class="docutils literal notranslate"><span class="pre">pair</span></code> again. With <code class="docutils literal notranslate"><span class="pre">check_reachable=true</span></code>, <code class="docutils literal notranslate"><span class="pre">session_status</span></code> pings each wallet first.</p>
-<p>The QR code needs the <code class="docutils literal notranslate"><span class="pre">qr</span></code> extra (<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;walletconnect[qr]&quot;</span></code>). Without it, <code class="docutils literal notranslate"><span class="pre">qr</span></code> is
-<code class="docutils literal notranslate"><span class="pre">null</span></code> and the URI still works: paste it into the wallet.</p>
+<section id="pairing-and-the-qr-code">
+<h3>Pairing and the QR code<a class="headerlink" href="#pairing-and-the-qr-code" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">pair</span></code> writes a PNG by default (<code class="docutils literal notranslate"><span class="pre">qr=&quot;svg&quot;</span></code> for SVG; both are drawn by <code class="docutils literal notranslate"><span class="pre">segno</span></code>, so no Pillow is
+needed). The file goes to <code class="docutils literal notranslate"><span class="pre">qr_path</span></code> if you pass one, else <code class="docutils literal notranslate"><span class="pre">$WALLETCONNECT_QR_DIR</span></code>, else a new file
+in the system temp directory. It’s written with <code class="docutils literal notranslate"><span class="pre">0600</span></code> permissions and deleted as soon as the
+pairing settles or fails, or the server stops. With <code class="docutils literal notranslate"><span class="pre">include_image=true</span></code> (the default) the PNG is
+also attached to the result as an MCP image, so clients that render images can show it directly
+and the assistant never copies QR data by hand. <code class="docutils literal notranslate"><span class="pre">qr=&quot;text&quot;</span></code> returns Unicode blocks inline for a
+terminal instead, and <code class="docutils literal notranslate"><span class="pre">qr=&quot;none&quot;</span></code> makes no QR at all. The QR needs the <code class="docutils literal notranslate"><span class="pre">qr</span></code> extra
+(<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;walletconnect[qr]&quot;</span></code>).</p>
+<p>After showing the QR, call <code class="docutils literal notranslate"><span class="pre">wait_for_pairing(pairing_topic)</span></code>. It returns as soon as the wallet
+approves. If it’s still <code class="docutils literal notranslate"><span class="pre">pending</span></code> when <code class="docutils literal notranslate"><span class="pre">timeout_s</span></code> runs out, it says how many seconds the pairing
+has left, and the assistant can call it again. A pairing expires after 5 minutes; after that, call
+<code class="docutils literal notranslate"><span class="pre">pair</span></code> again. (<code class="docutils literal notranslate"><span class="pre">pair</span></code> itself doesn’t wait, because the assistant can only show the QR once the tool
+has returned.)</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">wc:</span></code> URI contains the pairing’s symmetric key (<code class="docutils literal notranslate"><span class="pre">symKey</span></code>). It’s a short-lived secret: anyone
+who sees it before the wallet scans it could answer the pairing. It’s useless once the pairing has
+settled or expired (5 minutes), but it does stay in the chat transcript. Pass <code class="docutils literal notranslate"><span class="pre">include_uri=false</span></code>
+to leave it out of the result and rely on the QR file or image. The QR encodes the same URI, which
+is why its file is private and short-lived.</p>
+</div>
+</section>
+<section id="choosing-the-session-account-and-chain">
+<h3>Choosing the session, account and chain<a class="headerlink" href="#choosing-the-session-account-and-chain" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Session:</strong> <code class="docutils literal notranslate"><span class="pre">topic</span></code> is optional when exactly one session is open. With several sessions and no
+<code class="docutils literal notranslate"><span class="pre">topic</span></code>, the tool fails with <code class="docutils literal notranslate"><span class="pre">ambiguous_session:</span></code> and lists each topic with its wallet name.
+<code class="docutils literal notranslate"><span class="pre">disconnect</span></code> follows the same rule.</p></li>
+<li><p><strong>Account:</strong> <code class="docutils literal notranslate"><span class="pre">address</span></code> / <code class="docutils literal notranslate"><span class="pre">from_address</span></code> defaults to the session’s first <code class="docutils literal notranslate"><span class="pre">eip155</span></code> account, and
+must be one of the session’s accounts.</p></li>
+<li><p><strong>Chain:</strong> <code class="docutils literal notranslate"><span class="pre">chain_id</span></code> is a CAIP-2 id such as <code class="docutils literal notranslate"><span class="pre">&quot;eip155:1&quot;</span></code>. A bare number (<code class="docutils literal notranslate"><span class="pre">&quot;1&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">1</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;0x1&quot;</span></code>)
+is accepted too and normalized. It defaults to the chain of the chosen account and must be one of
+the session’s approved chains (see <code class="docutils literal notranslate"><span class="pre">chains</span></code> in <code class="docutils literal notranslate"><span class="pre">session_status</span></code>), otherwise the tool fails with
+<code class="docutils literal notranslate"><span class="pre">unapproved_chain:</span></code>. To use another chain, pair again.</p></li>
+</ul>
+</section>
+<section id="typed-data">
+<h3>Typed data<a class="headerlink" href="#typed-data" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">typed_data</span></code> is an object with <code class="docutils literal notranslate"><span class="pre">types</span></code>, <code class="docutils literal notranslate"><span class="pre">primaryType</span></code>, <code class="docutils literal notranslate"><span class="pre">domain</span></code> and <code class="docutils literal notranslate"><span class="pre">message</span></code>. If
+<code class="docutils literal notranslate"><span class="pre">types.EIP712Domain</span></code> is missing, the tool <strong>adds it</strong> from the fields present in <code class="docutils literal notranslate"><span class="pre">domain</span></code>, in the
+standard order (<code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">version</span></code>, <code class="docutils literal notranslate"><span class="pre">chainId</span></code>, <code class="docutils literal notranslate"><span class="pre">verifyingContract</span></code>, <code class="docutils literal notranslate"><span class="pre">salt</span></code>), and returns
+<code class="docutils literal notranslate"><span class="pre">added_eip712_domain:</span> <span class="pre">true</span></code>. If you include <code class="docutils literal notranslate"><span class="pre">EIP712Domain</span></code> yourself, it’s passed through unchanged
+(do that for non-standard domain fields). The request is sent on <code class="docutils literal notranslate"><span class="pre">chain_id</span></code> as above. The tool
+doesn’t change <code class="docutils literal notranslate"><span class="pre">domain.chainId</span></code>, but when it differs from the request chain the result includes a
+<code class="docutils literal notranslate"><span class="pre">warnings</span></code> entry: a signature is only valid where the verifying contract’s chain matches
+<code class="docutils literal notranslate"><span class="pre">domain.chainId</span></code>.</p>
+</section>
+<section id="amounts">
+<h3>Amounts<a class="headerlink" href="#amounts" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">value_wei</span></code> and <code class="docutils literal notranslate"><span class="pre">gas</span></code> take an integer, a decimal string (<code class="docutils literal notranslate"><span class="pre">&quot;1000000000000000000&quot;</span></code>) or a <code class="docutils literal notranslate"><span class="pre">0x</span></code> hex
+string. Prefer strings for large values, because some JSON clients lose precision above 2^53.
+Negative, fractional and out-of-range values are rejected with <code class="docutils literal notranslate"><span class="pre">invalid_argument:</span></code>.</p>
+</section>
+<section id="blocking-timeouts-and-errors">
+<h3>Blocking, timeouts and errors<a class="headerlink" href="#blocking-timeouts-and-errors" title="Link to this heading">#</a></h3>
+<p>The signing tools <strong>block</strong> until the user approves or rejects in the wallet, or until <code class="docutils literal notranslate"><span class="pre">timeout_s</span></code>
+passes (default: <code class="docutils literal notranslate"><span class="pre">WALLETCONNECT_REQUEST_TIMEOUT</span></code>, 300 seconds). A WalletConnect request can’t be
+withdrawn: if the tool times out, or the MCP client cancels the call, the prompt may still be
+showing in the wallet, so the user should reject it there if it’s no longer wanted. Failures come
+back as tool errors that start with a category the assistant can act on:</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Prefix</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rejected:</span></code></p></td>
+<td><p>The user rejected the request in the wallet.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">timeout:</span></code></p></td>
+<td><p>No answer within <code class="docutils literal notranslate"><span class="pre">timeout_s</span></code>. If the last ping failed too, it says the phone may be offline; check <code class="docutils literal notranslate"><span class="pre">session_status(check_reachable=true)</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">session_ended:</span></code></p></td>
+<td><p>No session, or the session was deleted by the wallet or expired. Call <code class="docutils literal notranslate"><span class="pre">pair</span></code> again.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ambiguous_session:</span></code></p></td>
+<td><p>Several sessions are open and no <code class="docutils literal notranslate"><span class="pre">topic</span></code> was given. The error lists the topics.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">unapproved_chain:</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">chain_id</span></code> isn’t approved in the session.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">invalid_chain:</span></code>, <code class="docutils literal notranslate"><span class="pre">invalid_account:</span></code>, <code class="docutils literal notranslate"><span class="pre">invalid_argument:</span></code>, <code class="docutils literal notranslate"><span class="pre">invalid_typed_data:</span></code></p></td>
+<td><p>A bad argument.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">wallet_error:</span></code></p></td>
+<td><p>The wallet returned another WalletConnect error code (included in the message).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">relay_unavailable:</span></code></p></td>
+<td><p>The relay connection was lost and not restored in time.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>With <code class="docutils literal notranslate"><span class="pre">check_reachable=true</span></code>, <code class="docutils literal notranslate"><span class="pre">session_status</span></code> pings each wallet first (up to 10 seconds per offline
+wallet), and <code class="docutils literal notranslate"><span class="pre">reachable</span></code> shows the result.</p>
 <p>A typical conversation:</p>
 <ol class="arabic simple">
 <li><p>The assistant calls <code class="docutils literal notranslate"><span class="pre">session_status</span></code>, sees no sessions, then calls <code class="docutils literal notranslate"><span class="pre">pair</span></code> and shows the QR
-code.</p></li>
-<li><p>The user scans it, and the assistant polls <code class="docutils literal notranslate"><span class="pre">session_status(pairing_topic=...)</span></code> until it’s
+image (or tells the user where the file is).</p></li>
+<li><p>The user scans it, and the assistant calls <code class="docutils literal notranslate"><span class="pre">wait_for_pairing(pairing_topic=...)</span></code> until it’s
 <code class="docutils literal notranslate"><span class="pre">settled</span></code>.</p></li>
 <li><p>The assistant calls <code class="docutils literal notranslate"><span class="pre">send_transaction</span></code> and tells the user to check their phone. The user
 approves, and the tool returns the transaction hash.</p></li>
 </ol>
 </section>
+</section>
+<section id="planned-for-the-ape-plugin">
+<h2>Planned for the Ape plugin<a class="headerlink" href="#planned-for-the-ape-plugin" title="Link to this heading">#</a></h2>
+<p>This example deliberately stops at forwarding requests to the wallet. These belong in the
+<code class="docutils literal notranslate"><span class="pre">ape-walletconnect</span></code> plugin, which has Ape’s ABI decoding, networks and providers to do them well:</p>
+<ul class="simple">
+<li><p><strong>Pre-flight summaries:</strong> decode what a request does (spender, amount, deadline, chain) and flag
+risky patterns such as <code class="docutils literal notranslate"><span class="pre">Permit</span></code> / Permit2 approvals, <code class="docutils literal notranslate"><span class="pre">setApprovalForAll</span></code>, max-uint256 amounts,
+long deadlines and unknown spenders, then ask for confirmation in chat as well as in the wallet.</p></li>
+<li><p><strong>Guardrails:</strong> optional allowlists of spenders and recipients, spend caps, and a mainnet/testnet
+switch.</p></li>
+<li><p><strong>Signer recovery:</strong> return the EIP-712 digest or domain separator and the signer recovered
+locally, so the result can be checked against what was sent.</p></li>
+<li><p><strong>Transaction follow-up:</strong> receipts (<code class="docutils literal notranslate"><span class="pre">wait_for_receipt</span></code>), gas estimates, simulation / dry runs,
+and nonce visibility.</p></li>
+</ul>
+</section>
 <section id="testing">
 <h2>Testing<a class="headerlink" href="#testing" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">tests/test_example_mcp.py</span></code> connects an in-process <code class="docutils literal notranslate"><span class="pre">mcp.Client</span></code> to <code class="docutils literal notranslate"><span class="pre">create_server(...)</span></code>, with a
 client that talks to the in-process fake relay and a fake wallet. It calls every tool, including
-a rejected request. <code class="docutils literal notranslate"><span class="pre">create_server(client_factory=...)</span></code> is the hook for injecting your own
-client.</p>
+QR file output, waiting for a pairing, chain validation, a rejected and a timed-out request,
+several sessions, and <code class="docutils literal notranslate"><span class="pre">disconnect</span></code>. <code class="docutils literal notranslate"><span class="pre">create_server(client_factory=...)</span></code> is the hook for injecting
+your own client.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Anything that can talk to this server can ask the paired wallet for signatures and
