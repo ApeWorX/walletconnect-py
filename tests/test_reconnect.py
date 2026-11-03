@@ -60,6 +60,9 @@ async def test_reconnects_resubscribes_and_fetches_missed(code):
             await _until(lambda: client.reconnect_count == 1)
             msg = await asyncio.wait_for(received.get(), timeout=5)
             assert msg.message == "while-offline"
+            # Connection handlers run as their own tasks, so the "reconnect" callback may
+            # still be scheduled when reconnect_count changes: wait for it, don't assume it.
+            await _until(lambda: len(events) == 2)
             assert events == ["disconnect", "reconnect"]
             assert client.auth_key is old_auth  # same did:key, fresh JWT
             # The relay knows our subscription again: live messages flow.
