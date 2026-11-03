@@ -232,7 +232,7 @@ seconds. Defaults to 300.</p></li>
 </section>
 <section id="tools">
 <h2>Tools<a class="headerlink" href="#tools" title="Link to this heading">#</a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="n">pair</span><span class="p">(</span><span class="n">qr</span><span class="o">=</span><span class="s2">"png"</span><span class="p">,</span> <span class="n">qr_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_uri</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">include_image</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="n">pair</span><span class="p">(</span><span class="n">qr</span><span class="o">=</span><span class="s2">"png"</span><span class="p">,</span> <span class="n">qr_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_uri</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_image</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">qr_scale</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </span><span data-line="2"><span class="n">wait_for_pairing</span><span class="p">(</span><span class="n">pairing_topic</span><span class="p">,</span> <span class="n">timeout_s</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
 </span><span data-line="3"><span class="n">session_status</span><span class="p">(</span><span class="n">pairing_topic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">check_reachable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </span><span data-line="4"><span class="n">disconnect</span><span class="p">(</span><span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
@@ -259,7 +259,7 @@ seconds. Defaults to 300.</p></li>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pair</span></code></p></td>
-<td><p>Starts a pairing (asking for <code class="docutils literal notranslate"><span class="pre">eip155:1</span></code>). Writes the QR code to a file and returns <code class="docutils literal notranslate"><span class="pre">qr_path</span></code>, <code class="docutils literal notranslate"><span class="pre">pairing_topic</span></code>, <code class="docutils literal notranslate"><span class="pre">expires_at</span></code> and <code class="docutils literal notranslate"><span class="pre">seconds_remaining</span></code>.</p></td>
+<td><p>Starts a pairing (asking for <code class="docutils literal notranslate"><span class="pre">eip155:1</span></code>). Writes a PNG QR file and returns <code class="docutils literal notranslate"><span class="pre">qr_path</span></code>, <code class="docutils literal notranslate"><span class="pre">qr_file_uri</span></code>, the image, <code class="docutils literal notranslate"><span class="pre">pairing_topic</span></code> and <code class="docutils literal notranslate"><span class="pre">seconds_remaining</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">wait_for_pairing</span></code></p></td>
 <td><p>Waits up to <code class="docutils literal notranslate"><span class="pre">timeout_s</span></code> (max 300) for the wallet to approve. Returns <code class="docutils literal notranslate"><span class="pre">settled</span></code> (with the session), <code class="docutils literal notranslate"><span class="pre">failed</span></code> (with <code class="docutils literal notranslate"><span class="pre">error</span></code>) or <code class="docutils literal notranslate"><span class="pre">pending</span></code> with seconds left.</p></td>
@@ -287,10 +287,28 @@ seconds. Defaults to 300.</p></li>
 <p><code class="docutils literal notranslate"><span class="pre">pair</span></code> writes a PNG by default (<code class="docutils literal notranslate"><span class="pre">qr=&quot;svg&quot;</span></code> for SVG; both are drawn by <code class="docutils literal notranslate"><span class="pre">segno</span></code>, so no Pillow is
 needed). The file goes to <code class="docutils literal notranslate"><span class="pre">qr_path</span></code> if you pass one, else <code class="docutils literal notranslate"><span class="pre">$WALLETCONNECT_QR_DIR</span></code>, else a new file
 in the system temp directory. It’s written with <code class="docutils literal notranslate"><span class="pre">0600</span></code> permissions and deleted as soon as the
-pairing settles or fails, or the server stops. With <code class="docutils literal notranslate"><span class="pre">include_image=true</span></code> (the default) the PNG is
-also attached to the result as an MCP image, so clients that render images can show it directly
-and the assistant never copies QR data by hand. <code class="docutils literal notranslate"><span class="pre">qr=&quot;text&quot;</span></code> returns Unicode blocks inline for a
-terminal instead, and <code class="docutils literal notranslate"><span class="pre">qr=&quot;none&quot;</span></code> makes no QR at all. The QR needs the <code class="docutils literal notranslate"><span class="pre">qr</span></code> extra
+pairing settles or fails, or the server stops. The PNG is about 600 pixels wide (a 4-module quiet
+zone, scale picked to fit), big enough to scan straight off a laptop screen. <code class="docutils literal notranslate"><span class="pre">qr_scale</span></code> (pixels
+per module, 1 to 20) overrides that, and the result reports <code class="docutils literal notranslate"><span class="pre">qr_width_px</span></code>.</p>
+<p>The QR reaches the user in several ways at once, because what a client shows varies:</p>
+<ul class="simple">
+<li><p><strong>The file.</strong> The result’s text is short: a line <code class="docutils literal notranslate"><span class="pre">Show</span> <span class="pre">this</span> <span class="pre">QR</span> <span class="pre">code</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">user</span> <span class="pre">so</span> <span class="pre">they</span> <span class="pre">can</span> <span class="pre">scan</span> <span class="pre">it:</span> <span class="pre">&lt;path&gt;</span></code>, the <code class="docutils literal notranslate"><span class="pre">file://</span></code> URI, the <code class="docutils literal notranslate"><span class="pre">pairing_topic</span></code> and the expiry. <code class="docutils literal notranslate"><span class="pre">xdg-open</span> <span class="pre">&lt;path&gt;</span></code> (Linux) or
+<code class="docutils literal notranslate"><span class="pre">open</span> <span class="pre">&lt;path&gt;</span></code> (macOS) shows it full size.</p></li>
+<li><p><strong>An inline image.</strong> With <code class="docutils literal notranslate"><span class="pre">include_image=true</span></code> (the default) the PNG is attached as MCP image
+content. Claude Desktop renders it, but inside the collapsible <code class="docutils literal notranslate"><span class="pre">pair</span></code> tool-result panel, where it
+can be easy to miss.</p></li>
+<li><p><strong>A resource.</strong> While the pairing is pending, the PNG is also the MCP resource
+<code class="docutils literal notranslate"><span class="pre">walletconnect://pairing/&lt;pairing_topic&gt;/qr.png</span></code>, and the result links to it (<code class="docutils literal notranslate"><span class="pre">resource_link</span></code>),
+so clients that support resources can attach it.</p></li>
+</ul>
+<p>How (and whether) the image is rendered depends on the client, so the server tells the assistant to
+present the QR itself. The server-level <code class="docutils literal notranslate"><span class="pre">instructions</span></code> (sent when the client connects) and the
+<code class="docutils literal notranslate"><span class="pre">pair</span></code> description both say: after <code class="docutils literal notranslate"><span class="pre">pair</span></code>, show the QR code prominently in the reply (render the
+image, or give the path to open), tell the user to scan it with their wallet app, then call
+<code class="docutils literal notranslate"><span class="pre">wait_for_pairing</span></code>, and never paste the <code class="docutils literal notranslate"><span class="pre">wc:</span></code> URI unless asked.</p>
+<p><code class="docutils literal notranslate"><span class="pre">qr=&quot;text&quot;</span></code> returns the QR inline as text instead, in the most compact form: Unicode half blocks
+(two module rows per line), error correction level L, never a Micro QR, and a 2-module quiet zone
+(drawn for a dark background). <code class="docutils literal notranslate"><span class="pre">qr=&quot;none&quot;</span></code> makes no QR at all. The QR needs the <code class="docutils literal notranslate"><span class="pre">qr</span></code> extra
 (<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;walletconnect[qr]&quot;</span></code>).</p>
 <p>After showing the QR, call <code class="docutils literal notranslate"><span class="pre">wait_for_pairing(pairing_topic)</span></code>. It returns as soon as the wallet
 approves. If it’s still <code class="docutils literal notranslate"><span class="pre">pending</span></code> when <code class="docutils literal notranslate"><span class="pre">timeout_s</span></code> runs out, it says how many seconds the pairing
@@ -301,9 +319,9 @@ has returned.)</p>
 <p class="admonition-title">Warning</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">wc:</span></code> URI contains the pairing’s symmetric key (<code class="docutils literal notranslate"><span class="pre">symKey</span></code>). It’s a short-lived secret: anyone
 who sees it before the wallet scans it could answer the pairing. It’s useless once the pairing has
-settled or expired (5 minutes), but it does stay in the chat transcript. Pass <code class="docutils literal notranslate"><span class="pre">include_uri=false</span></code>
-to leave it out of the result and rely on the QR file or image. The QR encodes the same URI, which
-is why its file is private and short-lived.</p>
+settled or expired (5 minutes), but anything in a result stays in the chat transcript. So <code class="docutils literal notranslate"><span class="pre">pair</span></code>
+leaves it out by default; pass <code class="docutils literal notranslate"><span class="pre">include_uri=true</span></code> only when the user wants to paste it into their
+wallet. The QR encodes the same URI, which is why its file is private and short-lived.</p>
 </div>
 </section>
 <section id="choosing-the-session-account-and-chain">
