@@ -64,6 +64,7 @@ data-aria-dark="Switch to auto color mode">
 <li class="toctree-l1"><a class="reference internal" href="connecting.html">Connecting to a Mobile Wallet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="fastapi.html">FastAPI example app</a></li>
 <li class="toctree-l1"><a class="reference internal" href="long-running.html">Long-running sessions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mcp.html">MCP server example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a></li>
 </ul>
 <p class="caption" role="heading" aria-level="3"><span class="caption-text">Python Reference</span></p>
@@ -247,6 +248,11 @@ project ID. Existing project IDs from Reown Cloud / the Reown Dashboard keep wor
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span data-line="1">uv<span class="w"> </span>run<span class="w"> </span>--group<span class="w"> </span>examples<span class="w"> </span>--extra<span class="w"> </span>qr<span class="w"> </span>uvicorn<span class="w"> </span>examples.fastapi_app.app:app<span class="w">  </span><span class="c1"># demo page at http://localhost:8000/</span>
 </span></pre></div>
 </div>
+<p>MCP server variant (an AI assistant pairs a wallet and requests signatures; you approve on your phone):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span data-line="1">uv<span class="w"> </span>run<span class="w"> </span>--group<span class="w"> </span>examples<span class="w"> </span>--extra<span class="w"> </span>qr<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>examples.mcp_server<span class="w">  </span><span class="c1"># stdio; see docs/userguides/mcp.md</span>
+</span></pre></div>
+</div>
+<p>The production MCP integration is planned as a feature of the <code class="docutils literal notranslate"><span class="pre">ape-walletconnect</span></code> plugin.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">walletconnect.qr</span><span class="w"> </span><span class="kn">import</span> <span class="n">print_qr</span>
 </span><span data-line="2"><span class="kn">from</span><span class="w"> </span><span class="nn">walletconnect.sign</span><span class="w"> </span><span class="kn">import</span> <span class="n">SyncSignClient</span>
 </span><span data-line="3"><span class="kn">from</span><span class="w"> </span><span class="nn">walletconnect.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Metadata</span>
