@@ -32,6 +32,7 @@ import io
 import json
 import logging
 import os
+import subprocess
 import sys
 import tempfile
 import time
@@ -65,6 +66,9 @@ STATE_FILE_ENV = "WALLETCONNECT_STATE_FILE"
 RELAY_URL_ENV = "WALLETCONNECT_RELAY_URL"
 REQUEST_TIMEOUT_ENV = "WALLETCONNECT_REQUEST_TIMEOUT"
 QR_DIR_ENV = "WALLETCONNECT_QR_DIR"
+OPEN_QR_ENV = "WALLETCONNECT_OPEN_QR"
+# How long to wait for xdg-open/open to report a failure before assuming the viewer opened.
+VIEWER_CHECK_S = 2.0
 DEFAULT_REQUEST_TIMEOUT = 300.0  # the user has to notice the request on their phone
 DEFAULT_WAIT_TIMEOUT = 60.0
 MAX_WAIT_TIMEOUT = float(PAIRING_PROPOSAL_EXPIRY)
@@ -91,20 +95,21 @@ METADATA = Metadata(
 QR_RESOURCE_TEMPLATE = "walletconnect://pairing/{pairing_topic}/qr.png"
 
 SHOW_QR_GUIDANCE = (
-    "After calling pair, show the QR code to the user prominently in your reply: render the"
-    " image, or give them the PNG path (or file:// link) to open. The image inside the tool"
-    " result may be collapsed or small in the client, so do not rely on it alone. Tell them to"
-    " scan it with their wallet app, then call wait_for_pairing (or session_status) with the"
-    " pairing_topic. Never paste the wc: URI unless the user asks for it: it contains a"
-    " short-lived secret key."
+    "After calling pair, check qr_opened. If it is true, the QR code is already open in an"
+    " image viewer window on the user's screen: tell them so and ask them to scan it with their"
+    " wallet app. If it is false, show the QR code to the user prominently in your reply: render"
+    " the image, or give them the PNG path (or file:// link) to open. The image inside the tool"
+    " result may be collapsed or small in the client, so do not rely on it alone. Then call"
+    " wait_for_pairing (or session_status) with the pairing_topic. Never paste the wc: URI"
+    " unless the user asks for it: it contains a short-lived secret key."
 )
 
 INSTRUCTIONS = f"""\
 Tools for a WalletConnect mobile wallet. Nothing is signed by this server: each signing tool sends
 a request to the user's wallet app and waits until they approve or reject it there.
-1. If session_status shows no sessions, call pair. It writes a QR image (PNG) to a file, returns
-   its path, a file:// link and the image itself, and exposes it as the resource
-   {QR_RESOURCE_TEMPLATE}.
+1. If session_status shows no sessions, call pair. It writes a QR image (PNG) to a file, opens it
+   in the system image viewer when it runs in a desktop session (qr_opened), returns its path, a
+   file:// link and the image itself, and exposes it as the resource {QR_RESOURCE_TEMPLATE}.
 2. {SHOW_QR_GUIDANCE}
 3. wait_for_pairing returns as soon as the wallet approves, or "pending" with seconds_remaining;
    call it again while pending.
@@ -311,6 +316,66 @@ def _render_qr_bytes(
     return buf.getvalue(), int(qr.symbol_size(scale=scale, border=QR_BORDER)[0])
 
 
+_TRUE = {"1", "true", "yes", "on"}
+_FALSE = {"0", "false", "no", "off"}
+
+
+def _open_qr_decision(open_qr: bool | None) -> tuple[bool, str]:
+    """Whether ``pair`` should open the QR in a viewer, and why (argument, env, then platform)."""
+    if open_qr is not None:
+        return open_qr, f"open_qr={'true' if open_qr else 'false'}"
+    raw = os.environ.get(OPEN_QR_ENV, "").strip().lower()
+    if raw in _TRUE:
+        return True, f"{OPEN_QR_ENV}={raw}"
+    if raw in _FALSE:
+        return False, f"{OPEN_QR_ENV}={raw}"
+    if sys.platform in ("darwin", "win32"):
+        return True, f"desktop platform ({sys.platform})"
+    if os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"):
+        return True, "desktop session (DISPLAY/WAYLAND_DISPLAY set)"
+    return False, "no desktop session detected (DISPLAY and WAYLAND_DISPLAY are unset)"
+
+
+def _viewer_command(path: Path) -> list[str]:
+    return ["open" if sys.platform == "darwin" else "xdg-open", str(path)]
+
+
+async def _open_in_viewer(path: Path, reaper: Callable[[Awaitable[Any]], None]) -> tuple[bool, str]:
+    """
+    Open ``path`` in the default image viewer without blocking or touching stdout (the MCP
+    channel): the opener's stdin/stdout/stderr go to /dev/null. ``reaper`` takes the wait for an
+    opener that is still running after ``VIEWER_CHECK_S``, so it is not left a zombie.
+    """
+    if sys.platform == "win32":
+        startfile = getattr(os, "startfile", None)
+        if startfile is None:
+            return False, "os.startfile is unavailable"
+        try:
+            await asyncio.to_thread(startfile, str(path))
+        except OSError as exc:
+            return False, f"os.startfile failed: {exc}"
+        return True, "opened with os.startfile"
+    cmd = _viewer_command(path)
+    try:
+        proc = await asyncio.create_subprocess_exec(
+            *cmd,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True,
+        )
+    except OSError as exc:
+        return False, f"could not run {cmd[0]}: {exc}"
+    try:
+        code = await asyncio.wait_for(asyncio.shield(proc.wait()), VIEWER_CHECK_S)
+    except asyncio.TimeoutError:
+        reaper(proc.wait())
+        return True, f"opened with {cmd[0]}"
+    if code != 0:
+        return False, f"{cmd[0]} exited with status {code}"
+    return True, f"opened with {cmd[0]}"
+
+
 def _text_qr(uri: str) -> str:
     """The most compact text QR: half blocks (two module rows per line), error level L."""
     from walletconnect.qr import terminal_qr  # half blocks, level L, never Micro QR
@@ -321,9 +386,16 @@ def _text_qr(uri: str) -> str:
 def _pair_text(result: dict[str, Any]) -> str:
     """The short text block of ``pair``: where the QR is, the topic and what to do next."""
     lines = []
-    if "qr_path" in result:
+    if result.get("qr_opened"):
+        lines.append(
+            "The QR code was opened in an image viewer window on the user's screen; tell them to"
+            f" scan it with their wallet app. File: {result['qr_path']}"
+        )
+        lines.append(f"file URI: {result['qr_file_uri']}")
+    elif "qr_path" in result:
         lines.append(f"Show this QR code to the user so they can scan it: {result['qr_path']}")
         lines.append(f"file URI: {result['qr_file_uri']}")
+        lines.append(f"(not opened in a viewer: {result['qr_open_reason']})")
     if "qr" in result:
         lines.append(f"QR code:\n{result['qr']}")
     if "qr_error" in result:
@@ -347,6 +419,17 @@ def create_server(client_factory: Callable[[], SignClient] | None = None) -> MCP
     qr_files: dict[str, Path] = {}
     qr_pngs: dict[str, bytes] = {}
     tasks: set[asyncio.Task[Any]] = set()
+
+    def track(awaitable: Awaitable[Any]) -> None:
+        """Run ``awaitable`` in the background; cancelled at shutdown like the settlers."""
+
+        async def run() -> None:
+            with contextlib.suppress(Exception):
+                await awaitable
+
+        task = asyncio.ensure_future(run())
+        tasks.add(task)
+        task.add_done_callback(tasks.discard)
 
     def forget_qr(pairing_topic: str) -> None:
         qr_pngs.pop(pairing_topic, None)
@@ -500,6 +583,7 @@ def create_server(client_factory: Callable[[], SignClient] | None = None) -> MCP
         include_uri: bool = False,
         include_image: bool = True,
         qr_scale: int | None = None,
+        open_qr: bool | None = None,
     ) -> CallToolResult:
         """
         Start pairing a mobile wallet (asks for eip155:1). Writes the QR code to a file and
@@ -507,18 +591,22 @@ def create_server(client_factory: Callable[[], SignClient] | None = None) -> MCP
         ``qr_path`` if given, else ``$WALLETCONNECT_QR_DIR``, else the system temp dir, and is
         deleted once the pairing settles or fails. With ``include_image`` (PNG only) the QR is
         also attached as an image, about 600px wide; ``qr_scale`` (pixels per module, 1-20)
-        overrides the size. Always tell the user the qr_path too: some clients collapse the
-        image, and ``xdg-open <path>`` (Linux) or ``open <path>`` (macOS) shows it full size.
+        overrides the size. ``open_qr`` opens the file in the system image viewer (default:
+        ``$WALLETCONNECT_OPEN_QR``, else yes on macOS/Windows or when DISPLAY/WAYLAND_DISPLAY is
+        set); the result's ``qr_opened`` and ``qr_open_reason`` say what happened. When it was not
+        opened, give the user the qr_path: ``xdg-open <path>`` (Linux) or ``open <path>`` (macOS)
+        shows it full size.
         ``qr="text"`` returns a compact Unicode QR inline instead; ``"none"`` makes no QR.
         The PNG is also readable as the resource ``walletconnect://pairing/<topic>/qr.png``
         while the pairing is pending. ``include_uri=true`` adds the ``wc:`` URI to the result:
         it contains a short-lived secret key, so only request it when the user asks to paste it.
 
-        IMPORTANT: after calling pair, show the QR code to the user prominently in your reply:
-        render the image, or give them the PNG path (or file:// link) to open. The image inside
-        this tool result may be collapsed or small in the client, so do not rely on it alone.
-        Tell them to scan it with their wallet app, then call wait_for_pairing (or
-        session_status) with the pairing_topic. Never paste the wc: URI unless the user asks.
+        IMPORTANT: after calling pair, if qr_opened is true, tell the user the QR code opened in
+        a window on their screen and to scan it with their wallet app. Otherwise show the QR code
+        prominently in your reply: render the image, or give them the PNG path (or file:// link)
+        to open. The image inside this tool result may be collapsed or small in the client, so
+        do not rely on it alone. Then call wait_for_pairing (or session_status) with the
+        pairing_topic. Never paste the wc: URI unless the user asks.
         """
         if qr_scale is not None and not QR_MIN_SCALE <= qr_scale <= QR_MAX_SCALE:
             raise ToolError(
@@ -587,16 +675,34 @@ def create_server(client_factory: Callable[[], SignClient] | None = None) -> MCP
             task.cancel()
             pairings.pop(pairing_topic, None)
             raise ToolError(f"qr_write_failed: could not write the QR file: {exc}") from exc
+        if "qr_path" in result:
+            # The file stays until the pairing settles, fails or expires, so the viewer can load it.
+            wanted, reason = _open_qr_decision(open_qr)
+            opened = False
+            if wanted:
+                opened, reason = await _open_in_viewer(Path(result["qr_path"]), track)
+            result["qr_opened"] = opened
+            result["qr_open_reason"] = reason
+        else:
+            result["qr_opened"] = False
+            result["qr_open_reason"] = f"no QR file (qr={qr!r})"
         if include_uri:
             result["uri"] = uri
         result["expires_at"] = _iso(deadline)
         result["seconds_remaining"] = int(timeout)
-        result["next"] = (
-            "Show the QR code to the user prominently in your reply (render the image, or give"
-            " them qr_path / qr_file_uri to open; `xdg-open` on Linux or `open` on macOS shows it"
-            " full size) and tell them to scan it with their wallet app. Then call"
-            " wait_for_pairing with pairing_topic. Don't paste the wc: URI unless asked."
-        )
+        if result["qr_opened"]:
+            result["next"] = (
+                "Tell the user: 'The QR code was opened in your image viewer; scan it with your"
+                " wallet.' Then call wait_for_pairing with pairing_topic. Don't paste the wc: URI"
+                " unless asked."
+            )
+        else:
+            result["next"] = (
+                "Show the QR code to the user prominently in your reply (render the image, or give"
+                " them qr_path / qr_file_uri to open; `xdg-open` on Linux or `open` on macOS shows"
+                " it full size) and tell them to scan it with their wallet app. Then call"
+                " wait_for_pairing with pairing_topic. Don't paste the wc: URI unless asked."
+            )
         bg = asyncio.create_task(settle(pairing_topic, task))
         settlers[pairing_topic] = bg
         tasks.add(bg)

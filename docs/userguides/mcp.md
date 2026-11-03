@@ -60,6 +60,8 @@ Environment variables:
   last as long as the process.
 - `WALLETCONNECT_QR_DIR` (optional): the folder where `pair` writes QR images. Without it, and
   without a `qr_path` argument, they go to a new file in the system temp directory.
+- `WALLETCONNECT_OPEN_QR` (optional): `1` or `0` to always or never open the pairing QR in the
+  system image viewer (see below). The `open_qr` argument of `pair` overrides it.
 - `WALLETCONNECT_RELAY_URL` (optional): a different relay.
 - `WALLETCONNECT_REQUEST_TIMEOUT` (optional): how long to wait for the user to approve, in
   seconds. Defaults to 300.
@@ -67,7 +69,7 @@ Environment variables:
 ## Tools
 
 ```python
-pair(qr="png", qr_path=None, include_uri=False, include_image=True, qr_scale=None)
+pair(qr="png", qr_path=None, include_uri=False, include_image=True, qr_scale=None, open_qr=None)
 wait_for_pairing(pairing_topic, timeout_s=60)
 session_status(pairing_topic=None, check_reachable=False)
 disconnect(topic=None)
@@ -85,15 +87,15 @@ send_transaction(
 )
 ```
 
-| Tool               | What it does                                                                                                                                                 |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `pair`             | Starts a pairing (asking for `eip155:1`). Writes a PNG QR file and returns `qr_path`, `qr_file_uri`, the image, `pairing_topic` and `seconds_remaining`.     |
-| `wait_for_pairing` | Waits up to `timeout_s` (max 300) for the wallet to approve. Returns `settled` (with the session), `failed` (with `error`) or `pending` with seconds left.   |
-| `session_status`   | Lists sessions: topic, wallet name, accounts, approved `chains`, `expiry` (unix), `expiry_iso` (UTC), `expires_in_s`, `reachable`.                           |
-| `disconnect`       | Ends a session: tells the wallet (`wc_sessionDelete`) and forgets it.                                                                                        |
-| `sign_message`     | `personal_sign` for a text message. Returns `address`, `chain_id` and `signature`.                                                                           |
-| `sign_typed_data`  | `eth_signTypedData_v4` for an EIP-712 object. Returns `address`, `chain_id`, `signature`, `added_eip712_domain` and, when needed, `warnings`.                |
-| `send_transaction` | `eth_sendTransaction` with `to`, `value_wei`, `data` and `gas`. The wallet signs and broadcasts the transaction, and the tool returns `tx_hash` (only that). |
+| Tool               | What it does                                                                                                                                                                  |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pair`             | Starts a pairing (asking for `eip155:1`). Writes a PNG QR file, opens it in the image viewer on a desktop, and returns `qr_opened`, `qr_path`, the image and `pairing_topic`. |
+| `wait_for_pairing` | Waits up to `timeout_s` (max 300) for the wallet to approve. Returns `settled` (with the session), `failed` (with `error`) or `pending` with seconds left.                    |
+| `session_status`   | Lists sessions: topic, wallet name, accounts, approved `chains`, `expiry` (unix), `expiry_iso` (UTC), `expires_in_s`, `reachable`.                                            |
+| `disconnect`       | Ends a session: tells the wallet (`wc_sessionDelete`) and forgets it.                                                                                                         |
+| `sign_message`     | `personal_sign` for a text message. Returns `address`, `chain_id` and `signature`.                                                                                            |
+| `sign_typed_data`  | `eth_signTypedData_v4` for an EIP-712 object. Returns `address`, `chain_id`, `signature`, `added_eip712_domain` and, when needed, `warnings`.                                 |
+| `send_transaction` | `eth_sendTransaction` with `to`, `value_wei`, `data` and `gas`. The wallet signs and broadcasts the transaction, and the tool returns `tx_hash` (only that).                  |
 
 ### Pairing and the QR code
 
@@ -106,6 +108,15 @@ per module, 1 to 20) overrides that, and the result reports `qr_width_px`.
 
 The QR reaches the user in several ways at once, because what a client shows varies:
 
+- **A viewer window.** When the server runs in a desktop session, `pair` opens the PNG in the
+  system image viewer: `xdg-open` on Linux when `DISPLAY` or `WAYLAND_DISPLAY` is set, `open` on
+  macOS, `os.startfile` on Windows. The opener runs in the background with its input and output
+  sent to `/dev/null`, because the server's stdout is the MCP channel. `open_qr=true/false` (or
+  `WALLETCONNECT_OPEN_QR=1/0`) forces it either way. The result reports `qr_opened` and
+  `qr_open_reason`, and when it worked the text says the QR was opened in an image viewer window.
+  The file stays until the pairing settles, fails or expires, so the viewer can still load it.
+  This is the most reliable path in Claude Desktop, which keeps tool-result images in a collapsed
+  panel.
 - **The file.** The result's text is short: a line `Show this QR code to the user so they can scan it: <path>`, the `file://` URI, the `pairing_topic` and the expiry. `xdg-open <path>` (Linux) or
   `open <path>` (macOS) shows it full size.
 - **An inline image.** With `include_image=true` (the default) the PNG is attached as MCP image
@@ -117,9 +128,10 @@ The QR reaches the user in several ways at once, because what a client shows var
 
 How (and whether) the image is rendered depends on the client, so the server tells the assistant to
 present the QR itself. The server-level `instructions` (sent when the client connects) and the
-`pair` description both say: after `pair`, show the QR code prominently in the reply (render the
-image, or give the path to open), tell the user to scan it with their wallet app, then call
-`wait_for_pairing`, and never paste the `wc:` URI unless asked.
+`pair` description both say: after `pair`, if `qr_opened` is true, tell the user the QR code
+opened in a window and to scan it with their wallet app; otherwise show the QR code prominently in
+the reply (render the image, or give the path to open). Then call `wait_for_pairing`, and never
+paste the `wc:` URI unless asked.
 
 `qr="text"` returns the QR inline as text instead, in the most compact form: Unicode half blocks
 (two module rows per line), error correction level L, never a Micro QR, and a 2-module quiet zone
