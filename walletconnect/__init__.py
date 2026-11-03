@@ -12,6 +12,7 @@ from importlib.metadata import (
 from .constants import DEFAULT_RELAY_URL
 from .exceptions import MissingProjectIdError, SdkError, WalletConnectError
 from .pairing import PairingURI
+from .sign.state import ClientState, Session
 from .types import Metadata, ProposalNamespace, SessionNamespace
 from .utils.caip import AccountId, ChainId
 
@@ -25,11 +26,13 @@ __all__ = [
     "DEFAULT_RELAY_URL",
     "AccountId",
     "ChainId",
+    "ClientState",
     "Metadata",
     "MissingProjectIdError",
     "PairingURI",
     "ProposalNamespace",
     "SdkError",
+    "Session",
     "SessionNamespace",
     "WalletConnectError",
     "__version__",

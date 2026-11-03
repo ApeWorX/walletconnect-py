@@ -1,7 +1,7 @@
-# Storage
+# State
 
 ```{eval-rst}
-.. automodule:: walletconnect.storage
+.. automodule:: walletconnect.sign.state
     :members:
     :show-inheritance:
 ```

@@ -6,7 +6,7 @@ import asyncio
 import atexit
 import contextlib
 import threading
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from typing import TYPE_CHECKING, Any
 
 from walletconnect.constants import (
@@ -15,12 +15,12 @@ from walletconnect.constants import (
     DEFAULT_RELAY_URL,
 )
 
-from .client import _CONNECT_TIMEOUT, _REQUEST_TIMEOUT, Session, SignClient
+from .client import _CONNECT_TIMEOUT, _REQUEST_TIMEOUT, SignClient
 
 if TYPE_CHECKING:
-    from walletconnect.crypto.jwt import AuthKeyPair
-    from walletconnect.storage import KeyValueStorage
     from walletconnect.types import Metadata, ProposalNamespace
+
+    from .state import ClientState, Session
 
 
 class SyncSignClient:
@@ -29,6 +29,9 @@ class SyncSignClient:
 
     Starts a background asyncio loop so relay keepalives and subscription acks
     continue while the main thread blocks on ``connect()`` / ``request()``.
+
+    Takes the same ``state=`` / ``on_state_change=`` arguments as :class:`SignClient`
+    (``on_state_change`` runs on the background loop thread).
     """
 
     def __init__(
@@ -37,27 +40,27 @@ class SyncSignClient:
         *,
         metadata: Metadata | dict[str, Any] | None = None,
         relay_url: str = DEFAULT_RELAY_URL,
-        storage: KeyValueStorage | None = None,
-        auth_key: AuthKeyPair | None = None,
+        state: ClientState | None = None,
+        on_state_change: Callable[[ClientState], Any] | None = None,
         origin: str | None = None,
         connect_timeout: float = _CONNECT_TIMEOUT,
         request_timeout: float = _REQUEST_TIMEOUT,
     ) -> None:
+        self._client = SignClient(
+            project_id,
+            metadata=metadata,
+            relay_url=relay_url,
+            state=state,
+            on_state_change=on_state_change,
+            origin=origin,
+            connect_timeout=connect_timeout,
+            request_timeout=request_timeout,
+        )
         self._loop = asyncio.new_event_loop()
         self._thread = threading.Thread(
             target=self._run_loop, name="walletconnect-loop", daemon=True
         )
         self._thread.start()
-        self._client = SignClient(
-            project_id,
-            metadata=metadata,
-            relay_url=relay_url,
-            storage=storage,
-            auth_key=auth_key,
-            origin=origin,
-            connect_timeout=connect_timeout,
-            request_timeout=request_timeout,
-        )
         self._closed = False
         atexit.register(self.close)
 
@@ -67,6 +70,7 @@ class SyncSignClient:
 
     def _submit(self, coro: Any) -> Any:
         if self._closed:
+            coro.close()
             raise RuntimeError("SyncSignClient is closed")
         fut = asyncio.run_coroutine_threadsafe(coro, self._loop)
         return fut.result()
@@ -77,12 +81,28 @@ class SyncSignClient:
         return self._client.metadata
 
     @property
+    def client_id(self) -> str:
+        return self._client.client_id
+
+    @property
     def session(self) -> Session | None:
         return self._client.session
 
     @property
+    def sessions(self) -> dict[str, Session]:
+        return self._client.sessions
+
+    @property
     def pairing_uri(self) -> str | None:
         return self._client.pairing_uri
+
+    def export_state(self) -> ClientState:
+        """See :meth:`SignClient.export_state`. Contains secrets; store it securely."""
+        return self._client.export_state()
+
+    def open(self) -> None:
+        """Connect and resume restored sessions now (otherwise done on first use)."""
+        self._submit(self._client.open())
 
     def connect(
         self,
@@ -91,7 +111,7 @@ class SyncSignClient:
         methods: Iterable[str] = DEFAULT_EIP155_METHODS,
         events: Iterable[str] = DEFAULT_EIP155_EVENTS,
         optional_namespaces: dict[str, ProposalNamespace | dict[str, Any]] | None = None,
-        on_uri: Any = None,
+        on_uri: Callable[[str], Any] | None = None,
     ) -> Session:
         """
         Propose a session, invoke ``on_uri(uri)`` (e.g. print QR), then block until settled.
@@ -109,22 +129,35 @@ class SyncSignClient:
         return self._submit(self._client.wait_for_session(task))
 
     def request(
-        self, method: str, params: Any, *, chain_id: str = "eip155:1", timeout: float | None = None
+        self,
+        method: str,
+        params: Any,
+        *,
+        chain_id: str = "eip155:1",
+        topic: str | None = None,
+        timeout: float | None = None,
     ) -> Any:
         return self._submit(
-            self._client.request(method, params, chain_id=chain_id, timeout=timeout)
+            self._client.request(method, params, chain_id=chain_id, topic=topic, timeout=timeout)
         )
 
     def personal_sign(
-        self, message: str | bytes, address: str, *, chain_id: str = "eip155:1"
+        self,
+        message: str | bytes,
+        address: str,
+        *,
+        chain_id: str = "eip155:1",
+        topic: str | None = None,
     ) -> str:
-        return self._submit(self._client.personal_sign(message, address, chain_id=chain_id))
+        return self._submit(
+            self._client.personal_sign(message, address, chain_id=chain_id, topic=topic)
+        )
 
-    def ping(self) -> bool:
-        return self._submit(self._client.ping())
+    def ping(self, *, topic: str | None = None) -> bool:
+        return self._submit(self._client.ping(topic=topic))
 
-    def disconnect(self, reason: str = "User disconnected") -> None:
-        self._submit(self._client.disconnect(reason))
+    def disconnect(self, reason: str = "User disconnected", *, topic: str | None = None) -> None:
+        self._submit(self._client.disconnect(reason, topic=topic))
 
     def close(self) -> None:
         if self._closed:
@@ -135,6 +168,7 @@ class SyncSignClient:
         self._closed = True
         self._loop.call_soon_threadsafe(self._loop.stop)
         self._thread.join(timeout=5)
+        atexit.unregister(self.close)
 
     def __enter__(self) -> SyncSignClient:  # noqa: PYI034
         return self

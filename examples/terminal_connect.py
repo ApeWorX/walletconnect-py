@@ -43,6 +43,11 @@ def main() -> int:
     )
     parser.add_argument("--description", default="Python terminal WalletConnect demo")
     parser.add_argument("--icon", action="append", default=None, help="Icon URL (repeatable)")
+    parser.add_argument(
+        "--state-file",
+        default=None,
+        help="Resume/save the session here (contains secret keys; written 0600)",
+    )
     args = parser.parse_args()
 
     if not args.project_id:
@@ -54,7 +59,7 @@ def main() -> int:
         return 1
 
     from walletconnect.qr import print_qr
-    from walletconnect.sign import SyncSignClient
+    from walletconnect.sign import ClientState, SyncSignClient
     from walletconnect.types import Metadata
 
     def show_uri(uri: str) -> None:
@@ -67,6 +72,10 @@ def main() -> int:
             print(f"(QR skipped: {exc})", file=sys.stderr)
         print("\nWaiting for wallet approval…\n")
 
+    state = None
+    if args.state_file and os.path.exists(args.state_file):
+        state = ClientState.load(args.state_file)
+
     client = SyncSignClient(
         project_id=args.project_id,
         metadata=Metadata.default(
@@ -76,9 +85,16 @@ def main() -> int:
             icons=args.icon,
         ),
         origin=args.origin,
+        state=state,
+        on_state_change=(lambda s: s.save(args.state_file)) if args.state_file else None,
     )
     try:
-        session = client.connect(chains=(args.chain,), on_uri=show_uri)
+        session = client.session
+        if session is not None:
+            client.open()
+            print(f"Resumed session with {session.peer_name or 'wallet'} from {args.state_file}")
+        else:
+            session = client.connect(chains=(args.chain,), on_uri=show_uri)
         accounts = session.eip155_accounts or session.accounts
         print(f"Connected. Accounts: {accounts}")
         if not accounts:
