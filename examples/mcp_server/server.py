@@ -36,6 +36,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import urllib.parse
 from collections.abc import AsyncIterator, Awaitable, Callable
 from datetime import datetime, timezone
 from pathlib import Path
@@ -109,6 +110,28 @@ SHOW_QR_GUIDANCE = (
     " paste the wc: URI unless the user asks for it: it contains a short-lived secret key."
 )
 
+DEEP_LINK_GUIDANCE = (
+    "Offer a wallet deep link only if the user is on the same phone as their wallet or cannot"
+    " scan: then call pair with deep_link=<wallet> (one of: {wallets}, or generic). The link"
+    " contains the pairing secret (like the wc: URI), so share it only with the user."
+)
+
+# WalletConnect deep links: <base>wc?uri=<URL-encoded wc: URI>, the format in WalletConnect's
+# mobile-linking docs, with each wallet's base from the WalletConnect Explorer registry
+# (mobile.universal, else mobile.native) cross-checked against the wallet's own docs or code.
+# Sources are listed in docs/userguides/mcp.md. https universal links where they are verified.
+WALLET_DEEP_LINKS: dict[str, tuple[str, str]] = {
+    "metamask": ("MetaMask", "https://metamask.app.link/wc?uri="),
+    "rainbow": ("Rainbow", "https://rnbwapp.com/wc?uri="),
+    "trust": ("Trust Wallet", "https://link.trustwallet.com/wc?uri="),
+    "uniswap": ("Uniswap Wallet", "https://uniswap.org/app/wc?uri="),
+    # Zerion's registry universal link (https://wallet.zerion.io/wc) has no documented
+    # `wc?uri=` route, so use its registered native scheme.
+    "zerion": ("Zerion", "zerion://wc?uri="),
+}
+# The bare wc: URI: Android hands it to any wallet registered for the wc: scheme.
+GENERIC_DEEP_LINKS = ("generic", "universal")
+
 SVG_BEGIN = "-----BEGIN QR SVG-----"
 SVG_END = "-----END QR SVG-----"
 
@@ -125,6 +148,7 @@ a request to the user's wallet app and waits until they approve or reject it the
 4. Use sign_message, sign_typed_data or send_transaction. Tell the user to check their phone.
    With several sessions, pass topic. Errors start with a category such as "rejected:",
    "timeout:" or "session_ended:".
+5. {DEEP_LINK_GUIDANCE.format(wallets=", ".join(WALLET_DEEP_LINKS))}
 """
 
 
@@ -302,6 +326,32 @@ def _qr_target(qr_path: str | None, pairing_topic: str, suffix: str) -> Path:
     return Path(tmp)
 
 
+def wallet_deep_link(uri: str, wallet: str) -> tuple[str, str]:
+    """
+    ``(wallet_name, link)``: a tappable link that opens ``wallet`` with the pairing ``uri``.
+    The link carries the pairing's symKey, exactly like the wc: URI.
+    """
+    key = wallet.strip().lower()
+    if key in GENERIC_DEEP_LINKS:
+        return "any wallet registered for wc: links (Android)", uri
+    try:
+        name, base = WALLET_DEEP_LINKS[key]
+    except KeyError:
+        known = ", ".join([*WALLET_DEEP_LINKS, *GENERIC_DEEP_LINKS])
+        raise ValueError(f"unknown deep_link wallet {wallet!r}; use one of: {known}") from None
+    return name, base + urllib.parse.quote(uri, safe="")
+
+
+def _make_qr(uri: str) -> Any:
+    """
+    The pairing QR: error level L exactly (``boost_error=False``) and never a Micro QR. L
+    gives the fewest modules, which matters more on a screen than damage tolerance does.
+    """
+    import segno
+
+    return segno.make(uri, error="l", boost_error=False, micro=False)
+
+
 def svg_inline_qr(uri: str) -> tuple[str, int]:
     """
     The QR as compact inline SVG markup, and its size in modules (quiet zone included).
@@ -312,9 +362,7 @@ def svg_inline_qr(uri: str) -> tuple[str, int]:
     The viewBox is square with no fixed size (``width="100%"``) and ``crispEdges``, so it scales
     up sharply. No XML declaration, title or description: the URI is only in the pattern.
     """
-    import segno
-
-    qr = segno.make(uri, error="m", micro=False)
+    qr = _make_qr(uri)
     size = len(qr.matrix) + 2 * QR_BORDER
     parts: list[str] = []
     pen: tuple[int, int] | None = None  # where the last run ended (x, row)
@@ -353,9 +401,7 @@ def _render_qr_bytes(
     Without ``scale`` it is picked so the image is about ``QR_TARGET_PX`` wide, large enough
     to scan straight off the screen. Returns ``(data, width_px)``.
     """
-    import segno
-
-    qr = segno.make(uri, error="m", micro=False)
+    qr = _make_qr(uri)
     if scale is None:
         modules = qr.symbol_size(scale=1, border=QR_BORDER)[0]
         scale = max(QR_MIN_SCALE, min(QR_MAX_SCALE, round(QR_TARGET_PX / modules)))
@@ -469,6 +515,11 @@ def _pair_text(result: dict[str, Any]) -> str:
     lines.append(f"expires: {result['expires_at']} ({result['seconds_remaining']}s)")
     if "uri" in result:
         lines.append(f"uri (short-lived secret): {result['uri']}")
+    if "deep_link" in result:
+        lines.append(
+            f"deep link for {result['deep_link_wallet']} (contains the pairing secret, like the"
+            f" wc: URI; give it only to the user, to tap on their phone): {result['deep_link']}"
+        )
     lines.append(result["next"])
     return "\n".join(lines)
 
@@ -649,6 +700,7 @@ def create_server(client_factory: Callable[[], SignClient] | None = None) -> MCP
         include_image: bool = True,
         qr_scale: int | None = None,
         open_qr: bool | None = None,
+        deep_link: str | None = None,
     ) -> CallToolResult:
         """
         Start pairing a mobile wallet (asks for eip155:1). By default (``qr="svg_inline"``) the
@@ -671,6 +723,11 @@ def create_server(client_factory: Callable[[], SignClient] | None = None) -> MCP
         The PNG is also readable as the resource ``walletconnect://pairing/<topic>/qr.png``
         while the pairing is pending. ``include_uri=true`` adds the ``wc:`` URI to the result:
         it contains a short-lived secret key, so only request it when the user asks to paste it.
+        ``deep_link`` (off by default) adds a tappable link that opens the named wallet with the
+        pairing: metamask, rainbow, trust, uniswap, zerion, or generic/universal (the bare wc:
+        URI, for Android). It contains the same secret as the wc: URI, so only request it when
+        the user is on the same phone as their wallet or cannot scan. It may be combined with
+        any qr mode.
 
         IMPORTANT: After pair, render the returned SVG exactly as given with your inline
         widget/artifact tool at a large size, tell the user to scan it with their wallet, then
@@ -678,7 +735,8 @@ def create_server(client_factory: Callable[[], SignClient] | None = None) -> MCP
         qr="png". With qr="png": if qr_opened is true, tell the user the QR code opened in a
         window on their screen; otherwise show the QR code prominently in your reply (render the
         image, or give them the PNG path or file:// link). Never paste the wc: URI unless the
-        user asks.
+        user asks. Offer a deep link only if the user is on the same phone as their wallet or
+        cannot scan.
         """
         if qr_scale is not None and not QR_MIN_SCALE <= qr_scale <= QR_MAX_SCALE:
             raise ToolError(
@@ -690,7 +748,12 @@ def create_server(client_factory: Callable[[], SignClient] | None = None) -> MCP
                 "invalid_argument: qr='svg_inline' never puts the wc: URI in the transcript; drop"
                 " include_uri, or use another qr mode if the user wants to paste the URI"
             )
-        if not include_uri and qr == "none":
+        if deep_link is not None:
+            try:
+                wallet_deep_link("wc:check", deep_link)
+            except ValueError as exc:
+                raise ToolError(f"invalid_argument: {exc}") from None
+        if not include_uri and qr == "none" and deep_link is None:
             raise ToolError("invalid_argument: qr='none' with include_uri=false returns nothing")
         client = current()
         uri, task = await client.connect(chains=(1,))
@@ -782,6 +845,11 @@ def create_server(client_factory: Callable[[], SignClient] | None = None) -> MCP
             )
         if include_uri:
             result["uri"] = uri
+        if deep_link is not None:
+            result["deep_link_wallet"], result["deep_link"] = wallet_deep_link(uri, deep_link)
+            result["deep_link_warning"] = (
+                "contains the pairing symKey (same secret as the wc: URI); share only with the user"
+            )
         result["expires_at"] = _iso(deadline)
         result["seconds_remaining"] = int(timeout)
         if qr == "svg_inline":

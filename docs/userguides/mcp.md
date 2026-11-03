@@ -77,6 +77,7 @@ pair(
     include_image=True,
     qr_scale=None,
     open_qr=None,
+    deep_link=None,  # "metamask", "rainbow", "trust", "uniswap", "zerion", "generic"
 )
 wait_for_pairing(pairing_topic, timeout_s=60)
 session_status(pairing_topic=None, check_reachable=False)
@@ -95,15 +96,15 @@ send_transaction(
 )
 ```
 
-| Tool               | What it does                                                                                                                                                                                     |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `pair`             | Starts a pairing (asking for `eip155:1`). Returns the QR code as inline SVG markup for the assistant to render (default), or writes a PNG file. Returns `pairing_topic` and `seconds_remaining`. |
-| `wait_for_pairing` | Waits up to `timeout_s` (max 300) for the wallet to approve. Returns `settled` (with the session), `failed` (with `error`) or `pending` with seconds left.                                       |
-| `session_status`   | Lists sessions: topic, wallet name, accounts, approved `chains`, `expiry` (unix), `expiry_iso` (UTC), `expires_in_s`, `reachable`.                                                               |
-| `disconnect`       | Ends a session: tells the wallet (`wc_sessionDelete`) and forgets it.                                                                                                                            |
-| `sign_message`     | `personal_sign` for a text message. Returns `address`, `chain_id` and `signature`.                                                                                                               |
-| `sign_typed_data`  | `eth_signTypedData_v4` for an EIP-712 object. Returns `address`, `chain_id`, `signature`, `added_eip712_domain` and, when needed, `warnings`.                                                    |
-| `send_transaction` | `eth_sendTransaction` with `to`, `value_wei`, `data` and `gas`. The wallet signs and broadcasts the transaction, and the tool returns `tx_hash` (only that).                                     |
+| Tool               | What it does                                                                                                                                                                                                                          |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pair`             | Starts a pairing (asking for `eip155:1`). Returns the QR code as inline SVG markup for the assistant to render (default), or writes a PNG file. Returns `pairing_topic` and `seconds_remaining`, and a wallet `deep_link` on request. |
+| `wait_for_pairing` | Waits up to `timeout_s` (max 300) for the wallet to approve. Returns `settled` (with the session), `failed` (with `error`) or `pending` with seconds left.                                                                            |
+| `session_status`   | Lists sessions: topic, wallet name, accounts, approved `chains`, `expiry` (unix), `expiry_iso` (UTC), `expires_in_s`, `reachable`.                                                                                                    |
+| `disconnect`       | Ends a session: tells the wallet (`wc_sessionDelete`) and forgets it.                                                                                                                                                                 |
+| `sign_message`     | `personal_sign` for a text message. Returns `address`, `chain_id` and `signature`.                                                                                                                                                    |
+| `sign_typed_data`  | `eth_signTypedData_v4` for an EIP-712 object. Returns `address`, `chain_id`, `signature`, `added_eip712_domain` and, when needed, `warnings`.                                                                                         |
+| `send_transaction` | `eth_sendTransaction` with `to`, `value_wei`, `data` and `gas`. The wallet signs and broadcasts the transaction, and the tool returns `tx_hash` (only that).                                                                          |
 
 ### Pairing and the QR code
 
@@ -113,9 +114,14 @@ inline widget or artifact tool. Nothing is written to disk, and the `wc:` URI ne
 only as the QR pattern (`include_uri=true` is refused in this mode). The markup is built to be easy
 to reproduce exactly and to scan:
 
-- All dark modules are one `<path>` (a stroke along each run of dark modules in a row), so a typical
-  pairing URI comes to about 5.3 KB (65×65 modules). The result reports `qr_svg_bytes` and
-  `qr_modules`, and repeats the markup as `qr_svg`.
+- Error correction level L, exactly (no automatic boost to a higher level), and never a Micro QR.
+  L needs the fewest modules, and a QR on a screen doesn't get scratched or dirty. A typical
+  pairing URI (about 190 characters) is a version 8 code: 57×57 modules with the quiet zone,
+  instead of 65×65 at level M. The PNG and SVG files use level L too, as does `qr="text"`.
+- All dark modules are one `<path>`: a stroke along each run of dark modules in a row, with
+  relative moves and integer coordinates. That's about 4.0 KB for a typical pairing URI (it was
+  5.3 KB at level M). The result reports `qr_svg_bytes` and `qr_modules`, and repeats the markup as
+  `qr_svg`.
 - A 4-module white quiet zone and an explicit white background `<rect>`, so it scans in dark mode.
 - A square `viewBox` with `width="100%"` and no fixed height, and `shape-rendering="crispEdges"`,
   so it scales up sharply.
@@ -124,9 +130,9 @@ to reproduce exactly and to scan:
 The result looks like this (the markup is shortened here):
 
 ```text
-Render this SVG QR code exactly as given (everything between the markers) with your inline widget/artifact tool at a large size (5297 bytes):
+Render this SVG QR code exactly as given (everything between the markers) with your inline widget/artifact tool at a large size (3960 bytes):
 -----BEGIN QR SVG-----
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 65 65" width="100%" shape-rendering="crispEdges"><rect width="65" height="65" fill="#fff"/><path stroke="#000" d="M4 4.5h7m2 0h1…"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 57 57" width="100%" shape-rendering="crispEdges"><rect width="57" height="57" fill="#fff"/><path stroke="#000" d="M4 4.5h7m2 0h1…"/></svg>
 -----END QR SVG-----
 pairing_topic: 67c7f3aa…
 expires: 2026-11-03T01:47:17Z (300s)
@@ -190,6 +196,39 @@ settled or expired (5 minutes), but anything in a result stays in the chat trans
 leaves it out by default; pass `include_uri=true` only when the user wants to paste it into their
 wallet. The QR encodes the same URI, which is why its file is private and short-lived.
 ```
+
+### Wallet deep links
+
+If the user is chatting on the same phone as their wallet, they can't scan the QR. For that case (or
+when scanning fails), `pair(deep_link="<wallet>")` also returns a link that opens the wallet with
+the pairing request. It's off by default, and the server instructions tell the assistant to offer
+it only when the user is on the same phone or can't scan. It works with every `qr` mode, including
+the default `svg_inline` (and with `qr="none"`, the link alone). The result gets `deep_link`,
+`deep_link_wallet` and `deep_link_warning`, and the text has a line with the link.
+
+```{warning}
+The deep link contains the URL-encoded `wc:` URI, symmetric key included: it's the same short-lived
+secret as the URI (see above). Only ask for it when the user needs it, and only give it to them.
+```
+
+Each link is the wallet's WalletConnect link with `?uri=` followed by the `wc:` URI, URL-encoded
+like JavaScript's `encodeURIComponent`. This is the format in WalletConnect's
+[mobile linking docs](https://docs.walletconnect.com/wallets/ios/mobile-linking). Only wallets whose
+link we could check against the wallet's own docs or code, and against the wallet's entry in the
+[WalletConnect Explorer](https://explorer.walletconnect.com/) registry, are included. The https
+universal links open the app if it's installed and a web page otherwise.
+
+| `deep_link`              | Link                                        | Sources                                                                                                                                                                                                                                                                                                                                                                              |
+| ------------------------ | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `metamask`               | `https://metamask.app.link/wc?uri=<uri>`    | Registry (`mobile.universal`: `https://metamask.app.link`); MetaMask Mobile's [deep link actions](https://github.com/MetaMask/metamask-mobile/blob/main/app/constants/deeplinks.ts) (`wc`) and [universal link host](https://github.com/MetaMask/metamask-mobile/blob/main/app/core/AppConstants.ts)                                                                                 |
+| `rainbow`                | `https://rnbwapp.com/wc?uri=<uri>`          | Registry (`mobile.universal`: `https://rnbwapp.com`); Rainbow's [RainbowKit connector](https://github.com/rainbow-me/rainbowkit/blob/main/packages/rainbowkit/src/wallets/walletConnectors/rainbowWallet/rainbowWallet.ts)                                                                                                                                                           |
+| `trust`                  | `https://link.trustwallet.com/wc?uri=<uri>` | Registry (`mobile.universal`: `https://link.trustwallet.com`); Trust Wallet's [deep linking docs](https://developer.trustwallet.com/developer/develop-for-trust/deeplinking)                                                                                                                                                                                                         |
+| `uniswap`                | `https://uniswap.org/app/wc?uri=<uri>`      | Registry (`mobile.universal`: `https://uniswap.org/app`); the Uniswap Wallet's [deep link constants](https://github.com/Uniswap/interface/blob/main/apps/mobile/src/features/deepLinking/constants.ts) (`UNISWAP_WALLETCONNECT_URL`)                                                                                                                                                 |
+| `zerion`                 | `zerion://wc?uri=<uri>`                     | Registry (`mobile.native`: `zerion://`); the [RainbowKit Zerion connector](https://github.com/rainbow-me/rainbowkit/blob/main/packages/rainbowkit/src/wallets/walletConnectors/zerionWallet/zerionWallet.ts). Zerion's registry universal link (`https://wallet.zerion.io/wc`) has no documented `?uri=` form, so this is the app's URL scheme: it only works with Zerion installed. |
+| `generic` or `universal` | the `wc:` URI itself                        | WalletConnect's [Android mobile linking docs](https://docs.walletconnect.com/wallets/android/mobile-linking): wallets register the `wc:` scheme, so Android offers a choice of installed wallets. iOS doesn't route `wc:` links reliably; name the wallet there.                                                                                                                     |
+
+Other wallets (Coinbase Wallet, Phantom, Ledger Live and so on) aren't included. An unknown name
+is refused with `invalid_argument:` and the list of supported names, before any pairing starts.
 
 ### Choosing the session, account and chain
 

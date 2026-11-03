@@ -10,6 +10,7 @@ import re
 import stat
 import subprocess
 import sys
+import urllib.parse
 from pathlib import Path
 
 import pytest
@@ -26,6 +27,8 @@ from examples.mcp_server.server import (  # noqa: E402
     QR_DIR_ENV,
     SVG_BEGIN,
     SVG_END,
+    WALLET_DEEP_LINKS,
+    _make_qr,
     _open_in_viewer,
     _open_qr_decision,
     _viewer_command,
@@ -33,6 +36,7 @@ from examples.mcp_server.server import (  # noqa: E402
     normalize_chain_id,
     parse_quantity,
     svg_inline_qr,
+    wallet_deep_link,
     with_eip712_domain,
 )
 from tests.fake_relay import run_fake_relay  # noqa: E402
@@ -522,10 +526,30 @@ def _rasterize(svg: str) -> tuple[int, list[list[bool]]]:
 def _matrix(uri: str, border: int = 4) -> list[list[bool]]:
     import segno
 
-    rows = [[bool(v) for v in row] for row in segno.make(uri, error="m", micro=False).matrix]
+    qr = segno.make(uri, error="l", boost_error=False, micro=False)
+    rows = [[bool(v) for v in row] for row in qr.matrix]
     width = len(rows) + 2 * border
     pad = [[False] * width for _ in range(border)]
     return pad + [[False] * border + row + [False] * border for row in rows] + pad
+
+
+def test_pairing_qr_is_level_l():
+    # Error level L exactly (no boost to M/Q/H) gives the fewest modules: version 8 (49
+    # modules, 57 with the quiet zone) for a typical ~190-char pairing URI, versus 10 at M.
+    uri = (
+        "wc:"
+        + "a" * 64
+        + "@2?relay-protocol=irn&symKey="
+        + "b" * 64
+        + "&expiryTimestamp=1793671855"
+    )
+    qr = _make_qr(uri)
+    assert qr.error == "L"
+    assert not qr.is_micro
+    assert qr.version == 8
+    svg, size = svg_inline_qr(uri)
+    assert size == 57
+    assert len(svg.encode()) < 4500
 
 
 def test_svg_inline_qr_shape():
@@ -617,3 +641,116 @@ async def test_mcp_example_pair_svg_inline_is_the_default(tmp_path, monkeypatch)
         assert len(opener.calls) == 1
         monkeypatch.setenv(OPEN_QR_ENV, "1")
         assert (await _call(mcp, "pair"))["qr_opened"] is True
+
+
+PAIRING_URI = (
+    "wc:7f6e1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f@2"
+    "?relay-protocol=irn&symKey=" + "ab" * 32 + "&expiryTimestamp=1793671855"
+)
+
+
+@pytest.mark.parametrize(
+    ("wallet", "prefix"),
+    [
+        ("metamask", "https://metamask.app.link/wc?uri="),
+        ("rainbow", "https://rnbwapp.com/wc?uri="),
+        ("trust", "https://link.trustwallet.com/wc?uri="),
+        ("uniswap", "https://uniswap.org/app/wc?uri="),
+        ("zerion", "zerion://wc?uri="),
+        (" MetaMask ", "https://metamask.app.link/wc?uri="),
+    ],
+)
+def test_wallet_deep_link(wallet, prefix):
+    name, link = wallet_deep_link(PAIRING_URI, wallet)
+    assert name
+    assert link.startswith(prefix)
+    encoded = link.removeprefix(prefix)
+    # URL-encoded like encodeURIComponent: no raw separators survive...
+    assert not set(":@?&=/") & set(encoded)
+    # ...and it decodes back to exactly the pairing URI.
+    query = urllib.parse.urlsplit(link).query
+    assert urllib.parse.parse_qs(query, strict_parsing=True) == {"uri": [PAIRING_URI]}
+
+
+def test_wallet_deep_link_table_prefers_https():
+    for key, (_name, base) in WALLET_DEEP_LINKS.items():
+        assert base.endswith("wc?uri=")
+        assert base.startswith("https://") or key == "zerion"  # see the comment in the table
+
+
+@pytest.mark.parametrize("wallet", ["generic", "universal", "Generic"])
+def test_wallet_deep_link_generic_is_the_wc_uri(wallet):
+    _name, link = wallet_deep_link(PAIRING_URI, wallet)
+    assert link == PAIRING_URI
+
+
+def test_wallet_deep_link_rejects_unknown_wallets():
+    with pytest.raises(ValueError, match="metamask, rainbow, trust, uniswap, zerion"):
+        wallet_deep_link(PAIRING_URI, "phantom")
+
+
+async def test_mcp_example_pair_deep_link(tmp_path, monkeypatch):
+    monkeypatch.setenv(QR_DIR_ENV, str(tmp_path))
+    uris: list[str] = []
+
+    class Recording(SignClient):
+        async def connect(self, *args, **kwargs):
+            uri, task = await super().connect(*args, **kwargs)
+            uris.append(uri)
+            return uri, task
+
+    def factory() -> SignClient:
+        return Recording(project_id="test", relay_url=url, metadata=METADATA, connect_timeout=10)
+
+    async with run_fake_relay() as (_fake, url), Client(create_server(factory)) as mcp:
+        # Off by default.
+        pair = await _call(mcp, "pair")
+        assert not {"deep_link", "deep_link_wallet", "deep_link_warning"} & set(pair)
+
+        # Opt-in, alongside the default svg_inline QR.
+        raw = await mcp.call_tool("pair", {"deep_link": "trust"})
+        assert not raw.is_error, raw.content
+        pair = raw.structured_content
+        uri = uris[-1]
+        assert pair["qr_format"] == "svg_inline"
+        assert "qr_svg" in pair
+        assert "uri" not in pair
+        prefix = "https://link.trustwallet.com/wc?uri="
+        assert pair["deep_link"] == prefix + urllib.parse.quote(uri, safe="")
+        assert pair["deep_link_wallet"] == "Trust Wallet"
+        assert "symKey" in pair["deep_link_warning"]
+        body = raw.content[0].text  # type: ignore[union-attr]
+        assert pair["deep_link"] in body
+        assert "contains the pairing secret" in body
+        _, grid = _rasterize(pair["qr_svg"])
+        assert grid == _matrix(uri)  # the QR is unchanged
+
+        # The link pairs.
+        query = urllib.parse.urlsplit(pair["deep_link"]).query
+        (decoded,) = urllib.parse.parse_qs(query)["uri"]
+        assert decoded == uri
+        wallet = await FakeWallet(url, decoded).start()
+        try:
+            status = await _call(
+                mcp, "wait_for_pairing", pairing_topic=pair["pairing_topic"], timeout_s=5
+            )
+            assert status["status"] == "settled"
+        finally:
+            await wallet.close()
+
+        # A deep link alone is enough for qr="none".
+        pair = await _call(mcp, "pair", qr="none", deep_link="metamask")
+        assert pair["deep_link"].startswith("https://metamask.app.link/wc?uri=wc%3A")
+
+        count = len(uris)
+        refused = await _error(mcp, "pair", deep_link="phantom")
+        assert refused.startswith("invalid_argument:")
+        assert "metamask" in refused
+        assert len(uris) == count  # refused before starting a pairing
+
+
+def test_instructions_offer_deep_links_only_when_needed():
+    instructions = " ".join(server_module.INSTRUCTIONS.split())
+    assert "deep link only if the user is on the same phone" in instructions
+    for key in WALLET_DEEP_LINKS:
+        assert key in instructions
