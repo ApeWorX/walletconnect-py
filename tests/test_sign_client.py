@@ -68,6 +68,7 @@ async def scripted_wallet(
 
         done = asyncio.Event()
         answered = 0
+        answered_ids: set[int] = set()  # the relay may redeliver (resubscribe/fetch)
 
         async def on_session(message) -> None:
             nonlocal answered
@@ -75,6 +76,8 @@ async def scripted_wallet(
                 return
             payload = decode_jsonrpc(message.message, sym_key=sym_key)
             if payload.get("method") == "wc_sessionRequest":
+                first_time = payload["id"] not in answered_ids
+                answered_ids.add(payload["id"])
                 result = {
                     "id": payload["id"],
                     "jsonrpc": "2.0",
@@ -87,7 +90,7 @@ async def scripted_wallet(
                     ttl=ropts.ttl,
                     tag=ropts.tag,
                 )
-                answered += 1
+                answered += first_time
                 if answered >= n_requests:
                     done.set()
 

@@ -45,6 +45,7 @@ class SyncSignClient:
         origin: str | None = None,
         connect_timeout: float = _CONNECT_TIMEOUT,
         request_timeout: float = _REQUEST_TIMEOUT,
+        auto_reconnect: bool = True,
     ) -> None:
         self._client = SignClient(
             project_id,
@@ -55,6 +56,7 @@ class SyncSignClient:
             origin=origin,
             connect_timeout=connect_timeout,
             request_timeout=request_timeout,
+            auto_reconnect=auto_reconnect,
         )
         self._loop = asyncio.new_event_loop()
         self._thread = threading.Thread(
