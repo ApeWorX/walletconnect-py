@@ -55,6 +55,12 @@ test = [
     "pytest-cov",
     "hypothesis>=6.2.0,<7",
     "segno>=1.6,<2",  # Exercise the optional `qr` extra
+    {include-group = "examples"},  # Smoke-test the example apps
+]
+examples = [
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
+    "httpx>=0.27",  # fastapi.testclient
 ]
 lint = [
     "mypy>=1.15.0,<2",

@@ -78,6 +78,12 @@ uv run --extra cli python examples/async_cli.py
 # or: uv run --with 'cyclopts>=3,<6' --extra qr python examples/async_cli.py
 ```
 
+HTTP service variant ([FastAPI](https://fastapi.tiangolo.com): pair over `POST /pair`, sign via `POST /sessions/{topic}/sign`):
+
+```bash
+uv run --group examples --extra qr uvicorn examples.fastapi_app.app:app  # demo page at http://localhost:8000/
+```
+
 ```python
 from walletconnect.qr import print_qr
 from walletconnect.sign import SyncSignClient

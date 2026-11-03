@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WalletConnect Python Demo</title>
+<style>
+  :root { color-scheme: light dark; --b: #8884; }
+  body { font: 15px/1.45 system-ui, sans-serif; max-width: 46rem; margin: 2rem auto; padding: 0 1rem; }
+  h1 { font-size: 1.4rem; } h2 { font-size: 1.1rem; margin-top: 2rem; }
+  section { border: 1px solid var(--b); border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+  button { font: inherit; padding: .35rem .8rem; border-radius: 6px; border: 1px solid var(--b); cursor: pointer; }
+  button:disabled { opacity: .5; cursor: default; }
+  code, textarea, input { font-family: ui-monospace, monospace; }
+  textarea { width: 100%; box-sizing: border-box; min-height: 4rem; }
+  #qr img { width: 220px; height: 220px; background: #fff; padding: 8px; border-radius: 6px; }
+  .row { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+  .uri { flex: 1; min-width: 12rem; }
+  .muted { opacity: .7; } .err { color: #d33; } .ok { color: #2a2; word-break: break-all; }
+  ul { list-style: none; padding: 0; } li { border-top: 1px solid var(--b); padding: .6rem 0; }
+</style>
+</head>
+<body>
+<h1>WalletConnect Python Demo</h1>
+<p class="muted">Pair a mobile wallet, then ask it to sign a message. This page only calls the JSON API
+of this example server; see <a href="docs">/docs</a> for the full API.</p>
+
+<section>
+  <h2>1. Pair a wallet</h2>
+  <button id="pair">Pair</button>
+  <div id="pairing" hidden>
+    <div id="qr"></div>
+    <div class="row">
+      <input id="uri" class="uri" readonly aria-label="Pairing URI">
+      <button id="copy">Copy URI</button>
+    </div>
+    <p id="pair-status" class="muted"></p>
+  </div>
+</section>
+
+<section>
+  <h2>2. Sessions</h2>
+  <button id="refresh">Refresh</button>
+  <ul id="sessions"></ul>
+</section>
+
+<section>
+  <h2>3. Sign a message</h2>
+  <textarea id="message" aria-label="Message">Hello from WalletConnect Python Demo</textarea>
+  <p class="muted">Press <b>Sign</b> next to a session above, then approve on your phone.</p>
+  <p id="sign-result"></p>
+</section>
+
+<script>
+"use strict";
+// Every server value is inserted with textContent or as an <img> data URL (never innerHTML),
+// so nothing returned by the API can run script in this page.
+const $ = (id) => document.getElementById(id);
+
+async function api(method, path, body) {
+  const res = await fetch(path, {
+    method,
+    headers: body ? { "content-type": "application/json" } : {},
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (res.status === 204) return null;
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const detail = typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail ?? data);
+    throw new Error(`${res.status}: ${detail}`);
+  }
+  return data;
+}
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+$("pair").onclick = async () => {
+  const btn = $("pair");
+  btn.disabled = true;
+  const status = $("pair-status");
+  status.className = "muted";
+  try {
+    const pair = await api("POST", "/pair?qr=svg");
+    $("pairing").hidden = false;
+    $("uri").value = pair.uri;
+    const qr = $("qr");
+    qr.replaceChildren();
+    if (pair.qr_svg) {
+      // An SVG loaded through <img> is rendered as an image: scripts and links in it are inert.
+      const img = document.createElement("img");
+      img.alt = "Pairing QR code";
+      img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(pair.qr_svg);
+      qr.append(img);
+    }
+    status.textContent = "Scan with your wallet… waiting for approval";
+    for (;;) {
+      await sleep(1500);
+      const s = await api("GET", "/pairings/" + encodeURIComponent(pair.pairing_topic));
+      if (s.status === "settled") {
+        status.className = "ok";
+        status.textContent = "Connected.";
+        $("qr").replaceChildren();
+        await loadSessions();
+        break;
+      }
+      if (s.status === "failed") throw new Error(s.error || "pairing failed");
+    }
+  } catch (e) {
+    status.className = "err";
+    status.textContent = String(e.message || e);
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+$("copy").onclick = async () => {
+  try { await navigator.clipboard.writeText($("uri").value); }
+  catch { $("uri").select(); document.execCommand("copy"); }
+};
+
+function sessionRow(s) {
+  const li = document.createElement("li");
+  const name = document.createElement("b");
+  name.textContent = s.peer_name || "Unknown wallet";
+  const meta = document.createElement("div");
+  meta.className = "muted";
+  meta.textContent = `${s.accounts.join(", ")} · expires ${new Date(s.expiry * 1000).toLocaleString()}`;
+  const sign = document.createElement("button");
+  sign.textContent = "Sign";
+  sign.onclick = () => signWith(s.topic, sign);
+  const del = document.createElement("button");
+  del.textContent = "Disconnect";
+  del.onclick = async () => {
+    del.disabled = true;
+    try { await api("DELETE", "/sessions/" + encodeURIComponent(s.topic)); }
+    catch (e) { alert(e.message || e); }
+    await loadSessions();
+  };
+  const row = document.createElement("div");
+  row.className = "row";
+  row.append(sign, del);
+  li.append(name, meta, row);
+  return li;
+}
+
+async function loadSessions() {
+  const list = $("sessions");
+  try {
+    const sessions = await api("GET", "/sessions");
+    list.replaceChildren(...sessions.map(sessionRow));
+    if (!sessions.length) {
+      const li = document.createElement("li");
+      li.className = "muted";
+      li.textContent = "No sessions yet. Pair a wallet first.";
+      list.append(li);
+    }
+  } catch (e) {
+    const li = document.createElement("li");
+    li.className = "err";
+    li.textContent = String(e.message || e);
+    list.replaceChildren(li);
+  }
+}
+
+async function signWith(topic, btn) {
+  const out = $("sign-result");
+  btn.disabled = true;
+  out.className = "muted";
+  out.textContent = "Waiting for approval on your phone…";
+  try {
+    const r = await api("POST", "/sessions/" + encodeURIComponent(topic) + "/sign", {
+      method: "personal_sign",
+      message: $("message").value,
+    });
+    out.className = "ok";
+    out.textContent = "Signature: " + r.signature;
+  } catch (e) {
+    out.className = "err";
+    out.textContent = String(e.message || e);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+$("refresh").onclick = loadSessions;
+loadSessions();
+</script>
+</body>
+</html>

@@ -229,11 +229,12 @@ soon as the socket drops.
 
 ## Examples
 
-The repository ships two runnable demos:
+The repository ships these runnable demos:
 
 - `examples/terminal_connect.py` uses `SyncSignClient`.
 - `examples/async_cli.py` is an async [Cyclopts](https://cyclopts.readthedocs.io) CLI (install the
   `cli` extra).
+- `examples/fastapi_app/` is an HTTP service for pairing and signing (see the [FastAPI example](fastapi)).
 
-Both show up in the wallet as "WalletConnect CLI Demo"; pass `--name`, `--url`, `--description`,
+The two CLI demos show up in the wallet as "WalletConnect CLI Demo"; pass `--name`, `--url`, `--description`,
 and `--icon` to change what the wallet displays.
