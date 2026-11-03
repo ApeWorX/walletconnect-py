@@ -61,7 +61,8 @@ Environment variables:
 - `WALLETCONNECT_QR_DIR` (optional): the folder where `pair` writes QR images. Without it, and
   without a `qr_path` argument, they go to a new file in the system temp directory.
 - `WALLETCONNECT_OPEN_QR` (optional): `1` or `0` to always or never open the pairing QR in the
-  system image viewer (see below). The `open_qr` argument of `pair` overrides it.
+  system image viewer (see below). The `open_qr` argument of `pair` overrides it. With the default
+  `qr="svg_inline"`, only `1` (or `open_qr=true`) opens a viewer.
 - `WALLETCONNECT_RELAY_URL` (optional): a different relay.
 - `WALLETCONNECT_REQUEST_TIMEOUT` (optional): how long to wait for the user to approve, in
   seconds. Defaults to 300.
@@ -69,7 +70,14 @@ Environment variables:
 ## Tools
 
 ```python
-pair(qr="png", qr_path=None, include_uri=False, include_image=True, qr_scale=None, open_qr=None)
+pair(
+    qr="svg_inline",  # or "png", "svg", "text", "none"
+    qr_path=None,
+    include_uri=False,
+    include_image=True,
+    qr_scale=None,
+    open_qr=None,
+)
 wait_for_pairing(pairing_topic, timeout_s=60)
 session_status(pairing_topic=None, check_reachable=False)
 disconnect(topic=None)
@@ -87,26 +95,56 @@ send_transaction(
 )
 ```
 
-| Tool               | What it does                                                                                                                                                                  |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pair`             | Starts a pairing (asking for `eip155:1`). Writes a PNG QR file, opens it in the image viewer on a desktop, and returns `qr_opened`, `qr_path`, the image and `pairing_topic`. |
-| `wait_for_pairing` | Waits up to `timeout_s` (max 300) for the wallet to approve. Returns `settled` (with the session), `failed` (with `error`) or `pending` with seconds left.                    |
-| `session_status`   | Lists sessions: topic, wallet name, accounts, approved `chains`, `expiry` (unix), `expiry_iso` (UTC), `expires_in_s`, `reachable`.                                            |
-| `disconnect`       | Ends a session: tells the wallet (`wc_sessionDelete`) and forgets it.                                                                                                         |
-| `sign_message`     | `personal_sign` for a text message. Returns `address`, `chain_id` and `signature`.                                                                                            |
-| `sign_typed_data`  | `eth_signTypedData_v4` for an EIP-712 object. Returns `address`, `chain_id`, `signature`, `added_eip712_domain` and, when needed, `warnings`.                                 |
-| `send_transaction` | `eth_sendTransaction` with `to`, `value_wei`, `data` and `gas`. The wallet signs and broadcasts the transaction, and the tool returns `tx_hash` (only that).                  |
+| Tool               | What it does                                                                                                                                                                                     |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `pair`             | Starts a pairing (asking for `eip155:1`). Returns the QR code as inline SVG markup for the assistant to render (default), or writes a PNG file. Returns `pairing_topic` and `seconds_remaining`. |
+| `wait_for_pairing` | Waits up to `timeout_s` (max 300) for the wallet to approve. Returns `settled` (with the session), `failed` (with `error`) or `pending` with seconds left.                                       |
+| `session_status`   | Lists sessions: topic, wallet name, accounts, approved `chains`, `expiry` (unix), `expiry_iso` (UTC), `expires_in_s`, `reachable`.                                                               |
+| `disconnect`       | Ends a session: tells the wallet (`wc_sessionDelete`) and forgets it.                                                                                                                            |
+| `sign_message`     | `personal_sign` for a text message. Returns `address`, `chain_id` and `signature`.                                                                                                               |
+| `sign_typed_data`  | `eth_signTypedData_v4` for an EIP-712 object. Returns `address`, `chain_id`, `signature`, `added_eip712_domain` and, when needed, `warnings`.                                                    |
+| `send_transaction` | `eth_sendTransaction` with `to`, `value_wei`, `data` and `gas`. The wallet signs and broadcasts the transaction, and the tool returns `tx_hash` (only that).                                     |
 
 ### Pairing and the QR code
 
-`pair` writes a PNG by default (`qr="svg"` for SVG; both are drawn by `segno`, so no Pillow is
-needed). The file goes to `qr_path` if you pass one, else `$WALLETCONNECT_QR_DIR`, else a new file
+By default (`qr="svg_inline"`) `pair` returns the QR code as SVG markup in the result text, between
+`-----BEGIN QR SVG-----` and `-----END QR SVG-----`, for the assistant to copy verbatim into its
+inline widget or artifact tool. Nothing is written to disk, and the `wc:` URI never appears as text,
+only as the QR pattern (`include_uri=true` is refused in this mode). The markup is built to be easy
+to reproduce exactly and to scan:
+
+- All dark modules are one `<path>` (a stroke along each run of dark modules in a row), so a typical
+  pairing URI comes to about 5.3 KB (65×65 modules). The result reports `qr_svg_bytes` and
+  `qr_modules`, and repeats the markup as `qr_svg`.
+- A 4-module white quiet zone and an explicit white background `<rect>`, so it scans in dark mode.
+- A square `viewBox` with `width="100%"` and no fixed height, and `shape-rendering="crispEdges"`,
+  so it scales up sharply.
+- No XML declaration, `<title>` or `<desc>`.
+
+The result looks like this (the markup is shortened here):
+
+```text
+Render this SVG QR code exactly as given (everything between the markers) with your inline widget/artifact tool at a large size (5297 bytes):
+-----BEGIN QR SVG-----
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 65 65" width="100%" shape-rendering="crispEdges"><rect width="65" height="65" fill="#fff"/><path stroke="#000" d="M4 4.5h7m2 0h1…"/></svg>
+-----END QR SVG-----
+pairing_topic: 67c7f3aa…
+expires: 2026-11-03T01:47:17Z (300s)
+After pair, render the returned SVG exactly as given with your inline widget/artifact tool at a large size, tell the user to scan it with their wallet, then call wait_for_pairing. If you cannot render widgets, call pair again with qr="text" or qr="png".
+```
+
+In this mode the server doesn't open an image viewer unless asked (`open_qr=true` or
+`WALLETCONNECT_OPEN_QR=1`); then it also writes a PNG file and opens it.
+
+If the client can't render widgets, use one of the other modes. `qr="png"` writes a PNG file
+(`qr="svg"` an SVG file; both are drawn by `segno`, so no Pillow is needed). The file goes to `qr_path` if you pass one, else `$WALLETCONNECT_QR_DIR`, else a new file
 in the system temp directory. It's written with `0600` permissions and deleted as soon as the
 pairing settles or fails, or the server stops. The PNG is about 600 pixels wide (a 4-module quiet
 zone, scale picked to fit), big enough to scan straight off a laptop screen. `qr_scale` (pixels
 per module, 1 to 20) overrides that, and the result reports `qr_width_px`.
 
-The QR reaches the user in several ways at once, because what a client shows varies:
+With `qr="png"` the QR reaches the user in several ways at once, because what a client shows
+varies:
 
 - **A viewer window.** When the server runs in a desktop session, `pair` opens the PNG in the
   system image viewer: `xdg-open` on Linux when `DISPLAY` or `WAYLAND_DISPLAY` is set, `open` on
@@ -126,12 +164,13 @@ The QR reaches the user in several ways at once, because what a client shows var
   `walletconnect://pairing/<pairing_topic>/qr.png`, and the result links to it (`resource_link`),
   so clients that support resources can attach it.
 
-How (and whether) the image is rendered depends on the client, so the server tells the assistant to
+How (and whether) a QR is rendered depends on the client, so the server tells the assistant to
 present the QR itself. The server-level `instructions` (sent when the client connects) and the
-`pair` description both say: after `pair`, if `qr_opened` is true, tell the user the QR code
-opened in a window and to scan it with their wallet app; otherwise show the QR code prominently in
-the reply (render the image, or give the path to open). Then call `wait_for_pairing`, and never
-paste the `wc:` URI unless asked.
+`pair` description both say: "After pair, render the returned SVG exactly as given with your inline
+widget/artifact tool at a large size, tell the user to scan it with their wallet, then call
+wait_for_pairing. If you cannot render widgets, call pair again with qr="text" or qr="png"." For
+`qr="png"`, if `qr_opened` is true the assistant says the QR opened in a window; otherwise it shows
+the image or gives the path. It never pastes the `wc:` URI unless asked.
 
 `qr="text"` returns the QR inline as text instead, in the most compact form: Unicode half blocks
 (two module rows per line), error correction level L, never a Micro QR, and a 2-module quiet zone
@@ -205,8 +244,8 @@ wallet), and `reachable` shows the result.
 
 A typical conversation:
 
-1. The assistant calls `session_status`, sees no sessions, then calls `pair` and shows the QR
-   image (or tells the user where the file is).
+1. The assistant calls `session_status`, sees no sessions, then calls `pair` and renders the
+   returned SVG QR code in the chat (or, with `qr="png"`, shows the image or the file path).
 2. The user scans it, and the assistant calls `wait_for_pairing(pairing_topic=...)` until it's
    `settled`.
 3. The assistant calls `send_transaction` and tells the user to check their phone. The user
