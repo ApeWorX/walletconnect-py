@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en" data-accent-color="lime" data-content_root="../">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Exceptions - walletconnect documentation</title><link rel="shortcut icon" href="../_static/favicon.ico"/><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Pairing" href="pairing.html" /><link rel="prev" title="Crypto" href="crypto.html" />
+      <link rel="canonical" href="walletconnect/methoddocs/exceptions.html" /><script>
+    function setColorMode(t){let e=document.documentElement;e.setAttribute("data-color-mode",t);let a=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,s=t;"auto"===t&&(s=a?"dark":"light"),"light"===s?(e.classList.remove("dark"),e.classList.add("light")):(e.classList.remove("light"),e.classList.add("dark"))}
+    setColorMode(localStorage._theme||"auto");
+  </script><link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=e1a1ceaf" />
+    <link rel="stylesheet" type="text/css" href="../_static/shibuya.css?v=2ceb65ce" />
+    <link media="print" rel="stylesheet" type="text/css" href="../_static/print.css?v=20ff2c19" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-text: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+  --sy-f-heading: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="walletconnect/methoddocs/exceptions.html"/>
+  <meta property="og:title" content="Exceptions"/>
+    <meta name="twitter:card" content="summary"/>
+  </head>
+<body><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand" href="../index.html">
+      <img class="light-logo" src="../_static/logo_grey.svg" alt="walletconnect" height="28" loading="lazy" />
+      <img class="dark-logo" src="../_static/logo_green.svg" alt="walletconnect" height="28" loading="lazy" />
+      <strong>walletconnect</strong>
+    </a>
+    <div class="sy-head-nav" id="head-nav">
+      <nav class="sy-head-links"></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <kbd>/</kbd>
+</form><div class="sy-head-socials"></div></div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden"><button class="js-theme theme-switch flex items-center"
+data-aria-auto="Switch to light color mode"
+data-aria-light="Switch to dark color mode"
+data-aria-dark="Switch to auto color mode">
+<i class="i-lucide theme-icon"></i>
+</button><button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="head-nav" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2"></span>
+          <span class="hamburger_3"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading" aria-level="3"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../userguides/quickstart.html">WalletConnect (Python)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguides/connecting.html">Connecting to a Mobile Wallet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguides/fastapi.html">FastAPI example app</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguides/long-running.html">Long-running sessions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguides/mcp.html">MCP server example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguides/testing.html">Testing</a></li>
+</ul>
+<p class="caption" role="heading" aria-level="3"><span class="caption-text">Python Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="crypto.html">Crypto</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pairing.html">Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qr.html">Terminal QR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="relay.html">Relay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sign.html">Sign Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="state.html">State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="types.html">Types</a></li>
+</ul>
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-lucide close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4"><div class="localtoc"><h3>On this page</h3><ul>
+<li><a class="reference internal" href="#walletconnect.exceptions.InvalidCAIPIdentifierError"><code class="docutils literal notranslate"><span class="pre">InvalidCAIPIdentifierError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.InvalidEnvelopeError"><code class="docutils literal notranslate"><span class="pre">InvalidEnvelopeError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.InvalidEventError"><code class="docutils literal notranslate"><span class="pre">InvalidEventError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.InvalidExtendRequestError"><code class="docutils literal notranslate"><span class="pre">InvalidExtendRequestError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.InvalidJWTError"><code class="docutils literal notranslate"><span class="pre">InvalidJWTError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.InvalidKeyError"><code class="docutils literal notranslate"><span class="pre">InvalidKeyError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.InvalidMethodError"><code class="docutils literal notranslate"><span class="pre">InvalidMethodError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.InvalidPairingURIError"><code class="docutils literal notranslate"><span class="pre">InvalidPairingURIError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.InvalidSessionSettleRequestError"><code class="docutils literal notranslate"><span class="pre">InvalidSessionSettleRequestError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.InvalidUpdateRequestError"><code class="docutils literal notranslate"><span class="pre">InvalidUpdateRequestError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.MissingProjectIdError"><code class="docutils literal notranslate"><span class="pre">MissingProjectIdError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.NoActiveSessionError"><code class="docutils literal notranslate"><span class="pre">NoActiveSessionError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.NoSessionForTopicError"><code class="docutils literal notranslate"><span class="pre">NoSessionForTopicError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.RelayConnectionError"><code class="docutils literal notranslate"><span class="pre">RelayConnectionError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.RelayDisconnectedError"><code class="docutils literal notranslate"><span class="pre">RelayDisconnectedError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.RelayError"><code class="docutils literal notranslate"><span class="pre">RelayError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.SdkError"><code class="docutils literal notranslate"><span class="pre">SdkError</span></code></a><ul>
+<li><a class="reference internal" href="#walletconnect.exceptions.SdkError.from_code"><code class="docutils literal notranslate"><span class="pre">SdkError.from_code()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.SdkError.to_json"><code class="docutils literal notranslate"><span class="pre">SdkError.to_json()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#walletconnect.exceptions.SessionDeletedError"><code class="docutils literal notranslate"><span class="pre">SessionDeletedError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.SessionExpiredError"><code class="docutils literal notranslate"><span class="pre">SessionExpiredError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.SessionRequestExpiredError"><code class="docutils literal notranslate"><span class="pre">SessionRequestExpiredError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.SessionSettlementFailedError"><code class="docutils literal notranslate"><span class="pre">SessionSettlementFailedError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.USER_REJECTION_CODES"><code class="docutils literal notranslate"><span class="pre">USER_REJECTION_CODES</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.UnauthorizedChainError"><code class="docutils literal notranslate"><span class="pre">UnauthorizedChainError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.UnauthorizedEventError"><code class="docutils literal notranslate"><span class="pre">UnauthorizedEventError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.UnauthorizedExtendRequestError"><code class="docutils literal notranslate"><span class="pre">UnauthorizedExtendRequestError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.UnauthorizedMethodError"><code class="docutils literal notranslate"><span class="pre">UnauthorizedMethodError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.UnauthorizedUpdateRequestError"><code class="docutils literal notranslate"><span class="pre">UnauthorizedUpdateRequestError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.UnsupportedAccountsError"><code class="docutils literal notranslate"><span class="pre">UnsupportedAccountsError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.UnsupportedChainsError"><code class="docutils literal notranslate"><span class="pre">UnsupportedChainsError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.UnsupportedEventsError"><code class="docutils literal notranslate"><span class="pre">UnsupportedEventsError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.UnsupportedMethodsError"><code class="docutils literal notranslate"><span class="pre">UnsupportedMethodsError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.UnsupportedNamespaceKeyError"><code class="docutils literal notranslate"><span class="pre">UnsupportedNamespaceKeyError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.UserDisconnectedError"><code class="docutils literal notranslate"><span class="pre">UserDisconnectedError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.UserRejectedChainsError"><code class="docutils literal notranslate"><span class="pre">UserRejectedChainsError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.UserRejectedError"><code class="docutils literal notranslate"><span class="pre">UserRejectedError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.UserRejectedEventsError"><code class="docutils literal notranslate"><span class="pre">UserRejectedEventsError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.UserRejectedMethodsError"><code class="docutils literal notranslate"><span class="pre">UserRejectedMethodsError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.UserRejectedRequestError"><code class="docutils literal notranslate"><span class="pre">UserRejectedRequestError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.WalletConnectError"><code class="docutils literal notranslate"><span class="pre">WalletConnectError</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.exceptions.WalletConnectTimeoutError"><code class="docutils literal notranslate"><span class="pre">WalletConnectTimeoutError</span></code></a></li>
+</ul>
+</div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div></div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+<div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-lucide menu"></i>
+      </button>
+    </div>
+    <ol class="flex-1" itemscope itemtype="https://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="../index.html"><span itemprop="name">walletconnect</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="1" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <strong itemprop="name">Exceptions</strong>
+        <meta itemprop="position" content="2" />
+      </li></ol>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-lucide outdent"></i>
+      </button>
+    </div>
+  </div>
+</div><div class="flex flex-col break-words justify-between">
+      <div class="relative min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+  <div class="copy-page-wrapper relative pb-4 lg:absolute lg:top-8 lg:right-6 xl:right-12">
+  <div id="copy-page-trigger">
+    <button
+      type="button"
+      class="js-copy px-3 py-1 inline-flex items-center gap-1"
+      data-url="walletconnect/_sources/methoddocs/exceptions.md.txt"
+    >
+      <i class="i-lucide" data-icon="copy"></i>
+      <span>Copy page</span>
+    </button>
+    <button class="js-menu px-2 py-1" type="button" aria-label="More actions"
+      aria-haspopup="menu" aria-expanded="false" aria-controls="copy-page-content">
+      <i class="i-lucide chevron-down"></i>
+    </button>
+  </div>
+  <div id="copy-page-content" role="menu" aria-orientation="vertical" aria-hidden="true">
+    <div role="presentation">
+      <div class="flex flex-col" role="group">
+        <button class="js-copy" type="button" role="menuitem"
+          data-url="walletconnect/_sources/methoddocs/exceptions.md.txt">
+          <span class="iconify-icon">
+            <i class="i-lucide" data-icon="copy"></i>
+          </span>
+          <span>Copy page</span>
+        </button>
+        <a role="menuitem" href="walletconnect/_sources/methoddocs/exceptions.md.txt" target="_blank" rel="nofollow"><iconify-icon icon="bi:markdown"></iconify-icon>
+            <span>View as Markdown</span></a><a role="menuitem" href="https://chatgpt.com/?hints=search&q=Read%20walletconnect/_sources/methoddocs/exceptions.md.txt%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="nofollow">
+          <iconify-icon icon="bi:openai"></iconify-icon>
+          <span>Open in ChatGPT</span>
+        </a><a role="menuitem" href="https://claude.ai/new?q=Read%20walletconnect/_sources/methoddocs/exceptions.md.txt%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="nofollow">
+          <iconify-icon icon="bi:claude"></iconify-icon>
+          <span>Open in Claude</span>
+        </a></div>
+    </div>
+  </div>
+</div><article class="yue" role="main">
+          <section id="module-walletconnect.exceptions">
+<span id="exceptions"></span><h1>Exceptions<a class="headerlink" href="#module-walletconnect.exceptions" title="Link to this heading">#</a></h1>
+<p>Exceptions raised by <code class="docutils literal notranslate"><span class="pre">walletconnect</span></code>.</p>
+<p>Peer (wallet) errors use the WalletConnect SDK error codes:
+<a class="reference external" href="https://specs.walletconnect.com/2.0/specs/clients/sign/error-codes">https://specs.walletconnect.com/2.0/specs/clients/sign/error-codes</a></p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.InvalidCAIPIdentifierError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">InvalidCAIPIdentifierError</span></span><a class="headerlink" href="#walletconnect.exceptions.InvalidCAIPIdentifierError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.WalletConnectError" title="walletconnect.exceptions.WalletConnectError"><code class="xref py py-class docutils literal notranslate"><span class="pre">WalletConnectError</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></p>
+<p>Raised when a CAIP-2 chain ID or CAIP-10 account ID is malformed.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.InvalidEnvelopeError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">InvalidEnvelopeError</span></span><a class="headerlink" href="#walletconnect.exceptions.InvalidEnvelopeError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.WalletConnectError" title="walletconnect.exceptions.WalletConnectError"><code class="xref py py-class docutils literal notranslate"><span class="pre">WalletConnectError</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></p>
+<p>Raised when a typed envelope cannot be decoded or decrypted.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.InvalidEventError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">InvalidEventError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.InvalidEventError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdkError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.InvalidExtendRequestError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">InvalidExtendRequestError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.InvalidExtendRequestError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdkError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.InvalidJWTError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">InvalidJWTError</span></span><a class="headerlink" href="#walletconnect.exceptions.InvalidJWTError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.WalletConnectError" title="walletconnect.exceptions.WalletConnectError"><code class="xref py py-class docutils literal notranslate"><span class="pre">WalletConnectError</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></p>
+<p>Raised when a did-JWT is malformed or its signature does not verify.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.InvalidKeyError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">InvalidKeyError</span></span><a class="headerlink" href="#walletconnect.exceptions.InvalidKeyError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.WalletConnectError" title="walletconnect.exceptions.WalletConnectError"><code class="xref py py-class docutils literal notranslate"><span class="pre">WalletConnectError</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></p>
+<p>Raised when a hex-encoded crypto key is malformed.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.InvalidMethodError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">InvalidMethodError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.InvalidMethodError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdkError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.InvalidPairingURIError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">InvalidPairingURIError</span></span><a class="headerlink" href="#walletconnect.exceptions.InvalidPairingURIError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.WalletConnectError" title="walletconnect.exceptions.WalletConnectError"><code class="xref py py-class docutils literal notranslate"><span class="pre">WalletConnectError</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></p>
+<p>Raised when a <code class="docutils literal notranslate"><span class="pre">wc:</span></code> pairing URI is malformed or unsupported (e.g. WalletConnect v1).</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.InvalidSessionSettleRequestError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">InvalidSessionSettleRequestError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.InvalidSessionSettleRequestError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdkError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.InvalidUpdateRequestError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">InvalidUpdateRequestError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.InvalidUpdateRequestError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdkError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.MissingProjectIdError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">MissingProjectIdError</span></span><a class="headerlink" href="#walletconnect.exceptions.MissingProjectIdError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.WalletConnectError" title="walletconnect.exceptions.WalletConnectError"><code class="xref py py-class docutils literal notranslate"><span class="pre">WalletConnectError</span></code></a></p>
+<p>Raised when no WalletConnect project ID was provided.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.NoActiveSessionError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">NoActiveSessionError</span></span><a class="headerlink" href="#walletconnect.exceptions.NoActiveSessionError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.WalletConnectError" title="walletconnect.exceptions.WalletConnectError"><code class="xref py py-class docutils literal notranslate"><span class="pre">WalletConnectError</span></code></a></p>
+<p>Raised when a call needs a session but none (or several, without <code class="docutils literal notranslate"><span class="pre">topic=</span></code>) exist.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.NoSessionForTopicError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">NoSessionForTopicError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.NoSessionForTopicError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdkError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.RelayConnectionError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">RelayConnectionError</span></span><a class="headerlink" href="#walletconnect.exceptions.RelayConnectionError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.RelayError" title="walletconnect.exceptions.RelayError"><code class="xref py py-class docutils literal notranslate"><span class="pre">RelayError</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ConnectionError</span></code></p>
+<p>Raised when the relay WebSocket cannot be established or drops unexpectedly.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.RelayDisconnectedError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">RelayDisconnectedError</span></span><a class="headerlink" href="#walletconnect.exceptions.RelayDisconnectedError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.RelayConnectionError" title="walletconnect.exceptions.RelayConnectionError"><code class="xref py py-class docutils literal notranslate"><span class="pre">RelayConnectionError</span></code></a></p>
+<p>Raised when a relay request cannot complete because the WebSocket dropped.</p>
+<p>Relay requests (publish, subscribe, …) are retried transparently after an automatic
+reconnect; this is raised only when the connection was not restored within the request
+timeout, when auto-reconnect is disabled, or when the client was closed.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.RelayError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">RelayError</span></span><a class="headerlink" href="#walletconnect.exceptions.RelayError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.WalletConnectError" title="walletconnect.exceptions.WalletConnectError"><code class="xref py py-class docutils literal notranslate"><span class="pre">WalletConnectError</span></code></a></p>
+<p>Raised when the WalletConnect relay returns a JSON-RPC error or protocol fault.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.SdkError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">SdkError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.SdkError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.WalletConnectError" title="walletconnect.exceptions.WalletConnectError"><code class="xref py py-class docutils literal notranslate"><span class="pre">WalletConnectError</span></code></a></p>
+<p>An error returned by the peer as a JSON-RPC error with a WalletConnect SDK error code.</p>
+<p>Use <a class="reference internal" href="#walletconnect.exceptions.SdkError.from_code" title="walletconnect.exceptions.SdkError.from_code"><code class="xref py py-meth docutils literal notranslate"><span class="pre">SdkError.from_code()</span></code></a> to get the most specific subclass for a given code.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="walletconnect.exceptions.SdkError.from_code">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_code</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><span class="pre">SdkError</span></a></span></span><a class="headerlink" href="#walletconnect.exceptions.SdkError.from_code" title="Link to this definition">#</a></dt>
+<dd><p>Build the most specific <a class="reference internal" href="#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdkError</span></code></a> for a JSON-RPC error <code class="docutils literal notranslate"><span class="pre">code</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="walletconnect.exceptions.SdkError.to_json">
+<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#walletconnect.exceptions.SdkError.to_json" title="Link to this definition">#</a></dt>
+<dd><p>Serialize as a JSON-RPC <code class="docutils literal notranslate"><span class="pre">error</span></code> object.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.SessionDeletedError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">SessionDeletedError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reason</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.SessionDeletedError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.WalletConnectError" title="walletconnect.exceptions.WalletConnectError"><code class="xref py py-class docutils literal notranslate"><span class="pre">WalletConnectError</span></code></a></p>
+<p>Raised for requests still waiting on a session when the wallet deletes it
+(<code class="docutils literal notranslate"><span class="pre">wc_sessionDelete</span></code>). The session is dropped; pair again to continue.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.SessionExpiredError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">SessionExpiredError</span></span><a class="headerlink" href="#walletconnect.exceptions.SessionExpiredError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.WalletConnectError" title="walletconnect.exceptions.WalletConnectError"><code class="xref py py-class docutils literal notranslate"><span class="pre">WalletConnectError</span></code></a></p>
+<p>Raised when using a session whose <code class="docutils literal notranslate"><span class="pre">expiry</span></code> has passed (it is dropped from state).</p>
+<p>Also raised for requests still waiting on a session when it expires.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.SessionRequestExpiredError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">SessionRequestExpiredError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.SessionRequestExpiredError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdkError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.SessionSettlementFailedError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">SessionSettlementFailedError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.SessionSettlementFailedError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdkError</span></code></a></p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="walletconnect.exceptions.USER_REJECTION_CODES">
+<span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">USER_REJECTION_CODES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">frozenset</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">frozenset({4001,</span> <span class="pre">5000,</span> <span class="pre">5001,</span> <span class="pre">5002,</span> <span class="pre">5003})</span></em><a class="headerlink" href="#walletconnect.exceptions.USER_REJECTION_CODES" title="Link to this definition">#</a></dt>
+<dd><p>Codes meaning “the user said no” (useful for mapping onto e.g. Ape’s <code class="docutils literal notranslate"><span class="pre">SignatureError</span></code>).</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.UnauthorizedChainError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">UnauthorizedChainError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.UnauthorizedChainError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdkError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.UnauthorizedEventError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">UnauthorizedEventError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.UnauthorizedEventError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdkError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.UnauthorizedExtendRequestError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">UnauthorizedExtendRequestError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.UnauthorizedExtendRequestError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdkError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.UnauthorizedMethodError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">UnauthorizedMethodError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.UnauthorizedMethodError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdkError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.UnauthorizedUpdateRequestError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">UnauthorizedUpdateRequestError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.UnauthorizedUpdateRequestError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdkError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.UnsupportedAccountsError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">UnsupportedAccountsError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.UnsupportedAccountsError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdkError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.UnsupportedChainsError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">UnsupportedChainsError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.UnsupportedChainsError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdkError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.UnsupportedEventsError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">UnsupportedEventsError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.UnsupportedEventsError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdkError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.UnsupportedMethodsError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">UnsupportedMethodsError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.UnsupportedMethodsError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdkError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.UnsupportedNamespaceKeyError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">UnsupportedNamespaceKeyError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.UnsupportedNamespaceKeyError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdkError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.UserDisconnectedError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">UserDisconnectedError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.UserDisconnectedError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdkError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.UserRejectedChainsError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">UserRejectedChainsError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.UserRejectedChainsError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdkError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.UserRejectedError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">UserRejectedError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.UserRejectedError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdkError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.UserRejectedEventsError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">UserRejectedEventsError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.UserRejectedEventsError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdkError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.UserRejectedMethodsError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">UserRejectedMethodsError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.UserRejectedMethodsError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdkError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.UserRejectedRequestError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">UserRejectedRequestError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.UserRejectedRequestError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdkError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.WalletConnectError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">WalletConnectError</span></span><a class="headerlink" href="#walletconnect.exceptions.WalletConnectError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Base class for all errors raised by this library.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.WalletConnectTimeoutError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">WalletConnectTimeoutError</span></span><a class="headerlink" href="#walletconnect.exceptions.WalletConnectTimeoutError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.WalletConnectError" title="walletconnect.exceptions.WalletConnectError"><code class="xref py py-class docutils literal notranslate"><span class="pre">WalletConnectError</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TimeoutError</span></code></p>
+<p>Raised when the peer or relay does not respond in time.</p>
+</dd></dl>
+
+</section>
+
+        </article><button class="back-to-top" type="button">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+  </svg>
+  <span>Back to top</span>
+</button><div class="navigation flex print:hidden"><div class="navigation-prev">
+    <a href="crypto.html">
+      <i class="i-lucide chevron-left"></i>
+      <div class="page-info">
+        <span>Previous</span><div class="title">Crypto</div></div>
+    </a>
+  </div><div class="navigation-next">
+    <a href="pairing.html">
+      <div class="page-info">
+        <span>Next</span>
+        <div class="title">Pairing</div>
+      </div>
+      <i class="i-lucide chevron-right"></i>
+    </a>
+  </div></div></div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright"><p>2026, ApeWorX LTD</p>
+  
+  <p>
+    Made with
+    
+    <a href="https://www.sphinx-doc.org/">Sphinx</a> and
+    
+    <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+  </p>
+</div>
+      <div class="sy-foot-socials"></div>
+    </div>
+  </div>
+</footer>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script data-domain="docs.apeworx.io" defer="defer" src="https://plausible.io/js/script.js"></script>
+      <script src="../_static/shibuya.js?v=50760d75"></script></body>
+</html>

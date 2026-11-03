@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en" data-accent-color="lime" data-content_root="../">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Sign Client - walletconnect documentation</title><link rel="shortcut icon" href="../_static/favicon.ico"/><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="State" href="state.html" /><link rel="prev" title="Relay" href="relay.html" />
+      <link rel="canonical" href="walletconnect/methoddocs/sign.html" /><script>
+    function setColorMode(t){let e=document.documentElement;e.setAttribute("data-color-mode",t);let a=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,s=t;"auto"===t&&(s=a?"dark":"light"),"light"===s?(e.classList.remove("dark"),e.classList.add("light")):(e.classList.remove("light"),e.classList.add("dark"))}
+    setColorMode(localStorage._theme||"auto");
+  </script><link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=e1a1ceaf" />
+    <link rel="stylesheet" type="text/css" href="../_static/shibuya.css?v=2ceb65ce" />
+    <link media="print" rel="stylesheet" type="text/css" href="../_static/print.css?v=20ff2c19" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-text: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+  --sy-f-heading: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="walletconnect/methoddocs/sign.html"/>
+  <meta property="og:title" content="Sign Client"/>
+    <meta name="twitter:card" content="summary"/>
+  </head>
+<body><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand" href="../index.html">
+      <img class="light-logo" src="../_static/logo_grey.svg" alt="walletconnect" height="28" loading="lazy" />
+      <img class="dark-logo" src="../_static/logo_green.svg" alt="walletconnect" height="28" loading="lazy" />
+      <strong>walletconnect</strong>
+    </a>
+    <div class="sy-head-nav" id="head-nav">
+      <nav class="sy-head-links"></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <kbd>/</kbd>
+</form><div class="sy-head-socials"></div></div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden"><button class="js-theme theme-switch flex items-center"
+data-aria-auto="Switch to light color mode"
+data-aria-light="Switch to dark color mode"
+data-aria-dark="Switch to auto color mode">
+<i class="i-lucide theme-icon"></i>
+</button><button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="head-nav" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2"></span>
+          <span class="hamburger_3"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading" aria-level="3"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../userguides/quickstart.html">WalletConnect (Python)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguides/connecting.html">Connecting to a Mobile Wallet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguides/fastapi.html">FastAPI example app</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguides/long-running.html">Long-running sessions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguides/mcp.html">MCP server example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguides/testing.html">Testing</a></li>
+</ul>
+<p class="caption" role="heading" aria-level="3"><span class="caption-text">Python Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="crypto.html">Crypto</a></li>
+<li class="toctree-l1"><a class="reference internal" href="exceptions.html">Exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pairing.html">Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qr.html">Terminal QR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="relay.html">Relay</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Sign Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="state.html">State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="types.html">Types</a></li>
+</ul>
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-lucide close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4"><div class="localtoc"><h3>On this page</h3><ul>
+<li><a class="reference internal" href="#walletconnect.sign.ClientEvent"><code class="docutils literal notranslate"><span class="pre">ClientEvent</span></code></a><ul>
+<li><a class="reference internal" href="#walletconnect.sign.ClientEvent.session"><code class="docutils literal notranslate"><span class="pre">ClientEvent.session</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.ClientEvent.to_dict"><code class="docutils literal notranslate"><span class="pre">ClientEvent.to_dict()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.ClientEvent.topic"><code class="docutils literal notranslate"><span class="pre">ClientEvent.topic</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#walletconnect.sign.ClientState"><code class="docutils literal notranslate"><span class="pre">ClientState</span></code></a><ul>
+<li><a class="reference internal" href="#walletconnect.sign.ClientState.auth_key"><code class="docutils literal notranslate"><span class="pre">ClientState.auth_key</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.ClientState.client_id"><code class="docutils literal notranslate"><span class="pre">ClientState.client_id</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.ClientState.load"><code class="docutils literal notranslate"><span class="pre">ClientState.load()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.ClientState.prune_expired"><code class="docutils literal notranslate"><span class="pre">ClientState.prune_expired()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.ClientState.relay_key"><code class="docutils literal notranslate"><span class="pre">ClientState.relay_key</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.ClientState.save"><code class="docutils literal notranslate"><span class="pre">ClientState.save()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.ClientState.sessions"><code class="docutils literal notranslate"><span class="pre">ClientState.sessions</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#walletconnect.sign.Session"><code class="docutils literal notranslate"><span class="pre">Session</span></code></a><ul>
+<li><a class="reference internal" href="#walletconnect.sign.Session.accounts"><code class="docutils literal notranslate"><span class="pre">Session.accounts</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.Session.eip155_accounts"><code class="docutils literal notranslate"><span class="pre">Session.eip155_accounts</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.Session.expiry"><code class="docutils literal notranslate"><span class="pre">Session.expiry</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.Session.last_update_id"><code class="docutils literal notranslate"><span class="pre">Session.last_update_id</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.Session.peer_name"><code class="docutils literal notranslate"><span class="pre">Session.peer_name</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.Session.sym_key"><code class="docutils literal notranslate"><span class="pre">Session.sym_key</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.Session.topic"><code class="docutils literal notranslate"><span class="pre">Session.topic</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#walletconnect.sign.SignClient"><code class="docutils literal notranslate"><span class="pre">SignClient</span></code></a><ul>
+<li><a class="reference internal" href="#walletconnect.sign.SignClient.client_id"><code class="docutils literal notranslate"><span class="pre">SignClient.client_id</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.SignClient.close"><code class="docutils literal notranslate"><span class="pre">SignClient.close()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.SignClient.connect"><code class="docutils literal notranslate"><span class="pre">SignClient.connect()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.SignClient.disconnect"><code class="docutils literal notranslate"><span class="pre">SignClient.disconnect()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.SignClient.export_state"><code class="docutils literal notranslate"><span class="pre">SignClient.export_state()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.SignClient.extend"><code class="docutils literal notranslate"><span class="pre">SignClient.extend()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.SignClient.is_reachable"><code class="docutils literal notranslate"><span class="pre">SignClient.is_reachable()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.SignClient.off"><code class="docutils literal notranslate"><span class="pre">SignClient.off()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.SignClient.on"><code class="docutils literal notranslate"><span class="pre">SignClient.on()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.SignClient.open"><code class="docutils literal notranslate"><span class="pre">SignClient.open()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.SignClient.pairing_uri"><code class="docutils literal notranslate"><span class="pre">SignClient.pairing_uri</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.SignClient.pending_pairings"><code class="docutils literal notranslate"><span class="pre">SignClient.pending_pairings</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.SignClient.ping"><code class="docutils literal notranslate"><span class="pre">SignClient.ping()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.SignClient.request"><code class="docutils literal notranslate"><span class="pre">SignClient.request()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.SignClient.session"><code class="docutils literal notranslate"><span class="pre">SignClient.session</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.SignClient.sessions"><code class="docutils literal notranslate"><span class="pre">SignClient.sessions</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.SignClient.unreachable"><code class="docutils literal notranslate"><span class="pre">SignClient.unreachable</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#walletconnect.sign.SyncSignClient"><code class="docutils literal notranslate"><span class="pre">SyncSignClient</span></code></a><ul>
+<li><a class="reference internal" href="#walletconnect.sign.SyncSignClient.connect"><code class="docutils literal notranslate"><span class="pre">SyncSignClient.connect()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.SyncSignClient.export_state"><code class="docutils literal notranslate"><span class="pre">SyncSignClient.export_state()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.SyncSignClient.metadata"><code class="docutils literal notranslate"><span class="pre">SyncSignClient.metadata</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.SyncSignClient.on"><code class="docutils literal notranslate"><span class="pre">SyncSignClient.on()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.sign.SyncSignClient.open"><code class="docutils literal notranslate"><span class="pre">SyncSignClient.open()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div></div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+<div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-lucide menu"></i>
+      </button>
+    </div>
+    <ol class="flex-1" itemscope itemtype="https://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="../index.html"><span itemprop="name">walletconnect</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="1" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <strong itemprop="name">Sign Client</strong>
+        <meta itemprop="position" content="2" />
+      </li></ol>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-lucide outdent"></i>
+      </button>
+    </div>
+  </div>
+</div><div class="flex flex-col break-words justify-between">
+      <div class="relative min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+  <div class="copy-page-wrapper relative pb-4 lg:absolute lg:top-8 lg:right-6 xl:right-12">
+  <div id="copy-page-trigger">
+    <button
+      type="button"
+      class="js-copy px-3 py-1 inline-flex items-center gap-1"
+      data-url="walletconnect/_sources/methoddocs/sign.md.txt"
+    >
+      <i class="i-lucide" data-icon="copy"></i>
+      <span>Copy page</span>
+    </button>
+    <button class="js-menu px-2 py-1" type="button" aria-label="More actions"
+      aria-haspopup="menu" aria-expanded="false" aria-controls="copy-page-content">
+      <i class="i-lucide chevron-down"></i>
+    </button>
+  </div>
+  <div id="copy-page-content" role="menu" aria-orientation="vertical" aria-hidden="true">
+    <div role="presentation">
+      <div class="flex flex-col" role="group">
+        <button class="js-copy" type="button" role="menuitem"
+          data-url="walletconnect/_sources/methoddocs/sign.md.txt">
+          <span class="iconify-icon">
+            <i class="i-lucide" data-icon="copy"></i>
+          </span>
+          <span>Copy page</span>
+        </button>
+        <a role="menuitem" href="walletconnect/_sources/methoddocs/sign.md.txt" target="_blank" rel="nofollow"><iconify-icon icon="bi:markdown"></iconify-icon>
+            <span>View as Markdown</span></a><a role="menuitem" href="https://chatgpt.com/?hints=search&q=Read%20walletconnect/_sources/methoddocs/sign.md.txt%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="nofollow">
+          <iconify-icon icon="bi:openai"></iconify-icon>
+          <span>Open in ChatGPT</span>
+        </a><a role="menuitem" href="https://claude.ai/new?q=Read%20walletconnect/_sources/methoddocs/sign.md.txt%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="nofollow">
+          <iconify-icon icon="bi:claude"></iconify-icon>
+          <span>Open in Claude</span>
+        </a></div>
+    </div>
+  </div>
+</div><article class="yue" role="main">
+          <section id="module-walletconnect.sign">
+<span id="sign-client"></span><h1>Sign Client<a class="headerlink" href="#module-walletconnect.sign" title="Link to this heading">#</a></h1>
+<p>WalletConnect Sign API (dApp / proposer side).</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="walletconnect.sign.ClientEvent">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.sign.</span></span><span class="sig-name descname"><span class="pre">ClientEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name:</span> <span class="pre">EventName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topic:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session:</span> <span class="pre">Session</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data:</span> <span class="pre">dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.sign.ClientEvent" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>One event delivered to handlers registered with <a class="reference internal" href="#walletconnect.sign.SignClient.on" title="walletconnect.sign.SignClient.on"><code class="xref py py-meth docutils literal notranslate"><span class="pre">SignClient.on()</span></code></a>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="walletconnect.sign.ClientEvent.session">
+<span class="sig-name descname"><span class="pre">session</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#walletconnect.sign.Session" title="walletconnect.sign.Session"><span class="pre">Session</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#walletconnect.sign.ClientEvent.session" title="Link to this definition">#</a></dt>
+<dd><p>A snapshot of the session after the change (before removal for delete/expire).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="walletconnect.sign.ClientEvent.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#walletconnect.sign.ClientEvent.to_dict" title="Link to this definition">#</a></dt>
+<dd><p>JSON-friendly form <strong>without secrets</strong> (no session key), e.g. for SSE or logs.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="walletconnect.sign.ClientEvent.topic">
+<span class="sig-name descname"><span class="pre">topic</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#walletconnect.sign.ClientEvent.topic" title="Link to this definition">#</a></dt>
+<dd><p>Session topic (<code class="docutils literal notranslate"><span class="pre">None</span></code> for relay events).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="walletconnect.sign.ClientState">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.sign.</span></span><span class="sig-name descname"><span class="pre">ClientState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version:</span> <span class="pre">~typing.Literal[1]</span> <span class="pre">=</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relay_key:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sessions:</span> <span class="pre">dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~walletconnect.sign.state.Session]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.sign.ClientState" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Everything a <a class="reference internal" href="#walletconnect.sign.SignClient" title="walletconnect.sign.SignClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">SignClient</span></code></a> needs to resume after a restart.</p>
+<p>Serialize with <code class="xref py py-meth docutils literal notranslate"><span class="pre">model_dump_json()</span></code> / <code class="xref py py-meth docutils literal notranslate"><span class="pre">model_validate_json()</span></code> (or the
+<a class="reference internal" href="#walletconnect.sign.ClientState.save" title="walletconnect.sign.ClientState.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">save()</span></code></a> / <a class="reference internal" href="#walletconnect.sign.ClientState.load" title="walletconnect.sign.ClientState.load"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load()</span></code></a> helpers, which take an explicit path).</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Contains secret key material. See the module docs.</p>
+</div>
+<dl class="py property">
+<dt class="sig sig-object py" id="walletconnect.sign.ClientState.auth_key">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">auth_key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="crypto.html#walletconnect.crypto.AuthKeyPair" title="walletconnect.crypto.jwt.AuthKeyPair"><span class="pre">AuthKeyPair</span></a></em><a class="headerlink" href="#walletconnect.sign.ClientState.auth_key" title="Link to this definition">#</a></dt>
+<dd><p>The relay identity key pair derived from <a class="reference internal" href="#walletconnect.sign.ClientState.relay_key" title="walletconnect.sign.ClientState.relay_key"><code class="xref py py-attr docutils literal notranslate"><span class="pre">relay_key</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="walletconnect.sign.ClientState.client_id">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">client_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#walletconnect.sign.ClientState.client_id" title="Link to this definition">#</a></dt>
+<dd><p>The relay <code class="docutils literal notranslate"><span class="pre">did:key</span></code> this state authenticates as.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="walletconnect.sign.ClientState.load">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="state.html#walletconnect.sign.state.ClientState" title="walletconnect.sign.state.ClientState"><span class="pre">ClientState</span></a></span></span><a class="headerlink" href="#walletconnect.sign.ClientState.load" title="Link to this definition">#</a></dt>
+<dd><p>Read state previously written by <a class="reference internal" href="#walletconnect.sign.ClientState.save" title="walletconnect.sign.ClientState.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">save()</span></code></a> (or any <code class="docutils literal notranslate"><span class="pre">model_dump_json</span></code>).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="walletconnect.sign.ClientState.prune_expired">
+<span class="sig-name descname"><span class="pre">prune_expired</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">now</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#walletconnect.sign.ClientState.prune_expired" title="Link to this definition">#</a></dt>
+<dd><p>Drop expired sessions in place; return the removed topics.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="walletconnect.sign.ClientState.relay_key">
+<span class="sig-name descname"><span class="pre">relay_key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#walletconnect.sign.ClientState.relay_key" title="Link to this definition">#</a></dt>
+<dd><p>Ed25519 seed (hex) for the relay identity (<code class="docutils literal notranslate"><span class="pre">did:key</span></code> client ID). <strong>Secret.</strong></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="walletconnect.sign.ClientState.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="headerlink" href="#walletconnect.sign.ClientState.save" title="Link to this definition">#</a></dt>
+<dd><p>Atomically write the state as JSON to <code class="docutils literal notranslate"><span class="pre">path</span></code> with <code class="docutils literal notranslate"><span class="pre">0600</span></code> permissions.</p>
+<p>The library has no default location: you choose <code class="docutils literal notranslate"><span class="pre">path</span></code>. Missing parent
+directories are created with <code class="docutils literal notranslate"><span class="pre">0700</span></code> permissions.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="walletconnect.sign.ClientState.sessions">
+<span class="sig-name descname"><span class="pre">sessions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#walletconnect.sign.Session" title="walletconnect.sign.Session"><span class="pre">Session</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#walletconnect.sign.ClientState.sessions" title="Link to this definition">#</a></dt>
+<dd><p>Settled sessions keyed by session topic.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="walletconnect.sign.Session">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.sign.</span></span><span class="sig-name descname"><span class="pre">Session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topic:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sym_key:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiry:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acknowledged:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">controller:</span> <span class="pre">dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">self_public_key:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peer_public_key:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peer_metadata:</span> <span class="pre">dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namespaces:</span> <span class="pre">dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relay_protocol:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'irn'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pairing_topic:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_update_id:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.sign.Session" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>A settled WalletConnect session (as seen by the dApp).</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="walletconnect.sign.Session.accounts">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">accounts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#walletconnect.sign.Session.accounts" title="Link to this definition">#</a></dt>
+<dd><p>All CAIP-10 accounts approved in the session, across namespaces.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="walletconnect.sign.Session.eip155_accounts">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">eip155_accounts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#walletconnect.sign.Session.eip155_accounts" title="Link to this definition">#</a></dt>
+<dd><p>CAIP-10 accounts in the <code class="docutils literal notranslate"><span class="pre">eip155</span></code> namespace (e.g. <code class="docutils literal notranslate"><span class="pre">eip155:1:0xabc…</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="walletconnect.sign.Session.expiry">
+<span class="sig-name descname"><span class="pre">expiry</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#walletconnect.sign.Session.expiry" title="Link to this definition">#</a></dt>
+<dd><p>Unix timestamp (seconds) after which the session is no longer valid.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="walletconnect.sign.Session.last_update_id">
+<span class="sig-name descname"><span class="pre">last_update_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#walletconnect.sign.Session.last_update_id" title="Link to this definition">#</a></dt>
+<dd><p>JSON-RPC id of the newest <code class="docutils literal notranslate"><span class="pre">wc_sessionUpdate</span></code> applied (older updates are rejected).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="walletconnect.sign.Session.peer_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">peer_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#walletconnect.sign.Session.peer_name" title="Link to this definition">#</a></dt>
+<dd><p>The wallet’s display name, if it sent one.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="walletconnect.sign.Session.sym_key">
+<span class="sig-name descname"><span class="pre">sym_key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#walletconnect.sign.Session.sym_key" title="Link to this definition">#</a></dt>
+<dd><p>Session symmetric key (hex). <strong>Secret.</strong></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="walletconnect.sign.Session.topic">
+<span class="sig-name descname"><span class="pre">topic</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#walletconnect.sign.Session.topic" title="Link to this definition">#</a></dt>
+<dd><p>Session topic, <code class="docutils literal notranslate"><span class="pre">sha256(sym_key)</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="walletconnect.sign.SignClient">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.sign.</span></span><span class="sig-name descname"><span class="pre">SignClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="types.html#walletconnect.types.Metadata" title="walletconnect.types.Metadata"><span class="pre">Metadata</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relay_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'wss://relay.walletconnect.org'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="state.html#walletconnect.sign.state.ClientState" title="walletconnect.sign.state.ClientState"><span class="pre">ClientState</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_state_change</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="state.html#walletconnect.sign.state.ClientState" title="walletconnect.sign.state.ClientState"><span class="pre">ClientState</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Awaitable</span><span class="p"><span class="pre">[</span></span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connect_timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">request_timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_reconnect</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_extend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_extend_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">172800</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiring_warning</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">86400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maintenance_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3600</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.sign.SignClient" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Async dApp-side WalletConnect Sign client.</p>
+<p><code class="docutils literal notranslate"><span class="pre">metadata</span></code> identifies your app to the wallet (sent as <code class="docutils literal notranslate"><span class="pre">proposer.metadata</span></code> in
+<code class="docutils literal notranslate"><span class="pre">wc_sessionPropose</span></code>). Accepts a <a class="reference internal" href="types.html#walletconnect.types.Metadata" title="walletconnect.types.Metadata"><code class="xref py py-class docutils literal notranslate"><span class="pre">Metadata</span></code></a> or an equivalent
+dict; defaults to <code class="xref py py-meth docutils literal notranslate"><span class="pre">Metadata.default()</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">state</span></code> resumes a previous client: its relay identity key and settled sessions (see
+<a class="reference internal" href="state.html#walletconnect.sign.state.ClientState" title="walletconnect.sign.state.ClientState"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClientState</span></code></a>). Without it, the client starts with a fresh
+relay key and no sessions. The client copies <code class="docutils literal notranslate"><span class="pre">state</span></code>; read the current state back with
+<a class="reference internal" href="#walletconnect.sign.SignClient.export_state" title="walletconnect.sign.SignClient.export_state"><code class="xref py py-meth docutils literal notranslate"><span class="pre">export_state()</span></code></a>. Nothing is ever written to disk by the library.</p>
+<p><code class="docutils literal notranslate"><span class="pre">on_state_change</span></code> (optional) is called with a fresh <a class="reference internal" href="#walletconnect.sign.ClientState" title="walletconnect.sign.ClientState"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClientState</span></code></a> snapshot whenever
+the persistable state changes (session settled, updated, extended, deleted or expired), so
+you can save it.</p>
+<p><code class="docutils literal notranslate"><span class="pre">auto_reconnect</span></code> (default <code class="docutils literal notranslate"><span class="pre">True</span></code>): if the relay WebSocket drops, reconnect with capped,
+jittered backoff, re-subscribe every session/pairing topic and fetch anything published
+meanwhile. Wallet requests in flight keep waiting (their responses are queued by the relay);
+relay calls made while down are re-sent once reconnected, or raise
+<a class="reference internal" href="exceptions.html#walletconnect.exceptions.RelayDisconnectedError" title="walletconnect.exceptions.RelayDisconnectedError"><code class="xref py py-class docutils literal notranslate"><span class="pre">RelayDisconnectedError</span></code></a> if the relay is not back within
+the relay request timeout.</p>
+<p>Long-running sessions (see the “Long-running sessions” guide):</p>
+<ul class="simple">
+<li><p>Register event handlers with <a class="reference internal" href="#walletconnect.sign.SignClient.on" title="walletconnect.sign.SignClient.on"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on()</span></code></a> (<code class="docutils literal notranslate"><span class="pre">session_update</span></code>, <code class="docutils literal notranslate"><span class="pre">session_event</span></code>,
+<code class="docutils literal notranslate"><span class="pre">session_delete</span></code>, <code class="docutils literal notranslate"><span class="pre">session_expire</span></code>, <code class="docutils literal notranslate"><span class="pre">session_extend</span></code>, <code class="docutils literal notranslate"><span class="pre">session_expiring</span></code>,
+<code class="docutils literal notranslate"><span class="pre">relay_disconnect</span></code>, <code class="docutils literal notranslate"><span class="pre">relay_reconnect</span></code>).</p></li>
+<li><p>Expiry is checked on load, before every request, and by a local timer; requests waiting
+on a session that expires or is deleted fail right away.</p></li>
+<li><p><a class="reference internal" href="#walletconnect.sign.SignClient.extend" title="walletconnect.sign.SignClient.extend"><code class="xref py py-meth docutils literal notranslate"><span class="pre">extend()</span></code></a> asks the wallet for 7 more days. With <code class="docutils literal notranslate"><span class="pre">auto_extend=True</span></code> the client does
+it on its own once less than <code class="docutils literal notranslate"><span class="pre">auto_extend_threshold</span></code> seconds (default 2 days) remain,
+retrying every <code class="docutils literal notranslate"><span class="pre">maintenance_interval</span></code> (default 1h) until the wallet confirms; it logs a
+warning and emits <code class="docutils literal notranslate"><span class="pre">session_expiring</span></code> once less than <code class="docutils literal notranslate"><span class="pre">expiring_warning</span></code> (default 24h)
+remains unconfirmed.</p></li>
+<li><p><a class="reference internal" href="#walletconnect.sign.SignClient.is_reachable" title="walletconnect.sign.SignClient.is_reachable"><code class="xref py py-meth docutils literal notranslate"><span class="pre">is_reachable()</span></code></a> pings the wallet and marks the session unreachable (not deleted)
+when it does not answer.</p></li>
+</ul>
+<dl class="py property">
+<dt class="sig sig-object py" id="walletconnect.sign.SignClient.client_id">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">client_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#walletconnect.sign.SignClient.client_id" title="Link to this definition">#</a></dt>
+<dd><p>The relay <code class="docutils literal notranslate"><span class="pre">did:key</span></code> identity (stable across restarts when state is restored).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="walletconnect.sign.SignClient.close">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#walletconnect.sign.SignClient.close" title="Link to this definition">#</a></dt>
+<dd><p>Close the relay connection. In-memory state is kept (see <a class="reference internal" href="#walletconnect.sign.SignClient.export_state" title="walletconnect.sign.SignClient.export_state"><code class="xref py py-meth docutils literal notranslate"><span class="pre">export_state()</span></code></a>).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="walletconnect.sign.SignClient.connect">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">connect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chains</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(1,)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">methods</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">('eth_sendTransaction',</span> <span class="pre">'personal_sign',</span> <span class="pre">'eth_signTypedData_v4')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">events</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">('chainChanged',</span> <span class="pre">'accountsChanged')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optional_namespaces</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="types.html#walletconnect.types.ProposalNamespace" title="walletconnect.types.ProposalNamespace"><span class="pre">ProposalNamespace</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Task</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="state.html#walletconnect.sign.state.Session" title="walletconnect.sign.state.Session"><span class="pre">Session</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#walletconnect.sign.SignClient.connect" title="Link to this definition">#</a></dt>
+<dd><p>Start a session proposal on a new pairing.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">(uri,</span> <span class="pre">session_task)</span></code>. Print/QR the URI, then <code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">session_task</span></code>
+(or use <code class="xref py py-meth docutils literal notranslate"><span class="pre">wait_for_session()</span></code>) until the wallet settles. Several proposals may be
+in flight at once; each has its own pairing topic (<code class="docutils literal notranslate"><span class="pre">PairingURI.parse(uri).topic</span></code>).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="walletconnect.sign.SignClient.disconnect">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">disconnect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reason</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'User</span> <span class="pre">disconnected'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#walletconnect.sign.SignClient.disconnect" title="Link to this definition">#</a></dt>
+<dd><p>End a session: notify the wallet (<code class="docutils literal notranslate"><span class="pre">wc_sessionDelete</span></code>) and forget it.</p>
+<p>With no <code class="docutils literal notranslate"><span class="pre">topic</span></code> this ends the only active session (no-op when there is none).
+The relay connection stays open; call <a class="reference internal" href="#walletconnect.sign.SignClient.close" title="walletconnect.sign.SignClient.close"><code class="xref py py-meth docutils literal notranslate"><span class="pre">close()</span></code></a> to shut it down.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="walletconnect.sign.SignClient.export_state">
+<span class="sig-name descname"><span class="pre">export_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="state.html#walletconnect.sign.state.ClientState" title="walletconnect.sign.state.ClientState"><span class="pre">ClientState</span></a></span></span><a class="headerlink" href="#walletconnect.sign.SignClient.export_state" title="Link to this definition">#</a></dt>
+<dd><p>Return a snapshot of the persistable state (relay key + settled sessions).</p>
+<p>Serialize it with <code class="docutils literal notranslate"><span class="pre">state.model_dump_json()</span></code> (or <code class="docutils literal notranslate"><span class="pre">state.save(path)</span></code>) and pass it
+back as <code class="docutils literal notranslate"><span class="pre">SignClient(state=ClientState.model_validate_json(...))</span></code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The snapshot contains secret keys. Store it securely.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="walletconnect.sign.SignClient.extend">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#walletconnect.sign.SignClient.extend" title="Link to this definition">#</a></dt>
+<dd><p>Ask the wallet to extend the session by 7 days (<code class="docutils literal notranslate"><span class="pre">wc_sessionExtend</span></code>).</p>
+<p>The new expiry (now + 7 days) is applied only once the wallet replies <code class="docutils literal notranslate"><span class="pre">true</span></code>; returns
+it. Raises <a class="reference internal" href="exceptions.html#walletconnect.exceptions.WalletConnectTimeoutError" title="walletconnect.exceptions.WalletConnectTimeoutError"><code class="xref py py-class docutils literal notranslate"><span class="pre">WalletConnectTimeoutError</span></code></a> if the wallet
+doesn’t answer within <code class="docutils literal notranslate"><span class="pre">timeout</span></code> (the session is left unchanged), or the wallet’s
+<a class="reference internal" href="exceptions.html#walletconnect.exceptions.SdkError" title="walletconnect.exceptions.SdkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdkError</span></code></a>. Concurrent calls share one request.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="walletconnect.sign.SignClient.is_reachable">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_reachable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#walletconnect.sign.SignClient.is_reachable" title="Link to this definition">#</a></dt>
+<dd><p>Ping the wallet; return <code class="docutils literal notranslate"><span class="pre">False</span></code> (and mark the session unreachable) on timeout.</p>
+<p>An unreachable session is <strong>not</strong> deleted: the phone may just be offline or the app
+backgrounded, and the relay keeps queued requests for it. The mark clears as soon as
+any message arrives from the wallet. Relay errors (not the wallet’s fault) still raise.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="walletconnect.sign.SignClient.off">
+<span class="sig-name descname"><span class="pre">off</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#walletconnect.sign.ClientEvent" title="walletconnect.sign.events.ClientEvent"><span class="pre">ClientEvent</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Awaitable</span><span class="p"><span class="pre">[</span></span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#walletconnect.sign.SignClient.off" title="Link to this definition">#</a></dt>
+<dd><p>Remove a handler registered with <a class="reference internal" href="#walletconnect.sign.SignClient.on" title="walletconnect.sign.SignClient.on"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on()</span></code></a> (no-op if it isn’t registered).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="walletconnect.sign.SignClient.on">
+<span class="sig-name descname"><span class="pre">on</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#walletconnect.sign.ClientEvent" title="walletconnect.sign.events.ClientEvent"><span class="pre">ClientEvent</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Awaitable</span><span class="p"><span class="pre">[</span></span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#walletconnect.sign.SignClient.on" title="Link to this definition">#</a></dt>
+<dd><p>Register <code class="docutils literal notranslate"><span class="pre">handler</span></code> for event <code class="docutils literal notranslate"><span class="pre">name</span></code> (or <code class="docutils literal notranslate"><span class="pre">&quot;*&quot;</span></code> for all events).</p>
+<p>Handlers get a <a class="reference internal" href="#walletconnect.sign.ClientEvent" title="walletconnect.sign.events.ClientEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClientEvent</span></code></a>; they may be sync or async
+and run as tasks on the client’s loop. Returns the handler. Also usable as a decorator:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="nd">@client</span><span class="o">.</span><span class="n">on</span><span class="p">(</span><span class="s2">"session_delete"</span><span class="p">)</span>
+</span><span data-line="2"><span class="k">def</span><span class="w"> </span><span class="nf">gone</span><span class="p">(</span><span class="n">event</span><span class="p">):</span> <span class="o">...</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="walletconnect.sign.SignClient.open">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">open</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#walletconnect.sign.SignClient.open" title="Link to this definition">#</a></dt>
+<dd><p>Connect to the relay and resume restored sessions (idempotent).</p>
+<p>Subscribes every session topic and fetches messages the relay queued while this
+client was offline. Called automatically by <a class="reference internal" href="#walletconnect.sign.SignClient.connect" title="walletconnect.sign.SignClient.connect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">connect()</span></code></a>, <a class="reference internal" href="#walletconnect.sign.SignClient.request" title="walletconnect.sign.SignClient.request"><code class="xref py py-meth docutils literal notranslate"><span class="pre">request()</span></code></a> and
+<a class="reference internal" href="#walletconnect.sign.SignClient.ping" title="walletconnect.sign.SignClient.ping"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ping()</span></code></a>; call it yourself to start receiving wallet messages for restored sessions
+right away.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="walletconnect.sign.SignClient.pairing_uri">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pairing_uri</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#walletconnect.sign.SignClient.pairing_uri" title="Link to this definition">#</a></dt>
+<dd><p>The most recent pairing URI returned by <a class="reference internal" href="#walletconnect.sign.SignClient.connect" title="walletconnect.sign.SignClient.connect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">connect()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="walletconnect.sign.SignClient.pending_pairings">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pending_pairings</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#walletconnect.sign.SignClient.pending_pairings" title="Link to this definition">#</a></dt>
+<dd><p>Pairing topics with a session proposal still awaiting the wallet.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="walletconnect.sign.SignClient.ping">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#walletconnect.sign.SignClient.ping" title="Link to this definition">#</a></dt>
+<dd><p>Send <code class="docutils literal notranslate"><span class="pre">wc_sessionPing</span></code> and wait for the wallet to answer.</p>
+<p>Raises <a class="reference internal" href="exceptions.html#walletconnect.exceptions.WalletConnectTimeoutError" title="walletconnect.exceptions.WalletConnectTimeoutError"><code class="xref py py-class docutils literal notranslate"><span class="pre">WalletConnectTimeoutError</span></code></a> (and marks the
+session unreachable) when it doesn’t. See <a class="reference internal" href="#walletconnect.sign.SignClient.is_reachable" title="walletconnect.sign.SignClient.is_reachable"><code class="xref py py-meth docutils literal notranslate"><span class="pre">is_reachable()</span></code></a> for a bool version.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="walletconnect.sign.SignClient.request">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'eip155:1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#walletconnect.sign.SignClient.request" title="Link to this definition">#</a></dt>
+<dd><p>Send a <code class="docutils literal notranslate"><span class="pre">wc_sessionRequest</span></code> and wait for the wallet response.</p>
+<p><code class="docutils literal notranslate"><span class="pre">topic</span></code> selects the session; it may be omitted when exactly one session is active.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="walletconnect.sign.SignClient.session">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">session</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="state.html#walletconnect.sign.state.Session" title="walletconnect.sign.state.Session"><span class="pre">Session</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#walletconnect.sign.SignClient.session" title="Link to this definition">#</a></dt>
+<dd><p>The only active session, or <code class="docutils literal notranslate"><span class="pre">None</span></code> when there is none.</p>
+<p>Raises <a class="reference internal" href="exceptions.html#walletconnect.exceptions.NoActiveSessionError" title="walletconnect.exceptions.NoActiveSessionError"><code class="xref py py-class docutils literal notranslate"><span class="pre">NoActiveSessionError</span></code></a> when several sessions
+exist; use <a class="reference internal" href="#walletconnect.sign.SignClient.sessions" title="walletconnect.sign.SignClient.sessions"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sessions</span></code></a> and pass <code class="docutils literal notranslate"><span class="pre">topic=</span></code> to requests instead.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="walletconnect.sign.SignClient.sessions">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sessions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="state.html#walletconnect.sign.state.Session" title="walletconnect.sign.state.Session"><span class="pre">Session</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#walletconnect.sign.SignClient.sessions" title="Link to this definition">#</a></dt>
+<dd><p>Active (non-expired) sessions keyed by topic.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="walletconnect.sign.SignClient.unreachable">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unreachable</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">frozenset</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#walletconnect.sign.SignClient.unreachable" title="Link to this definition">#</a></dt>
+<dd><p>Topics of sessions whose last ping went unanswered (see <a class="reference internal" href="#walletconnect.sign.SignClient.is_reachable" title="walletconnect.sign.SignClient.is_reachable"><code class="xref py py-meth docutils literal notranslate"><span class="pre">is_reachable()</span></code></a>).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="walletconnect.sign.SyncSignClient">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.sign.</span></span><span class="sig-name descname"><span class="pre">SyncSignClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="types.html#walletconnect.types.Metadata" title="walletconnect.types.Metadata"><span class="pre">Metadata</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relay_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'wss://relay.walletconnect.org'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#walletconnect.sign.ClientState" title="walletconnect.sign.ClientState"><span class="pre">ClientState</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_state_change</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#walletconnect.sign.ClientState" title="walletconnect.sign.ClientState"><span class="pre">ClientState</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connect_timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">request_timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_reconnect</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_extend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_extend_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">172800</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiring_warning</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">86400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maintenance_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3600</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.sign.SyncSignClient" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Thread-friendly wrapper for scripts and CLIs.</p>
+<p>Starts a background asyncio loop so relay keepalives and subscription acks
+continue while the main thread blocks on <code class="docutils literal notranslate"><span class="pre">connect()</span></code> / <code class="docutils literal notranslate"><span class="pre">request()</span></code>.</p>
+<p>Takes the same <code class="docutils literal notranslate"><span class="pre">state=</span></code> / <code class="docutils literal notranslate"><span class="pre">on_state_change=</span></code> arguments as <a class="reference internal" href="#walletconnect.sign.SignClient" title="walletconnect.sign.SignClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">SignClient</span></code></a>
+(<code class="docutils literal notranslate"><span class="pre">on_state_change</span></code> runs on the background loop thread).</p>
+<p>Event handlers registered with <a class="reference internal" href="#walletconnect.sign.SyncSignClient.on" title="walletconnect.sign.SyncSignClient.on"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on()</span></code></a> also run on the background loop thread, so keep
+them quick and thread-safe (e.g. put the event on a <code class="xref py py-class docutils literal notranslate"><span class="pre">queue.Queue</span></code>).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="walletconnect.sign.SyncSignClient.connect">
+<span class="sig-name descname"><span class="pre">connect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chains</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(1,)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">methods</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">('eth_sendTransaction',</span> <span class="pre">'personal_sign',</span> <span class="pre">'eth_signTypedData_v4')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">events</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">('chainChanged',</span> <span class="pre">'accountsChanged')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optional_namespaces</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="types.html#walletconnect.types.ProposalNamespace" title="walletconnect.types.ProposalNamespace"><span class="pre">ProposalNamespace</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#walletconnect.sign.Session" title="walletconnect.sign.Session"><span class="pre">Session</span></a></span></span><a class="headerlink" href="#walletconnect.sign.SyncSignClient.connect" title="Link to this definition">#</a></dt>
+<dd><p>Propose a session, invoke <code class="docutils literal notranslate"><span class="pre">on_uri(uri)</span></code> (e.g. print QR), then block until settled.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="walletconnect.sign.SyncSignClient.export_state">
+<span class="sig-name descname"><span class="pre">export_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#walletconnect.sign.ClientState" title="walletconnect.sign.ClientState"><span class="pre">ClientState</span></a></span></span><a class="headerlink" href="#walletconnect.sign.SyncSignClient.export_state" title="Link to this definition">#</a></dt>
+<dd><p>See <a class="reference internal" href="#walletconnect.sign.SignClient.export_state" title="walletconnect.sign.SignClient.export_state"><code class="xref py py-meth docutils literal notranslate"><span class="pre">SignClient.export_state()</span></code></a>. Contains secrets; store it securely.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="walletconnect.sign.SyncSignClient.metadata">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metadata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="types.html#walletconnect.types.Metadata" title="walletconnect.types.Metadata"><span class="pre">Metadata</span></a></em><a class="headerlink" href="#walletconnect.sign.SyncSignClient.metadata" title="Link to this definition">#</a></dt>
+<dd><p>The dApp metadata sent to wallets in the session proposal.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="walletconnect.sign.SyncSignClient.on">
+<span class="sig-name descname"><span class="pre">on</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">EventHandler</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#walletconnect.sign.SyncSignClient.on" title="Link to this definition">#</a></dt>
+<dd><p>See <a class="reference internal" href="#walletconnect.sign.SignClient.on" title="walletconnect.sign.SignClient.on"><code class="xref py py-meth docutils literal notranslate"><span class="pre">SignClient.on()</span></code></a>. Handlers run on the background loop thread.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="walletconnect.sign.SyncSignClient.open">
+<span class="sig-name descname"><span class="pre">open</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#walletconnect.sign.SyncSignClient.open" title="Link to this definition">#</a></dt>
+<dd><p>Connect and resume restored sessions now (otherwise done on first use).</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+        </article><button class="back-to-top" type="button">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+  </svg>
+  <span>Back to top</span>
+</button><div class="navigation flex print:hidden"><div class="navigation-prev">
+    <a href="relay.html">
+      <i class="i-lucide chevron-left"></i>
+      <div class="page-info">
+        <span>Previous</span><div class="title">Relay</div></div>
+    </a>
+  </div><div class="navigation-next">
+    <a href="state.html">
+      <div class="page-info">
+        <span>Next</span>
+        <div class="title">State</div>
+      </div>
+      <i class="i-lucide chevron-right"></i>
+    </a>
+  </div></div></div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright"><p>2026, ApeWorX LTD</p>
+  
+  <p>
+    Made with
+    
+    <a href="https://www.sphinx-doc.org/">Sphinx</a> and
+    
+    <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+  </p>
+</div>
+      <div class="sy-foot-socials"></div>
+    </div>
+  </div>
+</footer>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script data-domain="docs.apeworx.io" defer="defer" src="https://plausible.io/js/script.js"></script>
+      <script src="../_static/shibuya.js?v=50760d75"></script></body>
+</html>

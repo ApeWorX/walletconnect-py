@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en" data-accent-color="lime" data-content_root="../">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>MCP server example - walletconnect documentation</title><link rel="shortcut icon" href="../_static/favicon.ico"/><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Testing" href="testing.html" /><link rel="prev" title="Long-running sessions" href="long-running.html" />
+      <link rel="canonical" href="walletconnect/userguides/mcp.html" /><script>
+    function setColorMode(t){let e=document.documentElement;e.setAttribute("data-color-mode",t);let a=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,s=t;"auto"===t&&(s=a?"dark":"light"),"light"===s?(e.classList.remove("dark"),e.classList.add("light")):(e.classList.remove("light"),e.classList.add("dark"))}
+    setColorMode(localStorage._theme||"auto");
+  </script><link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=e1a1ceaf" />
+    <link rel="stylesheet" type="text/css" href="../_static/shibuya.css?v=2ceb65ce" />
+    <link media="print" rel="stylesheet" type="text/css" href="../_static/print.css?v=20ff2c19" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-text: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+  --sy-f-heading: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="walletconnect/userguides/mcp.html"/>
+  <meta property="og:title" content="MCP server example"/>
+    <meta name="twitter:card" content="summary"/>
+  </head>
+<body><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand" href="../index.html">
+      <img class="light-logo" src="../_static/logo_grey.svg" alt="walletconnect" height="28" loading="lazy" />
+      <img class="dark-logo" src="../_static/logo_green.svg" alt="walletconnect" height="28" loading="lazy" />
+      <strong>walletconnect</strong>
+    </a>
+    <div class="sy-head-nav" id="head-nav">
+      <nav class="sy-head-links"></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <kbd>/</kbd>
+</form><div class="sy-head-socials"></div></div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden"><button class="js-theme theme-switch flex items-center"
+data-aria-auto="Switch to light color mode"
+data-aria-light="Switch to dark color mode"
+data-aria-dark="Switch to auto color mode">
+<i class="i-lucide theme-icon"></i>
+</button><button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="head-nav" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2"></span>
+          <span class="hamburger_3"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading" aria-level="3"><span class="caption-text">User Guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">WalletConnect (Python)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connecting.html">Connecting to a Mobile Wallet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fastapi.html">FastAPI example app</a></li>
+<li class="toctree-l1"><a class="reference internal" href="long-running.html">Long-running sessions</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">MCP server example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a></li>
+</ul>
+<p class="caption" role="heading" aria-level="3"><span class="caption-text">Python Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/crypto.html">Crypto</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/exceptions.html">Exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/pairing.html">Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/qr.html">Terminal QR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/relay.html">Relay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/sign.html">Sign Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/state.html">State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/types.html">Types</a></li>
+</ul>
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-lucide close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4"><div class="localtoc"><h3>On this page</h3><ul>
+<li><a class="reference internal" href="#run-it">Run it</a><ul>
+<li><a class="reference internal" href="#claude-desktop">Claude Desktop</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tools">Tools</a></li>
+<li><a class="reference internal" href="#pairing-and-the-qr-code">Pairing and the QR code</a><ul>
+<li><a class="reference internal" href="#why-the-qr-is-built-this-way">Why the QR is built this way</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#planned-for-the-ape-plugin">Planned for the Ape plugin</a></li>
+<li><a class="reference internal" href="#testing">Testing</a></li>
+</ul>
+</div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div></div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+<div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-lucide menu"></i>
+      </button>
+    </div>
+    <ol class="flex-1" itemscope itemtype="https://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="../index.html"><span itemprop="name">walletconnect</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="1" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <strong itemprop="name">MCP server example</strong>
+        <meta itemprop="position" content="2" />
+      </li></ol>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-lucide outdent"></i>
+      </button>
+    </div>
+  </div>
+</div><div class="flex flex-col break-words justify-between">
+      <div class="relative min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+  <div class="copy-page-wrapper relative pb-4 lg:absolute lg:top-8 lg:right-6 xl:right-12">
+  <div id="copy-page-trigger">
+    <button
+      type="button"
+      class="js-copy px-3 py-1 inline-flex items-center gap-1"
+      data-url="walletconnect/_sources/userguides/mcp.md.txt"
+    >
+      <i class="i-lucide" data-icon="copy"></i>
+      <span>Copy page</span>
+    </button>
+    <button class="js-menu px-2 py-1" type="button" aria-label="More actions"
+      aria-haspopup="menu" aria-expanded="false" aria-controls="copy-page-content">
+      <i class="i-lucide chevron-down"></i>
+    </button>
+  </div>
+  <div id="copy-page-content" role="menu" aria-orientation="vertical" aria-hidden="true">
+    <div role="presentation">
+      <div class="flex flex-col" role="group">
+        <button class="js-copy" type="button" role="menuitem"
+          data-url="walletconnect/_sources/userguides/mcp.md.txt">
+          <span class="iconify-icon">
+            <i class="i-lucide" data-icon="copy"></i>
+          </span>
+          <span>Copy page</span>
+        </button>
+        <a role="menuitem" href="walletconnect/_sources/userguides/mcp.md.txt" target="_blank" rel="nofollow"><iconify-icon icon="bi:markdown"></iconify-icon>
+            <span>View as Markdown</span></a><a role="menuitem" href="https://chatgpt.com/?hints=search&q=Read%20walletconnect/_sources/userguides/mcp.md.txt%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="nofollow">
+          <iconify-icon icon="bi:openai"></iconify-icon>
+          <span>Open in ChatGPT</span>
+        </a><a role="menuitem" href="https://claude.ai/new?q=Read%20walletconnect/_sources/userguides/mcp.md.txt%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="nofollow">
+          <iconify-icon icon="bi:claude"></iconify-icon>
+          <span>Open in Claude</span>
+        </a></div>
+    </div>
+  </div>
+</div><article class="yue" role="main">
+          <section id="mcp-server-example">
+<h1>MCP server example<a class="headerlink" href="#mcp-server-example" title="Link to this heading">#</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">examples/mcp_server/</span></code> is a small, readable <a class="reference external" href="https://modelcontextprotocol.io">Model Context Protocol</a>
+server: a show-and-tell demo of the SDK.
+It lets an AI assistant pair a mobile wallet and ask it to sign messages, typed data and
+transactions. The server never holds a private key: every request shows up in the user’s wallet
+app, and nothing happens until the user approves it there.</p>
+<p>It uses the official <a class="reference external" href="https://github.com/modelcontextprotocol/python-sdk"><code class="docutils literal notranslate"><span class="pre">mcp</span></code> Python SDK</a>
+(<code class="docutils literal notranslate"><span class="pre">MCPServer</span></code>, which was called <code class="docutils literal notranslate"><span class="pre">FastMCP</span></code> before <code class="docutils literal notranslate"><span class="pre">mcp</span></code> 2.0) over stdio. The SDK itself has no MCP
+dependency. <code class="docutils literal notranslate"><span class="pre">mcp</span></code> is only in the <code class="docutils literal notranslate"><span class="pre">examples</span></code> dependency group.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is an example. The production MCP integration is planned as a feature of the
+<code class="docutils literal notranslate"><span class="pre">ape-walletconnect</span></code> plugin. Then any Ape-based MCP
+server (for example a Uniswap MCP) can reuse the same wallet tools instead of copying this file.</p>
+</div>
+<section id="run-it">
+<h2>Run it<a class="headerlink" href="#run-it" title="Link to this heading">#</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="nb">export</span><span class="w"> </span><span class="nv">WALLETCONNECT_PROJECT_ID</span><span class="o">=</span>your_32_char_id<span class="w">   </span><span class="c1"># from https://dashboard.walletconnect.com</span>
+</span><span data-line="2"><span class="nb">export</span><span class="w"> </span><span class="nv">WALLETCONNECT_STATE_FILE</span><span class="o">=</span>./wc-mcp.json<span class="w">     </span><span class="c1"># optional: keep sessions across restarts</span>
+</span><span data-line="3">uv<span class="w"> </span>run<span class="w"> </span>--group<span class="w"> </span>examples<span class="w"> </span>--extra<span class="w"> </span>qr<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>examples.mcp_server
+</span></pre></div>
+</div>
+<p>The server speaks MCP on stdin/stdout, and its logs go to stderr. Most MCP clients start it for you.
+For example, in a client that uses the common <code class="docutils literal notranslate"><span class="pre">mcpServers</span></code> JSON config:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="p">{</span>
+</span><span data-line="2"><span class="w">  </span><span class="nt">"mcpServers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span data-line="3"><span class="w">    </span><span class="nt">"walletconnect"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span data-line="4"><span class="w">      </span><span class="nt">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/home/you/.local/bin/uv"</span><span class="p">,</span>
+</span><span data-line="5"><span class="w">      </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span data-line="6"><span class="w">        </span><span class="s2">"run"</span><span class="p">,</span><span class="w"> </span><span class="s2">"--directory"</span><span class="p">,</span><span class="w"> </span><span class="s2">"/path/to/walletconnect-py"</span><span class="p">,</span>
+</span><span data-line="7"><span class="w">        </span><span class="s2">"--group"</span><span class="p">,</span><span class="w"> </span><span class="s2">"examples"</span><span class="p">,</span><span class="w"> </span><span class="s2">"--extra"</span><span class="p">,</span><span class="w"> </span><span class="s2">"qr"</span><span class="p">,</span>
+</span><span data-line="8"><span class="w">        </span><span class="s2">"python"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-m"</span><span class="p">,</span><span class="w"> </span><span class="s2">"examples.mcp_server"</span>
+</span><span data-line="9"><span class="w">      </span><span class="p">],</span>
+</span><span data-line="10"><span class="w">      </span><span class="nt">"env"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span data-line="11"><span class="w">        </span><span class="nt">"WALLETCONNECT_PROJECT_ID"</span><span class="p">:</span><span class="w"> </span><span class="s2">"your_32_char_id"</span><span class="p">,</span>
+</span><span data-line="12"><span class="w">        </span><span class="nt">"WALLETCONNECT_STATE_FILE"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/home/you/.local/share/wc-mcp.json"</span>
+</span><span data-line="13"><span class="w">      </span><span class="p">}</span>
+</span><span data-line="14"><span class="w">    </span><span class="p">}</span>
+</span><span data-line="15"><span class="w">  </span><span class="p">}</span>
+</span><span data-line="16"><span class="p">}</span>
+</span></pre></div>
+</div>
+<section id="claude-desktop">
+<h3>Claude Desktop<a class="headerlink" href="#claude-desktop" title="Link to this heading">#</a></h3>
+<p>On Linux the config file is <code class="docutils literal notranslate"><span class="pre">~/.config/Claude/claude_desktop_config.json</span></code> (also reachable from
+Claude’s Settings, under Developer, then Edit Config). Use the <strong>absolute path</strong> to <code class="docutils literal notranslate"><span class="pre">uv</span></code> (whatever
+<code class="docutils literal notranslate"><span class="pre">which</span> <span class="pre">uv</span></code> prints) as <code class="docutils literal notranslate"><span class="pre">command</span></code>: GUI apps often don’t inherit your shell’s <code class="docutils literal notranslate"><span class="pre">PATH</span></code>, and a bare
+<code class="docutils literal notranslate"><span class="pre">&quot;uv&quot;</span></code> fails with <code class="docutils literal notranslate"><span class="pre">spawn</span> <span class="pre">uv</span> <span class="pre">ENOENT</span></code>. Fully quit and reopen Claude Desktop after editing.</p>
+<p><code class="docutils literal notranslate"><span class="pre">WALLETCONNECT_PROJECT_ID</span></code> is required. <code class="docutils literal notranslate"><span class="pre">WALLETCONNECT_STATE_FILE</span></code> is optional: the server loads
+the client state from it on start and saves it on every change (with <code class="docutils literal notranslate"><span class="pre">0600</span></code> permissions), so
+sessions survive restarts.</p>
+</section>
+</section>
+<section id="tools">
+<h2>Tools<a class="headerlink" href="#tools" title="Link to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="n">pair</span><span class="p">(</span><span class="n">qr</span><span class="o">=</span><span class="s2">"svg_inline"</span><span class="p">)</span>  <span class="c1"># or qr="text"</span>
+</span><span data-line="2"><span class="n">wait_for_pairing</span><span class="p">(</span><span class="n">pairing_topic</span><span class="p">,</span> <span class="n">timeout_s</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+</span><span data-line="3"><span class="n">session_status</span><span class="p">()</span>
+</span><span data-line="4"><span class="n">disconnect</span><span class="p">(</span><span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span data-line="5"><span class="n">sign_message</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chain_id</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span data-line="6"><span class="n">sign_typed_data</span><span class="p">(</span><span class="n">typed_data</span><span class="p">,</span> <span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chain_id</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span data-line="7"><span class="n">send_transaction</span><span class="p">(</span><span class="n">to</span><span class="p">,</span> <span class="n">value_wei</span><span class="o">=</span><span class="s2">"0"</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chain_id</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pair</span></code> starts a pairing (asking for <code class="docutils literal notranslate"><span class="pre">eip155:1</span></code>) and returns its QR code (see below), the
+<code class="docutils literal notranslate"><span class="pre">pairing_topic</span></code> and <code class="docutils literal notranslate"><span class="pre">expires_at</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">wait_for_pairing</span></code> waits up to <code class="docutils literal notranslate"><span class="pre">timeout_s</span></code> (max 300) and returns <code class="docutils literal notranslate"><span class="pre">settled</span></code> (with the session),
+<code class="docutils literal notranslate"><span class="pre">failed</span></code> (with <code class="docutils literal notranslate"><span class="pre">error</span></code>), <code class="docutils literal notranslate"><span class="pre">pending</span></code> (call it again) or <code class="docutils literal notranslate"><span class="pre">unknown</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">session_status</span></code> lists the sessions: topic, wallet name, accounts, approved <code class="docutils literal notranslate"><span class="pre">chains</span></code> and
+<code class="docutils literal notranslate"><span class="pre">expiry_iso</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">disconnect</span></code> ends a session and tells the wallet.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sign_message</span></code> (<code class="docutils literal notranslate"><span class="pre">personal_sign</span></code>), <code class="docutils literal notranslate"><span class="pre">sign_typed_data</span></code> (<code class="docutils literal notranslate"><span class="pre">eth_signTypedData_v4</span></code>) and
+<code class="docutils literal notranslate"><span class="pre">send_transaction</span></code> (<code class="docutils literal notranslate"><span class="pre">eth_sendTransaction</span></code>; the wallet signs and broadcasts, and the tool returns
+<code class="docutils literal notranslate"><span class="pre">tx_hash</span></code>) block until the user approves or rejects on their phone.</p></li>
+</ul>
+<p>The signing tools use the session’s first account. <code class="docutils literal notranslate"><span class="pre">topic</span></code> is only needed when several sessions
+are open. <code class="docutils literal notranslate"><span class="pre">chain_id</span></code> is CAIP-2 (<code class="docutils literal notranslate"><span class="pre">&quot;eip155:1&quot;</span></code>) or a number (<code class="docutils literal notranslate"><span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;0x1&quot;</span></code>), and must be approved in
+the session; it defaults to the account’s chain. <code class="docutils literal notranslate"><span class="pre">sign_typed_data</span></code> adds <code class="docutils literal notranslate"><span class="pre">types.EIP712Domain</span></code> from
+<code class="docutils literal notranslate"><span class="pre">domain</span></code> when it’s missing. <code class="docutils literal notranslate"><span class="pre">value_wei</span></code> takes an integer, a decimal string (best for big values)
+or <code class="docutils literal notranslate"><span class="pre">0x</span></code> hex.</p>
+<p>Errors start with a category the assistant can act on: <code class="docutils literal notranslate"><span class="pre">rejected:</span></code>, <code class="docutils literal notranslate"><span class="pre">timeout:</span></code> (the prompt may
+still be showing in the wallet; it can’t be withdrawn), <code class="docutils literal notranslate"><span class="pre">session_ended:</span></code>, <code class="docutils literal notranslate"><span class="pre">ambiguous_session:</span></code>,
+<code class="docutils literal notranslate"><span class="pre">unapproved_chain:</span></code>, <code class="docutils literal notranslate"><span class="pre">invalid_chain:</span></code>, <code class="docutils literal notranslate"><span class="pre">invalid_argument:</span></code>, <code class="docutils literal notranslate"><span class="pre">invalid_typed_data:</span></code> or
+<code class="docutils literal notranslate"><span class="pre">wallet_error:</span></code>.</p>
+</section>
+<section id="pairing-and-the-qr-code">
+<h2>Pairing and the QR code<a class="headerlink" href="#pairing-and-the-qr-code" title="Link to this heading">#</a></h2>
+<p>By default <code class="docutils literal notranslate"><span class="pre">pair</span></code> returns the QR code as SVG markup in the result text, between
+<code class="docutils literal notranslate"><span class="pre">-----BEGIN</span> <span class="pre">QR</span> <span class="pre">SVG-----</span></code> and <code class="docutils literal notranslate"><span class="pre">-----END</span> <span class="pre">QR</span> <span class="pre">SVG-----</span></code> (and as <code class="docutils literal notranslate"><span class="pre">qr_svg</span></code>). The server instructions and
+the <code class="docutils literal notranslate"><span class="pre">pair</span></code> description tell the assistant: “After pair, render the returned SVG exactly as given
+with your inline widget/artifact tool at a large size, tell the user to scan it with their wallet,
+then call wait_for_pairing. If you cannot render widgets, call pair again with qr=”text”.”</p>
+<p><code class="docutils literal notranslate"><span class="pre">qr=&quot;text&quot;</span></code> is the fallback: a compact Unicode QR (half blocks, two module rows per line) in
+<code class="docutils literal notranslate"><span class="pre">qr_text</span></code>. The QR needs the <code class="docutils literal notranslate"><span class="pre">qr</span></code> extra (<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;walletconnect[qr]&quot;</span></code>).</p>
+<p>A typical conversation: the assistant calls <code class="docutils literal notranslate"><span class="pre">session_status</span></code>, sees no sessions, calls <code class="docutils literal notranslate"><span class="pre">pair</span></code> and
+renders the QR. The user scans it, the assistant calls <code class="docutils literal notranslate"><span class="pre">wait_for_pairing</span></code> until it’s <code class="docutils literal notranslate"><span class="pre">settled</span></code>,
+then calls <code class="docutils literal notranslate"><span class="pre">send_transaction</span></code> and tells the user to check their phone.</p>
+<section id="why-the-qr-is-built-this-way">
+<h3>Why the QR is built this way<a class="headerlink" href="#why-the-qr-is-built-this-way" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Inline SVG, not an image.</strong> Clients such as Claude Desktop show tool-result images in a
+collapsed panel, where users miss them. SVG markup the assistant renders with its own widget or
+artifact tool appears right in the chat.</p></li>
+<li><p><strong>Small enough to copy exactly.</strong> The assistant has to reproduce the markup character for
+character. Every dark module is in a single <code class="docutils literal notranslate"><span class="pre">&lt;path&gt;</span></code>: a stroke along each run of dark modules in
+a row, with relative moves. Error correction is level L exactly (no automatic boost), the
+fewest modules that scan: a typical pairing URI is a 57×57 grid in about 4 KB, against 65×65
+and 5.3 KB at level M. A screen doesn’t get scratched, so L’s lower damage tolerance is fine.</p></li>
+<li><p><strong>Scannable in dark mode.</strong> A white background <code class="docutils literal notranslate"><span class="pre">&lt;rect&gt;</span></code> and a 4-module white quiet zone, so the
+code stays dark-on-light even in a dark chat theme.</p></li>
+<li><p><strong>Sharp at any size.</strong> A square <code class="docutils literal notranslate"><span class="pre">viewBox</span></code>, <code class="docutils literal notranslate"><span class="pre">width=&quot;100%&quot;</span></code> with no fixed height, and
+<code class="docutils literal notranslate"><span class="pre">shape-rendering=&quot;crispEdges&quot;</span></code>.</p></li>
+<li><p><strong>Plain text between markers.</strong> The text result isn’t JSON, so the markup has no escaped quotes,
+and the markers show exactly what to copy.</p></li>
+<li><p><strong>The secret stays out of the transcript.</strong> The <code class="docutils literal notranslate"><span class="pre">wc:</span></code> URI holds the pairing’s symmetric key, and
+anything in a result stays in the chat. <code class="docutils literal notranslate"><span class="pre">pair</span></code> never returns the URI as text, only as the QR
+pattern. No XML declaration, <code class="docutils literal notranslate"><span class="pre">&lt;title&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">&lt;desc&gt;</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="planned-for-the-ape-plugin">
+<h2>Planned for the Ape plugin<a class="headerlink" href="#planned-for-the-ape-plugin" title="Link to this heading">#</a></h2>
+<p>This example deliberately stops at forwarding requests to the wallet. These belong in the
+<code class="docutils literal notranslate"><span class="pre">ape-walletconnect</span></code> plugin, which has Ape’s ABI decoding, networks and providers to do them well:</p>
+<ul class="simple">
+<li><p><strong>Pre-flight summaries:</strong> decode what a request does (spender, amount, deadline, chain) and flag
+risky patterns such as <code class="docutils literal notranslate"><span class="pre">Permit</span></code> / Permit2 approvals, <code class="docutils literal notranslate"><span class="pre">setApprovalForAll</span></code>, max-uint256 amounts,
+long deadlines and unknown spenders, then ask for confirmation in chat as well as in the wallet.</p></li>
+<li><p><strong>Guardrails:</strong> optional allowlists of spenders and recipients, spend caps, and a mainnet/testnet
+switch.</p></li>
+<li><p><strong>Signer recovery:</strong> return the EIP-712 digest or domain separator and the signer recovered
+locally, so the result can be checked against what was sent.</p></li>
+<li><p><strong>Transaction follow-up:</strong> receipts (<code class="docutils literal notranslate"><span class="pre">wait_for_receipt</span></code>), gas estimates, simulation / dry runs,
+and nonce visibility.</p></li>
+</ul>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">tests/test_example_mcp.py</span></code> connects an in-process <code class="docutils literal notranslate"><span class="pre">mcp.Client</span></code> to <code class="docutils literal notranslate"><span class="pre">create_server(...)</span></code>, with a
+client on the in-process fake relay and a fake wallet. It checks the QR markup module by module,
+then pairs and calls every tool, including a rejected and a timed-out request and several
+sessions. <code class="docutils literal notranslate"><span class="pre">create_server(client_factory=...)</span></code> is the hook for injecting your own client.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Anything that can talk to this server can ask the paired wallet for signatures and
+transactions. The user still approves each one on their phone, but only connect clients you
+trust. The state file contains secret keys, so keep it out of version control.</p>
+</div>
+</section>
+</section>
+
+        </article><button class="back-to-top" type="button">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+  </svg>
+  <span>Back to top</span>
+</button><div class="navigation flex print:hidden"><div class="navigation-prev">
+    <a href="long-running.html">
+      <i class="i-lucide chevron-left"></i>
+      <div class="page-info">
+        <span>Previous</span><div class="title">Long-running sessions</div></div>
+    </a>
+  </div><div class="navigation-next">
+    <a href="testing.html">
+      <div class="page-info">
+        <span>Next</span>
+        <div class="title">Testing</div>
+      </div>
+      <i class="i-lucide chevron-right"></i>
+    </a>
+  </div></div></div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright"><p>2026, ApeWorX LTD</p>
+  
+  <p>
+    Made with
+    
+    <a href="https://www.sphinx-doc.org/">Sphinx</a> and
+    
+    <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+  </p>
+</div>
+      <div class="sy-foot-socials"></div>
+    </div>
+  </div>
+</footer>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script data-domain="docs.apeworx.io" defer="defer" src="https://plausible.io/js/script.js"></script>
+      <script src="../_static/shibuya.js?v=50760d75"></script></body>
+</html>

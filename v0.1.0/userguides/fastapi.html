@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en" data-accent-color="lime" data-content_root="../">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>FastAPI example app - walletconnect documentation</title><link rel="shortcut icon" href="../_static/favicon.ico"/><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Long-running sessions" href="long-running.html" /><link rel="prev" title="Connecting to a Mobile Wallet" href="connecting.html" />
+      <link rel="canonical" href="walletconnect/userguides/fastapi.html" /><script>
+    function setColorMode(t){let e=document.documentElement;e.setAttribute("data-color-mode",t);let a=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,s=t;"auto"===t&&(s=a?"dark":"light"),"light"===s?(e.classList.remove("dark"),e.classList.add("light")):(e.classList.remove("light"),e.classList.add("dark"))}
+    setColorMode(localStorage._theme||"auto");
+  </script><link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=e1a1ceaf" />
+    <link rel="stylesheet" type="text/css" href="../_static/shibuya.css?v=2ceb65ce" />
+    <link media="print" rel="stylesheet" type="text/css" href="../_static/print.css?v=20ff2c19" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-text: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+  --sy-f-heading: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="walletconnect/userguides/fastapi.html"/>
+  <meta property="og:title" content="FastAPI example app"/>
+    <meta name="twitter:card" content="summary"/>
+  </head>
+<body><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand" href="../index.html">
+      <img class="light-logo" src="../_static/logo_grey.svg" alt="walletconnect" height="28" loading="lazy" />
+      <img class="dark-logo" src="../_static/logo_green.svg" alt="walletconnect" height="28" loading="lazy" />
+      <strong>walletconnect</strong>
+    </a>
+    <div class="sy-head-nav" id="head-nav">
+      <nav class="sy-head-links"></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <kbd>/</kbd>
+</form><div class="sy-head-socials"></div></div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden"><button class="js-theme theme-switch flex items-center"
+data-aria-auto="Switch to light color mode"
+data-aria-light="Switch to dark color mode"
+data-aria-dark="Switch to auto color mode">
+<i class="i-lucide theme-icon"></i>
+</button><button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="head-nav" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2"></span>
+          <span class="hamburger_3"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading" aria-level="3"><span class="caption-text">User Guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">WalletConnect (Python)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connecting.html">Connecting to a Mobile Wallet</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">FastAPI example app</a></li>
+<li class="toctree-l1"><a class="reference internal" href="long-running.html">Long-running sessions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mcp.html">MCP server example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a></li>
+</ul>
+<p class="caption" role="heading" aria-level="3"><span class="caption-text">Python Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/crypto.html">Crypto</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/exceptions.html">Exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/pairing.html">Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/qr.html">Terminal QR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/relay.html">Relay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/sign.html">Sign Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/state.html">State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/types.html">Types</a></li>
+</ul>
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-lucide close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4"><div class="localtoc"><h3>On this page</h3><ul>
+<li><a class="reference internal" href="#run-it">Run it</a></li>
+<li><a class="reference internal" href="#demo-page">Demo page</a></li>
+<li><a class="reference internal" href="#endpoints">Endpoints</a></li>
+<li><a class="reference internal" href="#live-events-sse">Live events (SSE)</a></li>
+<li><a class="reference internal" href="#how-it-s-wired">How it&#8217;s wired</a></li>
+</ul>
+</div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div></div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+<div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-lucide menu"></i>
+      </button>
+    </div>
+    <ol class="flex-1" itemscope itemtype="https://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="../index.html"><span itemprop="name">walletconnect</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="1" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <strong itemprop="name">FastAPI example app</strong>
+        <meta itemprop="position" content="2" />
+      </li></ol>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-lucide outdent"></i>
+      </button>
+    </div>
+  </div>
+</div><div class="flex flex-col break-words justify-between">
+      <div class="relative min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+  <div class="copy-page-wrapper relative pb-4 lg:absolute lg:top-8 lg:right-6 xl:right-12">
+  <div id="copy-page-trigger">
+    <button
+      type="button"
+      class="js-copy px-3 py-1 inline-flex items-center gap-1"
+      data-url="walletconnect/_sources/userguides/fastapi.md.txt"
+    >
+      <i class="i-lucide" data-icon="copy"></i>
+      <span>Copy page</span>
+    </button>
+    <button class="js-menu px-2 py-1" type="button" aria-label="More actions"
+      aria-haspopup="menu" aria-expanded="false" aria-controls="copy-page-content">
+      <i class="i-lucide chevron-down"></i>
+    </button>
+  </div>
+  <div id="copy-page-content" role="menu" aria-orientation="vertical" aria-hidden="true">
+    <div role="presentation">
+      <div class="flex flex-col" role="group">
+        <button class="js-copy" type="button" role="menuitem"
+          data-url="walletconnect/_sources/userguides/fastapi.md.txt">
+          <span class="iconify-icon">
+            <i class="i-lucide" data-icon="copy"></i>
+          </span>
+          <span>Copy page</span>
+        </button>
+        <a role="menuitem" href="walletconnect/_sources/userguides/fastapi.md.txt" target="_blank" rel="nofollow"><iconify-icon icon="bi:markdown"></iconify-icon>
+            <span>View as Markdown</span></a><a role="menuitem" href="https://chatgpt.com/?hints=search&q=Read%20walletconnect/_sources/userguides/fastapi.md.txt%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="nofollow">
+          <iconify-icon icon="bi:openai"></iconify-icon>
+          <span>Open in ChatGPT</span>
+        </a><a role="menuitem" href="https://claude.ai/new?q=Read%20walletconnect/_sources/userguides/fastapi.md.txt%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="nofollow">
+          <iconify-icon icon="bi:claude"></iconify-icon>
+          <span>Open in Claude</span>
+        </a></div>
+    </div>
+  </div>
+</div><article class="yue" role="main">
+          <section id="fastapi-example-app">
+<h1>FastAPI example app<a class="headerlink" href="#fastapi-example-app" title="Link to this heading">#</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">examples/fastapi_app/</span></code> is a small HTTP service built on the async
+<a class="reference internal" href="../methoddocs/sign.html#walletconnect.sign.SignClient" title="walletconnect.sign.client.SignClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">SignClient</span></code></a>. A backend, bot or web UI can pair phones over
+HTTP and ask them for signatures. Use it as a starting point for your own service.</p>
+<section id="run-it">
+<h2>Run it<a class="headerlink" href="#run-it" title="Link to this heading">#</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="nb">export</span><span class="w"> </span><span class="nv">WALLETCONNECT_PROJECT_ID</span><span class="o">=</span>your_32_char_id<span class="w">    </span><span class="c1"># https://dashboard.walletconnect.com</span>
+</span><span data-line="2"><span class="nb">export</span><span class="w"> </span><span class="nv">WALLETCONNECT_STATE_FILE</span><span class="o">=</span>./wc-state.json<span class="w">    </span><span class="c1"># optional: keep sessions across restarts</span>
+</span><span data-line="3">uv<span class="w"> </span>run<span class="w"> </span>--group<span class="w"> </span>examples<span class="w"> </span>--extra<span class="w"> </span>qr<span class="w"> </span>uvicorn<span class="w"> </span>examples.fastapi_app.app:app<span class="w"> </span>--reload
+</span></pre></div>
+</div>
+<p>Then open <a class="reference external" href="http://localhost:8000/">http://localhost:8000/</a> for the demo page, or use the JSON API below.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">examples</span></code> dependency group installs <code class="docutils literal notranslate"><span class="pre">fastapi</span></code> and <code class="docutils literal notranslate"><span class="pre">uvicorn</span></code>. The SDK itself does not depend
+on them. The <code class="docutils literal notranslate"><span class="pre">qr</span></code> extra is only needed for <code class="docutils literal notranslate"><span class="pre">?qr=svg</span></code>.</p>
+</section>
+<section id="demo-page">
+<h2>Demo page<a class="headerlink" href="#demo-page" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/</span></code> serves a small page called “WalletConnect Python Demo”. It’s one self-contained HTML
+file (<code class="docutils literal notranslate"><span class="pre">examples/fastapi_app/index.html</span></code>) with inline CSS and vanilla JavaScript: no build step and
+no CDN. On the page you can:</p>
+<ul class="simple">
+<li><p>Press <strong>Pair</strong> to call <code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/pair?qr=svg</span></code>. The page shows the QR code and a copyable URI, then
+polls <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/pairings/{pairing_topic}</span></code> until the wallet approves.</p></li>
+<li><p>See the sessions from <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/sessions</span></code>, each with a <strong>Disconnect</strong> button
+(<code class="docutils literal notranslate"><span class="pre">DELETE</span> <span class="pre">/sessions/{topic}</span></code>).</p></li>
+<li><p>Type a message and press <strong>Sign</strong> next to a session. This calls <code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/sessions/{topic}/sign</span></code>
+with <code class="docutils literal notranslate"><span class="pre">personal_sign</span></code> and shows the signature or the error.</p></li>
+</ul>
+<p>The page only calls the JSON API. Values from the API are inserted as text, never as HTML. The QR
+SVG is shown through an <code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code> data URL, so any markup in it can’t run script. The response also
+carries a strict <code class="docutils literal notranslate"><span class="pre">Content-Security-Policy</span></code> (no external sources, <code class="docutils literal notranslate"><span class="pre">connect-src</span> <span class="pre">'self'</span></code>).</p>
+</section>
+<section id="endpoints">
+<h2>Endpoints<a class="headerlink" href="#endpoints" title="Link to this heading">#</a></h2>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Method and path</p></th>
+<th class="head"><p>What it does</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/</span></code></p></td>
+<td><p>The demo page (HTML).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/pair[?qr=svg]</span></code></p></td>
+<td><p>Starts a pairing and returns <code class="docutils literal notranslate"><span class="pre">uri</span></code>, <code class="docutils literal notranslate"><span class="pre">pairing_topic</span></code>, and optionally <code class="docutils literal notranslate"><span class="pre">qr_svg</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/pairings/{pairing_topic}</span></code></p></td>
+<td><p>Shows the pairing status: <code class="docutils literal notranslate"><span class="pre">pending</span></code>, <code class="docutils literal notranslate"><span class="pre">settled</span></code> (with <code class="docutils literal notranslate"><span class="pre">session_topic</span></code>) or <code class="docutils literal notranslate"><span class="pre">failed</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/sessions</span></code></p></td>
+<td><p>Lists active sessions with their topic, wallet name, accounts and expiry.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/sessions/{topic}/sign</span></code></p></td>
+<td><p>Sends <code class="docutils literal notranslate"><span class="pre">personal_sign</span></code> or <code class="docutils literal notranslate"><span class="pre">eth_signTypedData_v4</span></code> and waits for the user.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">DELETE</span> <span class="pre">/sessions/{topic}</span></code></p></td>
+<td><p>Disconnects the session (<code class="docutils literal notranslate"><span class="pre">wc_sessionDelete</span></code>).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/events</span></code></p></td>
+<td><p>Streams session and relay events as Server-Sent Events.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/pair</span></code> returns right away. Show the URI or QR code to the user, and the session settles in the
+background. Poll <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/pairings/{pairing_topic}</span></code> (or <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/sessions</span></code>) to see when it’s ready.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span data-line="1">curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s1">'localhost:8000/pair?qr=svg'</span>
+</span><span data-line="2">curl<span class="w"> </span>localhost:8000/pairings/&lt;pairing_topic&gt;
+</span><span data-line="3">curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>localhost:8000/sessions/&lt;topic&gt;/sign<span class="w"> </span><span class="se">\</span>
+</span><span data-line="4"><span class="w">     </span>-H<span class="w"> </span><span class="s1">'content-type: application/json'</span><span class="w"> </span>-d<span class="w"> </span><span class="s1">'{"message": "hello"}'</span>
+</span><span data-line="5">curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>localhost:8000/sessions/&lt;topic&gt;/sign<span class="w"> </span>-H<span class="w"> </span><span class="s1">'content-type: application/json'</span><span class="w"> </span><span class="se">\</span>
+</span><span data-line="6"><span class="w">     </span>-d<span class="w"> </span><span class="s1">'{"method": "eth_signTypedData_v4", "typed_data": {...}}'</span>
+</span></pre></div>
+</div>
+<p>The sign endpoint takes these fields:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">method</span></code>: <code class="docutils literal notranslate"><span class="pre">personal_sign</span></code> (the default) or <code class="docutils literal notranslate"><span class="pre">eth_signTypedData_v4</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">message</span></code>: the text to sign, for <code class="docutils literal notranslate"><span class="pre">personal_sign</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">typed_data</span></code>: the EIP-712 JSON, for <code class="docutils literal notranslate"><span class="pre">eth_signTypedData_v4</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">address</span></code>: defaults to the session’s first account.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">chain_id</span></code>: defaults to that account’s chain.</p></li>
+</ul>
+<p>Errors map to HTTP status codes:</p>
+<ul class="simple">
+<li><p>404: unknown session.</p></li>
+<li><p>410: the session expired.</p></li>
+<li><p>409: the wallet rejected the request.</p></li>
+<li><p>504: the user didn’t respond in time.</p></li>
+</ul>
+</section>
+<section id="live-events-sse">
+<h2>Live events (SSE)<a class="headerlink" href="#live-events-sse" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/events</span></code> is a <a class="reference external" href="https://developer.mozilla.org/docs/Web/API/Server-sent_events">Server-Sent Events</a>
+stream of the client’s <a class="reference external" href="long-running#session-events">session events</a>. Each message has the
+event name and a JSON body from <code class="docutils literal notranslate"><span class="pre">ClientEvent.to_dict()</span></code>, which never includes session keys:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span><span data-line="1">$ curl -N localhost:8000/events
+</span><span data-line="2">: connected
+</span><span data-line="3">
+</span><span data-line="4">event: session_update
+</span><span data-line="5">data: {"name": "session_update", "topic": "9f…", "session": {"topic": "9f…", "expiry": 1767225600, "peer_name": "MetaMask Wallet", "accounts": ["eip155:1:0xab…"], "namespaces": {…}}, "data": {"namespaces": {…}}}
+</span><span data-line="6">
+</span><span data-line="7">event: session_delete
+</span><span data-line="8">data: {"name": "session_delete", "topic": "9f…", "session": {…}, "data": {"code": 6000, "message": "User disconnected."}}
+</span></pre></div>
+</div>
+<p>A <code class="docutils literal notranslate"><span class="pre">:</span> <span class="pre">keep-alive</span></code> comment is sent every 15 seconds. Each connection has its own bounded queue, so
+a slow reader only drops its own events. The demo page listens to this stream and refreshes the
+session list when a session is updated, extended, deleted or expires.</p>
+</section>
+<section id="how-it-s-wired">
+<h2>How it’s wired<a class="headerlink" href="#how-it-s-wired" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Lifespan:</strong> a single <code class="docutils literal notranslate"><span class="pre">SignClient</span></code> is created on startup. <code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">client.open()</span></code> resumes any
+sessions restored from the state file, and <code class="docutils literal notranslate"><span class="pre">client.close()</span></code> runs on shutdown.</p></li>
+<li><p><strong>State:</strong> the library never chooses a path. The example reads <code class="docutils literal notranslate"><span class="pre">WALLETCONNECT_STATE_FILE</span></code> and
+passes <code class="docutils literal notranslate"><span class="pre">ClientState.load(path)</span></code> into the client. Its <code class="docutils literal notranslate"><span class="pre">on_state_change</span></code> callback calls
+<code class="docutils literal notranslate"><span class="pre">snapshot.save(path)</span></code>, which does an atomic write with <code class="docutils literal notranslate"><span class="pre">0600</span></code> permissions. To store state
+somewhere else (a database, a secrets manager, …), swap out those two calls.</p></li>
+<li><p><strong>Testing:</strong> <code class="docutils literal notranslate"><span class="pre">create_app(client_factory=...)</span></code> lets you inject a client. The repository’s smoke
+test (<code class="docutils literal notranslate"><span class="pre">tests/test_example_fastapi.py</span></code>) drives the whole flow with <code class="docutils literal notranslate"><span class="pre">TestClient</span></code> against the
+in-process fake relay.</p></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The example has <strong>no authentication</strong>. Anyone who can reach it can ask the paired wallets to
+sign. Put it behind your own auth before exposing it. The state file contains secret keys, so
+keep it out of version control.</p>
+</div>
+</section>
+</section>
+
+        </article><button class="back-to-top" type="button">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+  </svg>
+  <span>Back to top</span>
+</button><div class="navigation flex print:hidden"><div class="navigation-prev">
+    <a href="connecting.html">
+      <i class="i-lucide chevron-left"></i>
+      <div class="page-info">
+        <span>Previous</span><div class="title">Connecting to a Mobile Wallet</div></div>
+    </a>
+  </div><div class="navigation-next">
+    <a href="long-running.html">
+      <div class="page-info">
+        <span>Next</span>
+        <div class="title">Long-running sessions</div>
+      </div>
+      <i class="i-lucide chevron-right"></i>
+    </a>
+  </div></div></div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright"><p>2026, ApeWorX LTD</p>
+  
+  <p>
+    Made with
+    
+    <a href="https://www.sphinx-doc.org/">Sphinx</a> and
+    
+    <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+  </p>
+</div>
+      <div class="sy-foot-socials"></div>
+    </div>
+  </div>
+</footer>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script data-domain="docs.apeworx.io" defer="defer" src="https://plausible.io/js/script.js"></script>
+      <script src="../_static/shibuya.js?v=50760d75"></script></body>
+</html>

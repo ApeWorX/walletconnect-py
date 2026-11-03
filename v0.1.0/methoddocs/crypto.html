@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en" data-accent-color="lime" data-content_root="../">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Crypto - walletconnect documentation</title><link rel="shortcut icon" href="../_static/favicon.ico"/><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Exceptions" href="exceptions.html" /><link rel="prev" title="Testing" href="../userguides/testing.html" />
+      <link rel="canonical" href="walletconnect/methoddocs/crypto.html" /><script>
+    function setColorMode(t){let e=document.documentElement;e.setAttribute("data-color-mode",t);let a=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,s=t;"auto"===t&&(s=a?"dark":"light"),"light"===s?(e.classList.remove("dark"),e.classList.add("light")):(e.classList.remove("light"),e.classList.add("dark"))}
+    setColorMode(localStorage._theme||"auto");
+  </script><link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=e1a1ceaf" />
+    <link rel="stylesheet" type="text/css" href="../_static/shibuya.css?v=2ceb65ce" />
+    <link media="print" rel="stylesheet" type="text/css" href="../_static/print.css?v=20ff2c19" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-text: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+  --sy-f-heading: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="walletconnect/methoddocs/crypto.html"/>
+  <meta property="og:title" content="Crypto"/>
+    <meta name="twitter:card" content="summary"/>
+  </head>
+<body><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand" href="../index.html">
+      <img class="light-logo" src="../_static/logo_grey.svg" alt="walletconnect" height="28" loading="lazy" />
+      <img class="dark-logo" src="../_static/logo_green.svg" alt="walletconnect" height="28" loading="lazy" />
+      <strong>walletconnect</strong>
+    </a>
+    <div class="sy-head-nav" id="head-nav">
+      <nav class="sy-head-links"></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <kbd>/</kbd>
+</form><div class="sy-head-socials"></div></div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden"><button class="js-theme theme-switch flex items-center"
+data-aria-auto="Switch to light color mode"
+data-aria-light="Switch to dark color mode"
+data-aria-dark="Switch to auto color mode">
+<i class="i-lucide theme-icon"></i>
+</button><button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="head-nav" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2"></span>
+          <span class="hamburger_3"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading" aria-level="3"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../userguides/quickstart.html">WalletConnect (Python)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguides/connecting.html">Connecting to a Mobile Wallet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguides/fastapi.html">FastAPI example app</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguides/long-running.html">Long-running sessions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguides/mcp.html">MCP server example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguides/testing.html">Testing</a></li>
+</ul>
+<p class="caption" role="heading" aria-level="3"><span class="caption-text">Python Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Crypto</a></li>
+<li class="toctree-l1"><a class="reference internal" href="exceptions.html">Exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pairing.html">Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qr.html">Terminal QR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="relay.html">Relay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sign.html">Sign Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="state.html">State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="types.html">Types</a></li>
+</ul>
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-lucide close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4"><div class="localtoc"><h3>On this page</h3><ul>
+<li><a class="reference internal" href="#walletconnect.crypto.AuthKeyPair"><code class="docutils literal notranslate"><span class="pre">AuthKeyPair</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.crypto.KeyPair"><code class="docutils literal notranslate"><span class="pre">KeyPair</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.crypto.decode_did_key"><code class="docutils literal notranslate"><span class="pre">decode_did_key()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.crypto.decode_jwt"><code class="docutils literal notranslate"><span class="pre">decode_jwt()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.crypto.decrypt"><code class="docutils literal notranslate"><span class="pre">decrypt()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.crypto.derive_sym_key"><code class="docutils literal notranslate"><span class="pre">derive_sym_key()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.crypto.deserialize"><code class="docutils literal notranslate"><span class="pre">deserialize()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.crypto.encode_did_key"><code class="docutils literal notranslate"><span class="pre">encode_did_key()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.crypto.encrypt"><code class="docutils literal notranslate"><span class="pre">encrypt()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.crypto.generate_auth_key_pair"><code class="docutils literal notranslate"><span class="pre">generate_auth_key_pair()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.crypto.generate_key_pair"><code class="docutils literal notranslate"><span class="pre">generate_key_pair()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.crypto.generate_random_bytes32"><code class="docutils literal notranslate"><span class="pre">generate_random_bytes32()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.crypto.hash_key"><code class="docutils literal notranslate"><span class="pre">hash_key()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.crypto.serialize"><code class="docutils literal notranslate"><span class="pre">serialize()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.crypto.sign_jwt"><code class="docutils literal notranslate"><span class="pre">sign_jwt()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.crypto.topic_from_sym_key"><code class="docutils literal notranslate"><span class="pre">topic_from_sym_key()</span></code></a></li>
+<li><a class="reference internal" href="#walletconnect.crypto.verify_jwt"><code class="docutils literal notranslate"><span class="pre">verify_jwt()</span></code></a></li>
+</ul>
+</div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div></div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+<div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-lucide menu"></i>
+      </button>
+    </div>
+    <ol class="flex-1" itemscope itemtype="https://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="../index.html"><span itemprop="name">walletconnect</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="1" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <strong itemprop="name">Crypto</strong>
+        <meta itemprop="position" content="2" />
+      </li></ol>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-lucide outdent"></i>
+      </button>
+    </div>
+  </div>
+</div><div class="flex flex-col break-words justify-between">
+      <div class="relative min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+  <div class="copy-page-wrapper relative pb-4 lg:absolute lg:top-8 lg:right-6 xl:right-12">
+  <div id="copy-page-trigger">
+    <button
+      type="button"
+      class="js-copy px-3 py-1 inline-flex items-center gap-1"
+      data-url="walletconnect/_sources/methoddocs/crypto.md.txt"
+    >
+      <i class="i-lucide" data-icon="copy"></i>
+      <span>Copy page</span>
+    </button>
+    <button class="js-menu px-2 py-1" type="button" aria-label="More actions"
+      aria-haspopup="menu" aria-expanded="false" aria-controls="copy-page-content">
+      <i class="i-lucide chevron-down"></i>
+    </button>
+  </div>
+  <div id="copy-page-content" role="menu" aria-orientation="vertical" aria-hidden="true">
+    <div role="presentation">
+      <div class="flex flex-col" role="group">
+        <button class="js-copy" type="button" role="menuitem"
+          data-url="walletconnect/_sources/methoddocs/crypto.md.txt">
+          <span class="iconify-icon">
+            <i class="i-lucide" data-icon="copy"></i>
+          </span>
+          <span>Copy page</span>
+        </button>
+        <a role="menuitem" href="walletconnect/_sources/methoddocs/crypto.md.txt" target="_blank" rel="nofollow"><iconify-icon icon="bi:markdown"></iconify-icon>
+            <span>View as Markdown</span></a><a role="menuitem" href="https://chatgpt.com/?hints=search&q=Read%20walletconnect/_sources/methoddocs/crypto.md.txt%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="nofollow">
+          <iconify-icon icon="bi:openai"></iconify-icon>
+          <span>Open in ChatGPT</span>
+        </a><a role="menuitem" href="https://claude.ai/new?q=Read%20walletconnect/_sources/methoddocs/crypto.md.txt%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="nofollow">
+          <iconify-icon icon="bi:claude"></iconify-icon>
+          <span>Open in Claude</span>
+        </a></div>
+    </div>
+  </div>
+</div><article class="yue" role="main">
+          <section id="module-walletconnect.crypto">
+<span id="crypto"></span><h1>Crypto<a class="headerlink" href="#module-walletconnect.crypto" title="Link to this heading">#</a></h1>
+<p>X25519 / HKDF / ChaCha20-Poly1305 primitives and Ed25519 relay auth.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="walletconnect.crypto.AuthKeyPair">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.crypto.</span></span><span class="sig-name descname"><span class="pre">AuthKeyPair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">private_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">public_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.crypto.AuthKeyPair" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A persistent Ed25519 key pair used as the relay <code class="docutils literal notranslate"><span class="pre">client_id</span></code>.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="walletconnect.crypto.KeyPair">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.crypto.</span></span><span class="sig-name descname"><span class="pre">KeyPair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">private_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">public_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.crypto.KeyPair" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>An X25519 key pair, both halves stored as lowercase hex.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="walletconnect.crypto.decode_did_key">
+<span class="sig-prename descclassname"><span class="pre">walletconnect.crypto.</span></span><span class="sig-name descname"><span class="pre">decode_did_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">did</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="headerlink" href="#walletconnect.crypto.decode_did_key" title="Link to this definition">#</a></dt>
+<dd><p>Decode a <code class="docutils literal notranslate"><span class="pre">did:key:z…</span></code> issuer string to the raw 32-byte Ed25519 public key.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="walletconnect.crypto.decode_jwt">
+<span class="sig-prename descclassname"><span class="pre">walletconnect.crypto.</span></span><span class="sig-name descname"><span class="pre">decode_jwt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#walletconnect.crypto.decode_jwt" title="Link to this definition">#</a></dt>
+<dd><p>Split a JWT into <code class="docutils literal notranslate"><span class="pre">header</span></code>, <code class="docutils literal notranslate"><span class="pre">payload</span></code>, and raw <code class="docutils literal notranslate"><span class="pre">signature</span></code> bytes.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="walletconnect.crypto.decrypt">
+<span class="sig-prename descclassname"><span class="pre">walletconnect.crypto.</span></span><span class="sig-name descname"><span class="pre">decrypt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sym_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoded</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'base64'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'base64url'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'base64'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#walletconnect.crypto.decrypt" title="Link to this definition">#</a></dt>
+<dd><p>Open a typed envelope and return the UTF-8 plaintext.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="walletconnect.crypto.derive_sym_key">
+<span class="sig-prename descclassname"><span class="pre">walletconnect.crypto.</span></span><span class="sig-name descname"><span class="pre">derive_sym_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">private_key_a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">public_key_b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#walletconnect.crypto.derive_sym_key" title="Link to this definition">#</a></dt>
+<dd><p>Derive a 32-byte symmetric key via X25519 + HKDF-SHA256.</p>
+<p>Salt defaults to 32 zero bytes and info is empty, matching the JS SDK
+(<code class="docutils literal notranslate"><span class="pre">hkdf(sha256,</span> <span class="pre">shared,</span> <span class="pre">undefined,</span> <span class="pre">undefined,</span> <span class="pre">32)</span></code>).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="walletconnect.crypto.deserialize">
+<span class="sig-prename descclassname"><span class="pre">walletconnect.crypto.</span></span><span class="sig-name descname"><span class="pre">deserialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encoded</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'base64'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'base64url'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'base64'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#walletconnect.crypto.deserialize" title="Link to this definition">#</a></dt>
+<dd><p>Split a base64 envelope into <code class="docutils literal notranslate"><span class="pre">type</span></code>, <code class="docutils literal notranslate"><span class="pre">iv</span></code>, <code class="docutils literal notranslate"><span class="pre">sealed</span></code>, and optionally
+<code class="docutils literal notranslate"><span class="pre">sender_public_key</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="walletconnect.crypto.encode_did_key">
+<span class="sig-prename descclassname"><span class="pre">walletconnect.crypto.</span></span><span class="sig-name descname"><span class="pre">encode_did_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">public_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#walletconnect.crypto.encode_did_key" title="Link to this definition">#</a></dt>
+<dd><p>Encode an Ed25519 public key as <code class="docutils literal notranslate"><span class="pre">did:key:z…</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">public_key</span></code> may be 32 raw bytes or 64 lowercase hex characters.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="walletconnect.crypto.encrypt">
+<span class="sig-prename descclassname"><span class="pre">walletconnect.crypto.</span></span><span class="sig-name descname"><span class="pre">encrypt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sym_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sender_public_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'base64'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'base64url'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'base64'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#walletconnect.crypto.encrypt" title="Link to this definition">#</a></dt>
+<dd><p>Seal <code class="docutils literal notranslate"><span class="pre">message</span></code> under <code class="docutils literal notranslate"><span class="pre">sym_key</span></code> and return a typed envelope string.</p>
+<p><code class="docutils literal notranslate"><span class="pre">message</span></code> is UTF-8 encoded when given as <code class="docutils literal notranslate"><span class="pre">str</span></code>. <code class="docutils literal notranslate"><span class="pre">iv</span></code> may be 12 raw
+bytes or 24 hex characters; a fresh IV is generated when omitted.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="walletconnect.crypto.generate_auth_key_pair">
+<span class="sig-prename descclassname"><span class="pre">walletconnect.crypto.</span></span><span class="sig-name descname"><span class="pre">generate_auth_key_pair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#walletconnect.crypto.AuthKeyPair" title="walletconnect.crypto.jwt.AuthKeyPair"><span class="pre">AuthKeyPair</span></a></span></span><a class="headerlink" href="#walletconnect.crypto.generate_auth_key_pair" title="Link to this definition">#</a></dt>
+<dd><p>Generate (or restore) an Ed25519 auth key pair.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">seed</span></code> is given (32 bytes or 64 hex chars) the key pair is
+deterministic, matching <code class="docutils literal notranslate"><span class="pre">ed25519.generateKeyPairFromSeed</span></code> in the JS SDK.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="walletconnect.crypto.generate_key_pair">
+<span class="sig-prename descclassname"><span class="pre">walletconnect.crypto.</span></span><span class="sig-name descname"><span class="pre">generate_key_pair</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#walletconnect.crypto.KeyPair" title="walletconnect.crypto.keys.KeyPair"><span class="pre">KeyPair</span></a></span></span><a class="headerlink" href="#walletconnect.crypto.generate_key_pair" title="Link to this definition">#</a></dt>
+<dd><p>Generate a fresh X25519 key pair.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="walletconnect.crypto.generate_random_bytes32">
+<span class="sig-prename descclassname"><span class="pre">walletconnect.crypto.</span></span><span class="sig-name descname"><span class="pre">generate_random_bytes32</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#walletconnect.crypto.generate_random_bytes32" title="Link to this definition">#</a></dt>
+<dd><p>Return 32 cryptographically random bytes as lowercase hex (a pairing symKey).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="walletconnect.crypto.hash_key">
+<span class="sig-prename descclassname"><span class="pre">walletconnect.crypto.</span></span><span class="sig-name descname"><span class="pre">hash_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#walletconnect.crypto.hash_key" title="Link to this definition">#</a></dt>
+<dd><p>SHA-256 of a hex-decoded key, returned as lowercase hex (used as a topic).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="walletconnect.crypto.serialize">
+<span class="sig-prename descclassname"><span class="pre">walletconnect.crypto.</span></span><span class="sig-name descname"><span class="pre">serialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sealed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sender_public_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'base64'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'base64url'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'base64'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#walletconnect.crypto.serialize" title="Link to this definition">#</a></dt>
+<dd><p>Serialize a typed envelope to a base64 string.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="walletconnect.crypto.sign_jwt">
+<span class="sig-prename descclassname"><span class="pre">walletconnect.crypto.</span></span><span class="sig-name descname"><span class="pre">sign_jwt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aud</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key_pair</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#walletconnect.crypto.AuthKeyPair" title="walletconnect.crypto.jwt.AuthKeyPair"><span class="pre">AuthKeyPair</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ttl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">86400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">act</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'client_auth'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#walletconnect.crypto.sign_jwt" title="Link to this definition">#</a></dt>
+<dd><p>Build a relay auth did-JWT.</p>
+<p>Payload claim order matches the WalletConnect reference implementation:
+<code class="docutils literal notranslate"><span class="pre">iat</span></code>, <code class="docutils literal notranslate"><span class="pre">exp</span></code>, <code class="docutils literal notranslate"><span class="pre">act</span></code>, <code class="docutils literal notranslate"><span class="pre">iss</span></code>, <code class="docutils literal notranslate"><span class="pre">sub</span></code>, <code class="docutils literal notranslate"><span class="pre">aud</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="walletconnect.crypto.topic_from_sym_key">
+<span class="sig-prename descclassname"><span class="pre">walletconnect.crypto.</span></span><span class="sig-name descname"><span class="pre">topic_from_sym_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sym_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#walletconnect.crypto.topic_from_sym_key" title="Link to this definition">#</a></dt>
+<dd><p>Return the WalletConnect topic for a symmetric key (<code class="docutils literal notranslate"><span class="pre">sha256(symKey).hex()</span></code>).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="walletconnect.crypto.verify_jwt">
+<span class="sig-prename descclassname"><span class="pre">walletconnect.crypto.</span></span><span class="sig-name descname"><span class="pre">verify_jwt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">now</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#walletconnect.crypto.verify_jwt" title="Link to this definition">#</a></dt>
+<dd><p>Verify an EdDSA did-JWT and return its payload.</p>
+<p>Checks the header, recovers the public key from <code class="docutils literal notranslate"><span class="pre">iss</span></code>, verifies the
+signature, and rejects expired tokens (when <code class="docutils literal notranslate"><span class="pre">exp</span></code> is present).</p>
+</dd></dl>
+
+</section>
+
+        </article><button class="back-to-top" type="button">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+  </svg>
+  <span>Back to top</span>
+</button><div class="navigation flex print:hidden"><div class="navigation-prev">
+    <a href="../userguides/testing.html">
+      <i class="i-lucide chevron-left"></i>
+      <div class="page-info">
+        <span>Previous</span><div class="title">Testing</div></div>
+    </a>
+  </div><div class="navigation-next">
+    <a href="exceptions.html">
+      <div class="page-info">
+        <span>Next</span>
+        <div class="title">Exceptions</div>
+      </div>
+      <i class="i-lucide chevron-right"></i>
+    </a>
+  </div></div></div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright"><p>2026, ApeWorX LTD</p>
+  
+  <p>
+    Made with
+    
+    <a href="https://www.sphinx-doc.org/">Sphinx</a> and
+    
+    <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+  </p>
+</div>
+      <div class="sy-foot-socials"></div>
+    </div>
+  </div>
+</footer>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script data-domain="docs.apeworx.io" defer="defer" src="https://plausible.io/js/script.js"></script>
+      <script src="../_static/shibuya.js?v=50760d75"></script></body>
+</html>

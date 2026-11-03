@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en" data-accent-color="lime" data-content_root="../">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Connecting to a Mobile Wallet - walletconnect documentation</title><link rel="shortcut icon" href="../_static/favicon.ico"/><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="FastAPI example app" href="fastapi.html" /><link rel="prev" title="WalletConnect (Python)" href="quickstart.html" />
+      <link rel="canonical" href="walletconnect/userguides/connecting.html" /><script>
+    function setColorMode(t){let e=document.documentElement;e.setAttribute("data-color-mode",t);let a=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,s=t;"auto"===t&&(s=a?"dark":"light"),"light"===s?(e.classList.remove("dark"),e.classList.add("light")):(e.classList.remove("light"),e.classList.add("dark"))}
+    setColorMode(localStorage._theme||"auto");
+  </script><link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=e1a1ceaf" />
+    <link rel="stylesheet" type="text/css" href="../_static/shibuya.css?v=2ceb65ce" />
+    <link media="print" rel="stylesheet" type="text/css" href="../_static/print.css?v=20ff2c19" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-text: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+  --sy-f-heading: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="walletconnect/userguides/connecting.html"/>
+  <meta property="og:title" content="Connecting to a Mobile Wallet"/>
+    <meta name="twitter:card" content="summary"/>
+  </head>
+<body><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand" href="../index.html">
+      <img class="light-logo" src="../_static/logo_grey.svg" alt="walletconnect" height="28" loading="lazy" />
+      <img class="dark-logo" src="../_static/logo_green.svg" alt="walletconnect" height="28" loading="lazy" />
+      <strong>walletconnect</strong>
+    </a>
+    <div class="sy-head-nav" id="head-nav">
+      <nav class="sy-head-links"></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <kbd>/</kbd>
+</form><div class="sy-head-socials"></div></div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden"><button class="js-theme theme-switch flex items-center"
+data-aria-auto="Switch to light color mode"
+data-aria-light="Switch to dark color mode"
+data-aria-dark="Switch to auto color mode">
+<i class="i-lucide theme-icon"></i>
+</button><button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="head-nav" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2"></span>
+          <span class="hamburger_3"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading" aria-level="3"><span class="caption-text">User Guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">WalletConnect (Python)</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Connecting to a Mobile Wallet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fastapi.html">FastAPI example app</a></li>
+<li class="toctree-l1"><a class="reference internal" href="long-running.html">Long-running sessions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mcp.html">MCP server example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a></li>
+</ul>
+<p class="caption" role="heading" aria-level="3"><span class="caption-text">Python Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/crypto.html">Crypto</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/exceptions.html">Exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/pairing.html">Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/qr.html">Terminal QR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/relay.html">Relay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/sign.html">Sign Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/state.html">State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/types.html">Types</a></li>
+</ul>
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-lucide close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4"><div class="localtoc"><h3>On this page</h3><ul>
+<li><a class="reference internal" href="#requirements">Requirements</a></li>
+<li><a class="reference internal" href="#synchronous-client">Synchronous client</a></li>
+<li><a class="reference internal" href="#async-client">Async client</a></li>
+<li><a class="reference internal" href="#app-metadata-what-the-wallet-shows">App metadata (what the wallet shows)</a><ul>
+<li><a class="reference internal" href="#example-an-ape-plugin">Example: an Ape plugin</a></li>
+<li><a class="reference internal" href="#verify-api-and-domain-warnings">Verify API and domain warnings</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sending-requests">Sending requests</a></li>
+<li><a class="reference internal" href="#terminal-qr-codes">Terminal QR codes</a></li>
+<li><a class="reference internal" href="#sessions-and-state-stateless-by-design">Sessions and state (stateless by design)</a><ul>
+<li><a class="reference internal" href="#several-sessions-at-once">Several sessions at once</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#relay">Relay</a><ul>
+<li><a class="reference internal" href="#reconnects">Reconnects</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#long-running-sessions">Long-running sessions</a></li>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div></div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+<div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-lucide menu"></i>
+      </button>
+    </div>
+    <ol class="flex-1" itemscope itemtype="https://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="../index.html"><span itemprop="name">walletconnect</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="1" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <strong itemprop="name">Connecting to a Mobile Wallet</strong>
+        <meta itemprop="position" content="2" />
+      </li></ol>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-lucide outdent"></i>
+      </button>
+    </div>
+  </div>
+</div><div class="flex flex-col break-words justify-between">
+      <div class="relative min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+  <div class="copy-page-wrapper relative pb-4 lg:absolute lg:top-8 lg:right-6 xl:right-12">
+  <div id="copy-page-trigger">
+    <button
+      type="button"
+      class="js-copy px-3 py-1 inline-flex items-center gap-1"
+      data-url="walletconnect/_sources/userguides/connecting.md.txt"
+    >
+      <i class="i-lucide" data-icon="copy"></i>
+      <span>Copy page</span>
+    </button>
+    <button class="js-menu px-2 py-1" type="button" aria-label="More actions"
+      aria-haspopup="menu" aria-expanded="false" aria-controls="copy-page-content">
+      <i class="i-lucide chevron-down"></i>
+    </button>
+  </div>
+  <div id="copy-page-content" role="menu" aria-orientation="vertical" aria-hidden="true">
+    <div role="presentation">
+      <div class="flex flex-col" role="group">
+        <button class="js-copy" type="button" role="menuitem"
+          data-url="walletconnect/_sources/userguides/connecting.md.txt">
+          <span class="iconify-icon">
+            <i class="i-lucide" data-icon="copy"></i>
+          </span>
+          <span>Copy page</span>
+        </button>
+        <a role="menuitem" href="walletconnect/_sources/userguides/connecting.md.txt" target="_blank" rel="nofollow"><iconify-icon icon="bi:markdown"></iconify-icon>
+            <span>View as Markdown</span></a><a role="menuitem" href="https://chatgpt.com/?hints=search&q=Read%20walletconnect/_sources/userguides/connecting.md.txt%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="nofollow">
+          <iconify-icon icon="bi:openai"></iconify-icon>
+          <span>Open in ChatGPT</span>
+        </a><a role="menuitem" href="https://claude.ai/new?q=Read%20walletconnect/_sources/userguides/connecting.md.txt%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="nofollow">
+          <iconify-icon icon="bi:claude"></iconify-icon>
+          <span>Open in Claude</span>
+        </a></div>
+    </div>
+  </div>
+</div><article class="yue" role="main">
+          <section id="connecting-to-a-mobile-wallet">
+<h1>Connecting to a Mobile Wallet<a class="headerlink" href="#connecting-to-a-mobile-wallet" title="Link to this heading">#</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">walletconnect</span></code> implements the dApp (proposer) side of the WalletConnect v2 / Reown Sign API.
+Your Python script proposes a session, the user scans a QR code with their mobile wallet,
+and once the wallet approves you can send JSON-RPC requests (like <code class="docutils literal notranslate"><span class="pre">personal_sign</span></code>) for the
+wallet to approve on the phone.</p>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>A project ID. For connection-only use (like this library) create it on the
+<a class="reference external" href="https://dashboard.walletconnect.com">WalletConnect Dashboard</a>; IDs created on the older
+Reown Cloud / <a class="reference external" href="https://dashboard.reown.com">Reown Dashboard</a> work too. Pass it as <code class="docutils literal notranslate"><span class="pre">project_id=</span></code>
+or set the <code class="docutils literal notranslate"><span class="pre">WALLETCONNECT_PROJECT_ID</span></code> environment variable.</p></li>
+<li><p>The optional <code class="docutils literal notranslate"><span class="pre">qr</span></code> extra if you want terminal QR codes: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;walletconnect[qr]&quot;</span></code>.</p></li>
+</ul>
+</section>
+<section id="synchronous-client">
+<h2>Synchronous client<a class="headerlink" href="#synchronous-client" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">SyncSignClient</span></code> runs the relay connection on a background event loop, so it works from plain
+scripts, the REPL, and CLIs.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">walletconnect.qr</span><span class="w"> </span><span class="kn">import</span> <span class="n">print_qr</span>
+</span><span data-line="2"><span class="kn">from</span><span class="w"> </span><span class="nn">walletconnect.sign</span><span class="w"> </span><span class="kn">import</span> <span class="n">SyncSignClient</span>
+</span><span data-line="3"><span class="kn">from</span><span class="w"> </span><span class="nn">walletconnect.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Metadata</span>
+</span><span data-line="4">
+</span><span data-line="5"><span class="n">client</span> <span class="o">=</span> <span class="n">SyncSignClient</span><span class="p">(</span>
+</span><span data-line="6">    <span class="n">metadata</span><span class="o">=</span><span class="n">Metadata</span><span class="p">(</span>
+</span><span data-line="7">        <span class="n">name</span><span class="o">=</span><span class="s2">"My Script"</span><span class="p">,</span>  <span class="c1"># shown in the wallet</span>
+</span><span data-line="8">        <span class="n">description</span><span class="o">=</span><span class="s2">"Signs things from Python"</span><span class="p">,</span>
+</span><span data-line="9">        <span class="n">url</span><span class="o">=</span><span class="s2">"https://example.com"</span><span class="p">,</span>  <span class="c1"># many wallets show this host prominently</span>
+</span><span data-line="10">        <span class="n">icons</span><span class="o">=</span><span class="p">[</span><span class="s2">"https://example.com/icon.png"</span><span class="p">],</span>
+</span><span data-line="11">    <span class="p">),</span>
+</span><span data-line="12"><span class="p">)</span>
+</span><span data-line="13">
+</span><span data-line="14"><span class="c1"># Prints a QR code to the terminal, then blocks until the wallet approves.</span>
+</span><span data-line="15"><span class="n">session</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">chains</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,),</span> <span class="n">on_uri</span><span class="o">=</span><span class="n">print_qr</span><span class="p">)</span>
+</span><span data-line="16">
+</span><span data-line="17"><span class="n">address</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">eip155_accounts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">":"</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</span><span data-line="18"><span class="n">signature</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">personal_sign</span><span class="p">(</span><span class="s2">"hello from Python"</span><span class="p">,</span> <span class="n">address</span><span class="p">)</span>
+</span><span data-line="19">
+</span><span data-line="20"><span class="n">client</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
+</span><span data-line="21"><span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span></pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">connect()</span></code> accepts the chain IDs to request (EIP-155 integers), plus optional <code class="docutils literal notranslate"><span class="pre">methods</span></code> and
+<code class="docutils literal notranslate"><span class="pre">events</span></code>. All namespaces are sent as optional namespaces, as Reown recommends.</p>
+</section>
+<section id="async-client">
+<h2>Async client<a class="headerlink" href="#async-client" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">SignClient</span></code> exposes the same flow for asyncio applications. <code class="docutils literal notranslate"><span class="pre">connect()</span></code> returns the pairing URI
+and a task that resolves once the wallet settles the session.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+</span><span data-line="2">
+</span><span data-line="3"><span class="kn">from</span><span class="w"> </span><span class="nn">walletconnect.qr</span><span class="w"> </span><span class="kn">import</span> <span class="n">print_qr</span>
+</span><span data-line="4"><span class="kn">from</span><span class="w"> </span><span class="nn">walletconnect.sign</span><span class="w"> </span><span class="kn">import</span> <span class="n">SignClient</span>
+</span><span data-line="5"><span class="kn">from</span><span class="w"> </span><span class="nn">walletconnect.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Metadata</span>
+</span><span data-line="6">
+</span><span data-line="7">
+</span><span data-line="8"><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span data-line="9">    <span class="n">client</span> <span class="o">=</span> <span class="n">SignClient</span><span class="p">(</span><span class="n">metadata</span><span class="o">=</span><span class="n">Metadata</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"My Async App"</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="s2">"https://example.com"</span><span class="p">))</span>
+</span><span data-line="10">    <span class="n">uri</span><span class="p">,</span> <span class="n">session_task</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">chains</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+</span><span data-line="11">    <span class="n">print_qr</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
+</span><span data-line="12">    <span class="n">session</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">wait_for_session</span><span class="p">(</span><span class="n">session_task</span><span class="p">)</span>
+</span><span data-line="13">    <span class="nb">print</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">accounts</span><span class="p">)</span>
+</span><span data-line="14">    <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span><span data-line="15">
+</span><span data-line="16">
+</span><span data-line="17"><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</span></pre></div>
+</div>
+</section>
+<section id="app-metadata-what-the-wallet-shows">
+<h2>App metadata (what the wallet shows)<a class="headerlink" href="#app-metadata-what-the-wallet-shows" title="Link to this heading">#</a></h2>
+<p>Every session proposal carries your dApp’s metadata (<code class="docutils literal notranslate"><span class="pre">proposer.metadata</span></code> in
+<code class="docutils literal notranslate"><span class="pre">wc_sessionPropose</span></code>). Wallets show it on the connect sheet and on signing prompts:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> and <code class="docutils literal notranslate"><span class="pre">icons</span></code> appear on most wallets’ connect screens.</p></li>
+<li><p>The <strong>host of <code class="docutils literal notranslate"><span class="pre">url</span></code></strong> is shown prominently by many wallets (MetaMask shows
+“Request from example.com”). If you point <code class="docutils literal notranslate"><span class="pre">url</span></code> at a GitHub repo, the wallet says the request
+comes from <code class="docutils literal notranslate"><span class="pre">github.com</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">description</span></code> is shown by some wallets on the connect screen.</p></li>
+</ul>
+<p>Pass <code class="docutils literal notranslate"><span class="pre">metadata=</span></code> to <code class="docutils literal notranslate"><span class="pre">SignClient</span></code> or <code class="docutils literal notranslate"><span class="pre">SyncSignClient</span></code> (a <code class="docutils literal notranslate"><span class="pre">Metadata</span></code> model or an equivalent dict).
+If you omit it, the library sends a deliberately brand-neutral default (<code class="docutils literal notranslate"><span class="pre">Metadata.default()</span></code>):
+name <code class="docutils literal notranslate"><span class="pre">WalletConnect</span> <span class="pre">Python</span> <span class="pre">App</span></code>, url <code class="docutils literal notranslate"><span class="pre">https://example.com</span></code>, and no icon. Applications should
+always set their own metadata; the client logs a hint when the default is used.
+<code class="docutils literal notranslate"><span class="pre">Metadata.default(name=...)</span></code> keeps the default fields and overrides just the ones you pass.</p>
+<p>The default url is the <a class="reference external" href="https://www.rfc-editor.org/rfc/rfc2606">RFC 2606</a> reserved domain
+<code class="docutils literal notranslate"><span class="pre">example.com</span></code> rather than an empty string because some wallets reject proposals without a valid
+url (MetaMask Mobile rejects session proposals whose metadata url is not a valid URL). The client
+raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> for a non-http(s) url and logs a warning if you pass an empty one.</p>
+<section id="example-an-ape-plugin">
+<h3>Example: an Ape plugin<a class="headerlink" href="#example-an-ape-plugin" title="Link to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">walletconnect</span><span class="w"> </span><span class="kn">import</span> <span class="n">Metadata</span>
+</span><span data-line="2"><span class="kn">from</span><span class="w"> </span><span class="nn">walletconnect.sign</span><span class="w"> </span><span class="kn">import</span> <span class="n">SyncSignClient</span>
+</span><span data-line="3">
+</span><span data-line="4"><span class="n">client</span> <span class="o">=</span> <span class="n">SyncSignClient</span><span class="p">(</span>
+</span><span data-line="5">    <span class="n">metadata</span><span class="o">=</span><span class="n">Metadata</span><span class="p">(</span>
+</span><span data-line="6">        <span class="n">name</span><span class="o">=</span><span class="s2">"Ape"</span><span class="p">,</span>
+</span><span data-line="7">        <span class="n">description</span><span class="o">=</span><span class="s2">"Ape Framework account via WalletConnect"</span><span class="p">,</span>
+</span><span data-line="8">        <span class="n">url</span><span class="o">=</span><span class="s2">"https://www.apeworx.io"</span><span class="p">,</span>
+</span><span data-line="9">        <span class="n">icons</span><span class="o">=</span><span class="p">[</span><span class="s2">"https://www.apeworx.io/assets/logo.png"</span><span class="p">],</span>
+</span><span data-line="10">    <span class="p">),</span>
+</span><span data-line="11"><span class="p">)</span>
+</span></pre></div>
+</div>
+</section>
+<section id="verify-api-and-domain-warnings">
+<h3>Verify API and domain warnings<a class="headerlink" href="#verify-api-and-domain-warnings" title="Link to this heading">#</a></h3>
+<p>WalletConnect’s <a class="reference external" href="https://docs.reown.com/walletkit/web/verify">Verify API</a> lets wallets check that a
+request really comes from the domain in <code class="docutils literal notranslate"><span class="pre">metadata.url</span></code>. Browser dApps get attested via their page
+origin; a Python process has no browser origin, so wallets will usually mark the request as
+<strong>unverified</strong> or “unknown domain”. Some wallets also warn when <code class="docutils literal notranslate"><span class="pre">url</span></code> doesn’t match the domains
+allowlisted for your project in Reown Cloud. This is expected for CLIs and scripts. To reduce
+warnings, use a <code class="docutils literal notranslate"><span class="pre">url</span></code> on a domain you control and list it under your project’s allowed domains.</p>
+</section>
+</section>
+<section id="sending-requests">
+<h2>Sending requests<a class="headerlink" href="#sending-requests" title="Link to this heading">#</a></h2>
+<p>Use <code class="docutils literal notranslate"><span class="pre">request(method,</span> <span class="pre">params,</span> <span class="pre">chain_id=...)</span></code> for any JSON-RPC method the wallet approved in the
+session, for example <code class="docutils literal notranslate"><span class="pre">eth_sendTransaction</span></code> or <code class="docutils literal notranslate"><span class="pre">eth_signTypedData_v4</span></code>.
+<code class="docutils literal notranslate"><span class="pre">personal_sign</span></code> is a convenience wrapper that hex-encodes the message for you.</p>
+</section>
+<section id="terminal-qr-codes">
+<h2>Terminal QR codes<a class="headerlink" href="#terminal-qr-codes" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">walletconnect.qr.print_qr</span></code> draws a QR code with Unicode half blocks. It is meant for testing
+and for headless bots and scripts.</p>
+<ul class="simple">
+<li><p>Pass <code class="docutils literal notranslate"><span class="pre">invert=False</span></code> on light terminal backgrounds.</p></li>
+<li><p>Pass <code class="docutils literal notranslate"><span class="pre">compact=False</span></code> for pure ASCII output.</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">terminal_qr()</span></code> to get the string instead of printing it.</p></li>
+</ul>
+<p>You can always print the raw <code class="docutils literal notranslate"><span class="pre">wc:</span></code> URI too and paste it into a wallet that supports it.</p>
+</section>
+<section id="sessions-and-state-stateless-by-design">
+<h2>Sessions and state (stateless by design)<a class="headerlink" href="#sessions-and-state-stateless-by-design" title="Link to this heading">#</a></h2>
+<p>The client never reads or writes files and never picks a storage location. Everything it needs
+to resume lives in memory as a <code class="docutils literal notranslate"><span class="pre">ClientState</span></code> pydantic model:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">relay_key</span></code>: the Ed25519 seed behind the relay identity (<code class="docutils literal notranslate"><span class="pre">did:key</span></code> client ID), so the relay
+mailbox and subscriptions follow you across restarts.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sessions</span></code>: every settled session keyed by topic, including each session’s symmetric key.</p></li>
+</ul>
+<p>Take a snapshot with <code class="docutils literal notranslate"><span class="pre">export_state()</span></code>, store it wherever suits your app, and pass it back with
+<code class="docutils literal notranslate"><span class="pre">state=</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">walletconnect.sign</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClientState</span><span class="p">,</span> <span class="n">SignClient</span>
+</span><span data-line="2">
+</span><span data-line="3"><span class="n">client</span> <span class="o">=</span> <span class="n">SignClient</span><span class="p">(</span><span class="n">metadata</span><span class="o">=...</span><span class="p">)</span>
+</span><span data-line="4"><span class="n">uri</span><span class="p">,</span> <span class="n">task</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+</span><span data-line="5"><span class="n">session</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">wait_for_session</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+</span><span data-line="6">
+</span><span data-line="7"><span class="n">blob</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">export_state</span><span class="p">()</span><span class="o">.</span><span class="n">model_dump_json</span><span class="p">()</span>  <span class="c1"># -&gt; your database, S3, a file, ...</span>
+</span><span data-line="8"><span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span><span data-line="9">
+</span><span data-line="10"><span class="c1"># Later, possibly in another process:</span>
+</span><span data-line="11"><span class="n">client</span> <span class="o">=</span> <span class="n">SignClient</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="n">ClientState</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">blob</span><span class="p">))</span>
+</span><span data-line="12"><span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>  <span class="c1"># reconnects, resubscribes session topics, fetches queued messages</span>
+</span><span data-line="13"><span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">personal_sign</span><span class="p">(</span><span class="s2">"still here"</span><span class="p">,</span> <span class="n">address</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<p>On restore the client reuses the relay key, restores each session’s key, drops sessions whose
+<code class="docutils literal notranslate"><span class="pre">expiry</span></code> has passed, resubscribes the remaining session topics, and fetches messages the relay
+queued while you were offline (for example a wallet-side account change or disconnect).</p>
+<p>If you just want a file, <code class="docutils literal notranslate"><span class="pre">ClientState.save(path)</span></code> writes it atomically with <code class="docutils literal notranslate"><span class="pre">0600</span></code> permissions
+and <code class="docutils literal notranslate"><span class="pre">ClientState.load(path)</span></code> reads it back. You must always pass the path explicitly.</p>
+<p>To save on every change instead of on exit, pass <code class="docutils literal notranslate"><span class="pre">on_state_change=</span></code>. The client calls it with a
+fresh snapshot whenever a session settles, updates, extends, expires or is deleted:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="n">client</span> <span class="o">=</span> <span class="n">SignClient</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="n">ClientState</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">on_state_change</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+</span></pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">ClientState</span></code> contains <strong>secrets</strong>: the relay key and every session’s symmetric key. Anyone with
+the state can send requests to the wallet as your app (the user still has to approve them on the
+phone). Store it like a password: encrypted at rest, with tight permissions, and never in logs or
+source control. The models hide keys from <code class="docutils literal notranslate"><span class="pre">repr()</span></code>, but <code class="docutils literal notranslate"><span class="pre">model_dump_json()</span></code> includes them.</p>
+</div>
+<section id="several-sessions-at-once">
+<h3>Several sessions at once<a class="headerlink" href="#several-sessions-at-once" title="Link to this heading">#</a></h3>
+<p>A client can hold several pairings and sessions at once. Each <code class="docutils literal notranslate"><span class="pre">connect()</span></code> returns its own URI and
+task. <code class="docutils literal notranslate"><span class="pre">client.sessions</span></code> maps topic to <code class="docutils literal notranslate"><span class="pre">Session</span></code>. When exactly one session is active, <code class="docutils literal notranslate"><span class="pre">request()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">personal_sign()</span></code>, <code class="docutils literal notranslate"><span class="pre">ping()</span></code> and <code class="docutils literal notranslate"><span class="pre">disconnect()</span></code> use it automatically. Otherwise, pass <code class="docutils literal notranslate"><span class="pre">topic=</span></code>.
+They raise <code class="docutils literal notranslate"><span class="pre">NoActiveSessionError</span></code> when there’s no session or the choice is ambiguous, and
+<code class="docutils literal notranslate"><span class="pre">SessionExpiredError</span></code> when the session has expired.</p>
+<p><code class="docutils literal notranslate"><span class="pre">disconnect()</span></code> ends a session (<code class="docutils literal notranslate"><span class="pre">wc_sessionDelete</span></code>) but leaves the relay connection open. Call
+<code class="docutils literal notranslate"><span class="pre">close()</span></code> to shut the connection down.</p>
+</section>
+</section>
+<section id="relay">
+<h2>Relay<a class="headerlink" href="#relay" title="Link to this heading">#</a></h2>
+<p>The default relay is <code class="docutils literal notranslate"><span class="pre">wss://relay.walletconnect.org</span></code>. Pass <code class="docutils literal notranslate"><span class="pre">relay_url=</span></code> to use another one.</p>
+<section id="reconnects">
+<h3>Reconnects<a class="headerlink" href="#reconnects" title="Link to this heading">#</a></h3>
+<p>Long-running processes will see the relay WebSocket drop now and then (deploys, load
+balancing, network blips, an expired auth token). The client reconnects on its own:</p>
+<ul class="simple">
+<li><p><strong>Backoff</strong>: after an unexpected drop it waits 0.25–0.5s, then doubles up to a 30s cap,
+with random jitter so many clients don’t reconnect in lockstep. Close codes 1001 and 4010
+(“going away” / rebalancing) reconnect at once. A connection that dies within 10s of
+opening does not reset the backoff, so a flapping relay is not hammered.</p></li>
+<li><p><strong>Fresh auth</strong>: every attempt signs a new relay JWT with the same client key (<code class="docutils literal notranslate"><span class="pre">client_id</span></code> does
+not change).</p></li>
+<li><p><strong>Resubscribe + catch up</strong>: every subscribed topic (sessions and open pairings) is
+re-subscribed, then <code class="docutils literal notranslate"><span class="pre">irn_fetchMessages</span></code> pulls anything published while offline. Duplicates
+are dropped.</p></li>
+<li><p><strong>In-flight requests</strong>:</p>
+<ul>
+<li><p>Relay calls (publish, subscribe, and so on) made while disconnected, or whose reply was
+lost in the drop, are re-sent after reconnecting. The relay and the wallet treat a repeated
+publish as the same message.</p></li>
+<li><p>If the relay is not back within the relay request timeout (30s or more), the call raises
+<a class="reference internal" href="../methoddocs/exceptions.html#walletconnect.exceptions.RelayDisconnectedError" title="walletconnect.exceptions.RelayDisconnectedError"><code class="xref py py-class docutils literal notranslate"><span class="pre">RelayDisconnectedError</span></code></a>.</p></li>
+<li><p>A wallet request that was already sent (for example <code class="docutils literal notranslate"><span class="pre">personal_sign</span></code> waiting for the user)
+keeps waiting. The wallet’s answer is queued on the relay and fetched after reconnecting.</p></li>
+</ul>
+</li>
+<li><p><strong>Giving up</strong>: if the relay rejects the handshake with HTTP 400/401/403 (for example, a bad
+project ID), it stops retrying. Later calls raise <code class="docutils literal notranslate"><span class="pre">RelayDisconnectedError</span></code> until you call
+<code class="docutils literal notranslate"><span class="pre">open()</span></code> again.</p></li>
+</ul>
+<p>Pass <code class="docutils literal notranslate"><span class="pre">auto_reconnect=False</span></code> to turn this off. Calls then raise <code class="docutils literal notranslate"><span class="pre">RelayDisconnectedError</span></code> as
+soon as the socket drops.</p>
+</section>
+</section>
+<section id="long-running-sessions">
+<h2>Long-running sessions<a class="headerlink" href="#long-running-sessions" title="Link to this heading">#</a></h2>
+<p>Sessions last 7 days unless extended, and the wallet can update or end them at any time. See
+<a class="reference external" href="long-running">Long-running sessions</a> for session events (<code class="docutils literal notranslate"><span class="pre">client.on(...)</span></code>), <code class="docutils literal notranslate"><span class="pre">extend()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">auto_extend=True</span></code>, reachability checks, and re-pairing.</p>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h2>
+<p>The repository ships these runnable demos:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">examples/terminal_connect.py</span></code> uses <code class="docutils literal notranslate"><span class="pre">SyncSignClient</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">examples/async_cli.py</span></code> is an async <a class="reference external" href="https://cyclopts.readthedocs.io">Cyclopts</a> CLI (install the
+<code class="docutils literal notranslate"><span class="pre">cli</span></code> extra).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">examples/fastapi_app/</span></code> is an HTTP service for pairing and signing (see the <a class="reference external" href="fastapi">FastAPI example</a>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">examples/mcp_server/</span></code> is an MCP server so an AI assistant can request signatures (see the <a class="reference external" href="mcp">MCP server example</a>).</p></li>
+</ul>
+<p>The two CLI demos show up in the wallet as “WalletConnect CLI Demo”; pass <code class="docutils literal notranslate"><span class="pre">--name</span></code>, <code class="docutils literal notranslate"><span class="pre">--url</span></code>, <code class="docutils literal notranslate"><span class="pre">--description</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">--icon</span></code> to change what the wallet displays.</p>
+</section>
+</section>
+
+        </article><button class="back-to-top" type="button">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+  </svg>
+  <span>Back to top</span>
+</button><div class="navigation flex print:hidden"><div class="navigation-prev">
+    <a href="quickstart.html">
+      <i class="i-lucide chevron-left"></i>
+      <div class="page-info">
+        <span>Previous</span><div class="title">WalletConnect (Python)</div></div>
+    </a>
+  </div><div class="navigation-next">
+    <a href="fastapi.html">
+      <div class="page-info">
+        <span>Next</span>
+        <div class="title">FastAPI example app</div>
+      </div>
+      <i class="i-lucide chevron-right"></i>
+    </a>
+  </div></div></div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright"><p>2026, ApeWorX LTD</p>
+  
+  <p>
+    Made with
+    
+    <a href="https://www.sphinx-doc.org/">Sphinx</a> and
+    
+    <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+  </p>
+</div>
+      <div class="sy-foot-socials"></div>
+    </div>
+  </div>
+</footer>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script data-domain="docs.apeworx.io" defer="defer" src="https://plausible.io/js/script.js"></script>
+      <script src="../_static/shibuya.js?v=50760d75"></script></body>
+</html>

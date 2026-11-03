@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en" data-accent-color="lime" data-content_root="../">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>WalletConnect (Python) - walletconnect documentation</title><link rel="shortcut icon" href="../_static/favicon.ico"/><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Connecting to a Mobile Wallet" href="connecting.html" /><link rel="prev" title="&lt;no title&gt;" href="../index.html" />
+      <link rel="canonical" href="walletconnect/userguides/quickstart.html" /><script>
+    function setColorMode(t){let e=document.documentElement;e.setAttribute("data-color-mode",t);let a=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,s=t;"auto"===t&&(s=a?"dark":"light"),"light"===s?(e.classList.remove("dark"),e.classList.add("light")):(e.classList.remove("light"),e.classList.add("dark"))}
+    setColorMode(localStorage._theme||"auto");
+  </script><link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=e1a1ceaf" />
+    <link rel="stylesheet" type="text/css" href="../_static/shibuya.css?v=2ceb65ce" />
+    <link media="print" rel="stylesheet" type="text/css" href="../_static/print.css?v=20ff2c19" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-text: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+  --sy-f-heading: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="walletconnect/userguides/quickstart.html"/>
+  <meta property="og:title" content="WalletConnect (Python)"/>
+    <meta name="twitter:card" content="summary"/>
+  </head>
+<body><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand" href="../index.html">
+      <img class="light-logo" src="../_static/logo_grey.svg" alt="walletconnect" height="28" loading="lazy" />
+      <img class="dark-logo" src="../_static/logo_green.svg" alt="walletconnect" height="28" loading="lazy" />
+      <strong>walletconnect</strong>
+    </a>
+    <div class="sy-head-nav" id="head-nav">
+      <nav class="sy-head-links"></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <kbd>/</kbd>
+</form><div class="sy-head-socials"></div></div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden"><button class="js-theme theme-switch flex items-center"
+data-aria-auto="Switch to light color mode"
+data-aria-light="Switch to dark color mode"
+data-aria-dark="Switch to auto color mode">
+<i class="i-lucide theme-icon"></i>
+</button><button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="head-nav" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2"></span>
+          <span class="hamburger_3"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading" aria-level="3"><span class="caption-text">User Guides</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">WalletConnect (Python)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connecting.html">Connecting to a Mobile Wallet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fastapi.html">FastAPI example app</a></li>
+<li class="toctree-l1"><a class="reference internal" href="long-running.html">Long-running sessions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mcp.html">MCP server example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a></li>
+</ul>
+<p class="caption" role="heading" aria-level="3"><span class="caption-text">Python Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/crypto.html">Crypto</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/exceptions.html">Exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/pairing.html">Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/qr.html">Terminal QR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/relay.html">Relay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/sign.html">Sign Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/state.html">State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methoddocs/types.html">Types</a></li>
+</ul>
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-lucide close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4"><div class="localtoc"><h3>On this page</h3><ul>
+<li><a class="reference internal" href="#status">Status</a></li>
+<li><a class="reference internal" href="#dependencies">Dependencies</a></li>
+<li><a class="reference internal" href="#installation">Installation</a><ul>
+<li><a class="reference internal" href="#via-pip">via <code class="docutils literal notranslate"><span class="pre">pip</span></code></a></li>
+<li><a class="reference internal" href="#via-source">via source</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#quick-usage">Quick Usage</a><ul>
+<li><a class="reference internal" href="#terminal-mobile-wallet-manual-demo">Terminal &#8594; mobile wallet (manual demo)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#development">Development</a></li>
+<li><a class="reference internal" href="#license">License</a></li>
+</ul>
+</div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div></div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+<div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-lucide menu"></i>
+      </button>
+    </div>
+    <ol class="flex-1" itemscope itemtype="https://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="../index.html"><span itemprop="name">walletconnect</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="1" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <strong itemprop="name">WalletConnect (Python)</strong>
+        <meta itemprop="position" content="2" />
+      </li></ol>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-lucide outdent"></i>
+      </button>
+    </div>
+  </div>
+</div><div class="flex flex-col break-words justify-between">
+      <div class="relative min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+  <div class="copy-page-wrapper relative pb-4 lg:absolute lg:top-8 lg:right-6 xl:right-12">
+  <div id="copy-page-trigger">
+    <button
+      type="button"
+      class="js-copy px-3 py-1 inline-flex items-center gap-1"
+      data-url="walletconnect/_sources/userguides/quickstart.md.txt"
+    >
+      <i class="i-lucide" data-icon="copy"></i>
+      <span>Copy page</span>
+    </button>
+    <button class="js-menu px-2 py-1" type="button" aria-label="More actions"
+      aria-haspopup="menu" aria-expanded="false" aria-controls="copy-page-content">
+      <i class="i-lucide chevron-down"></i>
+    </button>
+  </div>
+  <div id="copy-page-content" role="menu" aria-orientation="vertical" aria-hidden="true">
+    <div role="presentation">
+      <div class="flex flex-col" role="group">
+        <button class="js-copy" type="button" role="menuitem"
+          data-url="walletconnect/_sources/userguides/quickstart.md.txt">
+          <span class="iconify-icon">
+            <i class="i-lucide" data-icon="copy"></i>
+          </span>
+          <span>Copy page</span>
+        </button>
+        <a role="menuitem" href="walletconnect/_sources/userguides/quickstart.md.txt" target="_blank" rel="nofollow"><iconify-icon icon="bi:markdown"></iconify-icon>
+            <span>View as Markdown</span></a><a role="menuitem" href="https://chatgpt.com/?hints=search&q=Read%20walletconnect/_sources/userguides/quickstart.md.txt%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="nofollow">
+          <iconify-icon icon="bi:openai"></iconify-icon>
+          <span>Open in ChatGPT</span>
+        </a><a role="menuitem" href="https://claude.ai/new?q=Read%20walletconnect/_sources/userguides/quickstart.md.txt%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="nofollow">
+          <iconify-icon icon="bi:claude"></iconify-icon>
+          <span>Open in Claude</span>
+        </a></div>
+    </div>
+  </div>
+</div><article class="yue" role="main">
+          <section id="walletconnect-python">
+<h1>WalletConnect (Python)<a class="headerlink" href="#walletconnect-python" title="Link to this heading">#</a></h1>
+<p>A Python client for <a class="reference external" href="https://specs.walletconnect.com/2.0">WalletConnect v2</a> (now <a class="reference external" href="https://reown.com">Reown</a>),
+so Python tools (e.g. <a class="reference external" href="https://github.com/ApeWorX/ape">Ape</a> account plugins) can pair with mobile wallets
+and relay signing requests to them.</p>
+<section id="status">
+<h2>Status<a class="headerlink" href="#status" title="Link to this heading">#</a></h2>
+<blockquote>
+<div><p>[!WARNING]
+This project is being revived and is <strong>pre-alpha</strong>. Core Sign API flow works against the public relay
+for manual testing; APIs may still change.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p><strong>Target:</strong> WalletConnect v2 / Reown <strong>Sign API</strong> (default relay <code class="docutils literal notranslate"><span class="pre">wss://relay.walletconnect.org</span></code>, <code class="docutils literal notranslate"><span class="pre">irn</span></code> JSON-RPC,
+X25519 + ChaCha20-Poly1305 envelopes, a project ID from the <a class="reference external" href="https://dashboard.walletconnect.com">WalletConnect Dashboard</a>).</p></li>
+<li><p><strong>WalletConnect v1 is dead.</strong> The v1 bridge servers were shut down, and this library will never
+implement the v1 protocol.
+The <code class="docutils literal notranslate"><span class="pre">0.1.0a0</span></code> release on PyPI is an empty pre-v2 skeleton and should not be used.</p></li>
+</ul>
+<p>Progress is tracked in <a class="reference external" href="https://github.com/ApeWorX/walletconnect-py/issues/1">#1</a>.</p>
+</section>
+<section id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.python.org/downloads">Python 3</a> version 3.10 or greater.</p></li>
+</ul>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h2>
+<section id="via-pip">
+<h3>via <code class="docutils literal notranslate"><span class="pre">pip</span></code><a class="headerlink" href="#via-pip" title="Link to this heading">#</a></h3>
+<p>Once a release is available, you can install it via <a class="reference external" href="https://pypi.org/project/pip/"><code class="docutils literal notranslate"><span class="pre">pip</span></code></a>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span data-line="1">pip<span class="w"> </span>install<span class="w"> </span>walletconnect
+</span></pre></div>
+</div>
+</section>
+<section id="via-source">
+<h3>via source<a class="headerlink" href="#via-source" title="Link to this heading">#</a></h3>
+<p>You can clone the repository and install for development:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span data-line="1">git<span class="w"> </span>clone<span class="w"> </span>https://github.com/ApeWorX/walletconnect-py.git
+</span><span data-line="2"><span class="nb">cd</span><span class="w"> </span>walletconnect-py
+</span><span data-line="3">uv<span class="w"> </span>sync<span class="w"> </span>--group<span class="w"> </span>dev
+</span><span data-line="4">uv<span class="w"> </span>run<span class="w"> </span>prek<span class="w"> </span>install
+</span></pre></div>
+</div>
+</section>
+</section>
+<section id="quick-usage">
+<h2>Quick Usage<a class="headerlink" href="#quick-usage" title="Link to this heading">#</a></h2>
+<section id="terminal-mobile-wallet-manual-demo">
+<h3>Terminal → mobile wallet (manual demo)<a class="headerlink" href="#terminal-mobile-wallet-manual-demo" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>Create a free project on the <a class="reference external" href="https://dashboard.walletconnect.com">WalletConnect Dashboard</a> and copy the
+project ID. Existing project IDs from Reown Cloud / the Reown Dashboard keep working.</p></li>
+<li><p>Install from this repo (with the optional QR extra):</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span data-line="1">git<span class="w"> </span>clone<span class="w"> </span>https://github.com/ApeWorX/walletconnect-py.git
+</span><span data-line="2"><span class="nb">cd</span><span class="w"> </span>walletconnect-py
+</span><span data-line="3">uv<span class="w"> </span>sync<span class="w"> </span>--extra<span class="w"> </span>qr<span class="w"> </span>--group<span class="w"> </span><span class="nb">test</span>
+</span><span data-line="4"><span class="nb">export</span><span class="w"> </span><span class="nv">WALLETCONNECT_PROJECT_ID</span><span class="o">=</span>your_32_char_project_id
+</span><span data-line="5">uv<span class="w"> </span>run<span class="w"> </span>--extra<span class="w"> </span>qr<span class="w"> </span>python<span class="w"> </span>examples/terminal_connect.py
+</span></pre></div>
+</div>
+<p>Or with pip from a checkout:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span data-line="1">pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">".[qr]"</span>
+</span><span data-line="2"><span class="nb">export</span><span class="w"> </span><span class="nv">WALLETCONNECT_PROJECT_ID</span><span class="o">=</span>your_32_char_project_id
+</span><span data-line="3">python<span class="w"> </span>examples/terminal_connect.py
+</span></pre></div>
+</div>
+<p>Scan the QR with MetaMask / Rainbow / etc., approve the session, then approve <code class="docutils literal notranslate"><span class="pre">personal_sign</span></code> on the phone.</p>
+<p>Async Cyclopts variant (uses <code class="docutils literal notranslate"><span class="pre">SignClient</span></code> instead of <code class="docutils literal notranslate"><span class="pre">SyncSignClient</span></code>):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span data-line="1">uv<span class="w"> </span>sync<span class="w"> </span>--extra<span class="w"> </span>cli
+</span><span data-line="2"><span class="nb">export</span><span class="w"> </span><span class="nv">WALLETCONNECT_PROJECT_ID</span><span class="o">=</span>your_32_char_project_id
+</span><span data-line="3">uv<span class="w"> </span>run<span class="w"> </span>--extra<span class="w"> </span>cli<span class="w"> </span>python<span class="w"> </span>examples/async_cli.py
+</span><span data-line="4"><span class="c1"># or: uv run --with 'cyclopts&gt;=3,&lt;6' --extra qr python examples/async_cli.py</span>
+</span></pre></div>
+</div>
+<p>HTTP service variant (<a class="reference external" href="https://fastapi.tiangolo.com">FastAPI</a>: pair over <code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/pair</span></code>, sign via <code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/sessions/{topic}/sign</span></code>):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span data-line="1">uv<span class="w"> </span>run<span class="w"> </span>--group<span class="w"> </span>examples<span class="w"> </span>--extra<span class="w"> </span>qr<span class="w"> </span>uvicorn<span class="w"> </span>examples.fastapi_app.app:app<span class="w">  </span><span class="c1"># demo page at http://localhost:8000/</span>
+</span></pre></div>
+</div>
+<p>MCP server variant (an AI assistant pairs a wallet and requests signatures; you approve on your phone):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span data-line="1">uv<span class="w"> </span>run<span class="w"> </span>--group<span class="w"> </span>examples<span class="w"> </span>--extra<span class="w"> </span>qr<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>examples.mcp_server<span class="w">  </span><span class="c1"># stdio; see docs/userguides/mcp.md</span>
+</span></pre></div>
+</div>
+<p>The production MCP integration is planned as a feature of the <code class="docutils literal notranslate"><span class="pre">ape-walletconnect</span></code> plugin.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">walletconnect.qr</span><span class="w"> </span><span class="kn">import</span> <span class="n">print_qr</span>
+</span><span data-line="2"><span class="kn">from</span><span class="w"> </span><span class="nn">walletconnect.sign</span><span class="w"> </span><span class="kn">import</span> <span class="n">SyncSignClient</span>
+</span><span data-line="3"><span class="kn">from</span><span class="w"> </span><span class="nn">walletconnect.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Metadata</span>
+</span><span data-line="4">
+</span><span data-line="5"><span class="n">client</span> <span class="o">=</span> <span class="n">SyncSignClient</span><span class="p">(</span>
+</span><span data-line="6">    <span class="n">project_id</span><span class="o">=</span><span class="s2">"..."</span><span class="p">,</span>  <span class="c1"># or set WALLETCONNECT_PROJECT_ID</span>
+</span><span data-line="7">    <span class="c1"># Shown in the wallet; many wallets display the url's host prominently.</span>
+</span><span data-line="8">    <span class="n">metadata</span><span class="o">=</span><span class="n">Metadata</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"My Script"</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="s2">"https://example.com"</span><span class="p">),</span>
+</span><span data-line="9"><span class="p">)</span>
+</span><span data-line="10"><span class="n">session</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">chains</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,),</span> <span class="n">on_uri</span><span class="o">=</span><span class="n">print_qr</span><span class="p">)</span>
+</span><span data-line="11"><span class="n">sig</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">personal_sign</span><span class="p">(</span><span class="s2">"hello"</span><span class="p">,</span> <span class="n">session</span><span class="o">.</span><span class="n">eip155_accounts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">":"</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</span><span data-line="12"><span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span></pre></div>
+</div>
+<p>The client is stateless: it never writes to disk. To keep sessions across restarts, save
+<code class="docutils literal notranslate"><span class="pre">client.export_state().model_dump_json()</span></code> wherever you like (file, database, S3) and pass it back
+with <code class="docutils literal notranslate"><span class="pre">SyncSignClient(state=ClientState.model_validate_json(blob))</span></code>. The state contains secret
+keys, so store it securely. See the <a class="reference external" href="docs/userguides/connecting.md">connecting guide</a>.</p>
+<p>For sessions that stay open for weeks, the client emits events (<code class="docutils literal notranslate"><span class="pre">client.on(&quot;session_delete&quot;,</span> <span class="pre">...)</span></code>),
+can extend sessions before they expire (<code class="docutils literal notranslate"><span class="pre">auto_extend=True</span></code>), and can check whether the wallet is
+online (<code class="docutils literal notranslate"><span class="pre">is_reachable()</span></code>). See <a class="reference external" href="docs/userguides/long-running.md">Long-running sessions</a>.</p>
+<p>Lower-level helpers still work without a relay connection:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">walletconnect</span><span class="w"> </span><span class="kn">import</span> <span class="n">PairingURI</span>
+</span><span data-line="2"><span class="kn">from</span><span class="w"> </span><span class="nn">walletconnect.qr</span><span class="w"> </span><span class="kn">import</span> <span class="n">print_qr</span>  <span class="c1"># requires `pip install "walletconnect[qr]"`</span>
+</span><span data-line="3">
+</span><span data-line="4"><span class="n">uri</span> <span class="o">=</span> <span class="n">PairingURI</span><span class="o">.</span><span class="n">generate</span><span class="p">()</span>
+</span><span data-line="5"><span class="n">print_qr</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">print_qr</span></code> draws for a dark terminal background by default; pass <code class="docutils literal notranslate"><span class="pre">invert=False</span></code> for light
+backgrounds. Live relay tests skip unless <code class="docutils literal notranslate"><span class="pre">WALLETCONNECT_PROJECT_ID</span></code> is set.</p>
+<p>For an automated interoperability check against the official JS Sign client (wallet peer), see <a class="reference external" href="e2e-js/"><code class="docutils literal notranslate"><span class="pre">e2e-js/</span></code></a>.</p>
+</section>
+</section>
+<section id="development">
+<h2>Development<a class="headerlink" href="#development" title="Link to this heading">#</a></h2>
+<p>See <a class="reference external" href="CONTRIBUTING.md">CONTRIBUTING.md</a>. Comments, questions, criticisms and pull requests are welcomed.</p>
+</section>
+<section id="license">
+<h2>License<a class="headerlink" href="#license" title="Link to this heading">#</a></h2>
+<p>This project is licensed under the <a class="reference external" href="LICENSE">Apache 2.0</a>.</p>
+</section>
+</section>
+
+        </article><button class="back-to-top" type="button">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+  </svg>
+  <span>Back to top</span>
+</button><div class="navigation flex print:hidden"><div class="navigation-prev">
+    <a href="../index.html">
+      <i class="i-lucide chevron-left"></i>
+      <div class="page-info">
+        <span>Previous</span><div class="title">Home</div></div>
+    </a>
+  </div><div class="navigation-next">
+    <a href="connecting.html">
+      <div class="page-info">
+        <span>Next</span>
+        <div class="title">Connecting to a Mobile Wallet</div>
+      </div>
+      <i class="i-lucide chevron-right"></i>
+    </a>
+  </div></div></div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright"><p>2026, ApeWorX LTD</p>
+  
+  <p>
+    Made with
+    
+    <a href="https://www.sphinx-doc.org/">Sphinx</a> and
+    
+    <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+  </p>
+</div>
+      <div class="sy-foot-socials"></div>
+    </div>
+  </div>
+</footer>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script data-domain="docs.apeworx.io" defer="defer" src="https://plausible.io/js/script.js"></script>
+      <script src="../_static/shibuya.js?v=50760d75"></script></body>
+</html>
