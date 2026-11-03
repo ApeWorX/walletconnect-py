@@ -12,13 +12,33 @@ export WALLETCONNECT_STATE_FILE=./wc-state.json    # optional: keep sessions acr
 uv run --group examples --extra qr uvicorn examples.fastapi_app.app:app --reload
 ```
 
+Then open <http://localhost:8000/> for the demo page, or use the JSON API below.
+
 The `examples` dependency group installs `fastapi` and `uvicorn`. The SDK itself does not depend
 on them. The `qr` extra is only needed for `?qr=svg`.
+
+## Demo page
+
+`GET /` serves a small page called "WalletConnect Python Demo". It's one self-contained HTML
+file (`examples/fastapi_app/index.html`) with inline CSS and vanilla JavaScript: no build step and
+no CDN. On the page you can:
+
+- Press **Pair** to call `POST /pair?qr=svg`. The page shows the QR code and a copyable URI, then
+  polls `GET /pairings/{pairing_topic}` until the wallet approves.
+- See the sessions from `GET /sessions`, each with a **Disconnect** button
+  (`DELETE /sessions/{topic}`).
+- Type a message and press **Sign** next to a session. This calls `POST /sessions/{topic}/sign`
+  with `personal_sign` and shows the signature or the error.
+
+The page only calls the JSON API. Values from the API are inserted as text, never as HTML. The QR
+SVG is shown through an `<img>` data URL, so any markup in it can't run script. The response also
+carries a strict `Content-Security-Policy` (no external sources, `connect-src 'self'`).
 
 ## Endpoints
 
 | Method and path                 | What it does                                                                       |
 | ------------------------------- | ---------------------------------------------------------------------------------- |
+| `GET /`                         | The demo page (HTML).                                                              |
 | `POST /pair[?qr=svg]`           | Starts a pairing and returns `uri`, `pairing_topic`, and optionally `qr_svg`.      |
 | `GET /pairings/{pairing_topic}` | Shows the pairing status: `pending`, `settled` (with `session_topic`) or `failed`. |
 | `GET /sessions`                 | Lists active sessions with their topic, wallet name, accounts and expiry.          |

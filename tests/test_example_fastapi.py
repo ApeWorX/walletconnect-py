@@ -48,6 +48,7 @@ def test_fastapi_example_end_to_end(tmp_path, monkeypatch):
             pair = http.post("/pair", params={"qr": "svg"}).json()
             assert pair["uri"].startswith("wc:")
             assert pair["qr_svg"].startswith("<svg")
+            assert 'xmlns="http://www.w3.org/2000/svg"' in pair["qr_svg"]  # works as <img>
             wallet = relay.submit(scripted_wallet(relay.url, pair["uri"], n_requests=2))
 
             status = _wait_settled(http, pair["pairing_topic"])
@@ -92,3 +93,26 @@ def test_fastapi_example_injected_client(monkeypatch):
         with TestClient(app) as http:
             assert http.get("/pairings/unknown").status_code == 404
             assert http.get("/sessions").json() == []
+
+
+def test_fastapi_example_landing_page(monkeypatch):
+    monkeypatch.delenv(STATE_FILE_ENV, raising=False)
+    with relay_thread() as relay:
+        app = create_app(lambda: SignClient(project_id="test", relay_url=relay.url))
+        with TestClient(app) as http:
+            res = http.get("/")
+            assert res.status_code == 200
+            assert res.headers["content-type"].startswith("text/html")
+            assert "<title>WalletConnect Python Demo</title>" in res.text
+            # Self-contained: no external scripts, styles or fonts.
+            assert "<script src" not in res.text
+            assert "<link" not in res.text
+            assert "https://" not in res.text
+            # The QR SVG is shown via an <img> data URL, never injected as markup.
+            assert ".innerHTML" not in res.text
+            assert "insertAdjacentHTML" not in res.text
+            assert "data:image/svg+xml" in res.text
+            csp = res.headers["content-security-policy"]
+            assert "default-src 'none'" in csp
+            assert "connect-src 'self'" in csp
+            assert "/" not in app.openapi()["paths"]

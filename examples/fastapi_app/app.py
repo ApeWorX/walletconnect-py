@@ -7,7 +7,7 @@ Run it::
     export WALLETCONNECT_STATE_FILE=./wc-state.json    # optional: survive restarts
     uv run --group examples uvicorn examples.fastapi_app.app:app --reload
 
-Then::
+Then open http://localhost:8000/ for a small demo page (pair, sign, disconnect), or::
 
     curl -X POST localhost:8000/pair                   # → {"uri": "wc:…", "pairing_topic": "…"}
     curl -X POST 'localhost:8000/pair?qr=svg'          # … plus an inline SVG QR code
@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import io
 import json
 import logging
 import os
@@ -36,6 +37,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
 from walletconnect import DEFAULT_RELAY_URL, ClientState, Metadata, PairingURI
@@ -53,8 +55,17 @@ logger = logging.getLogger("walletconnect.examples.fastapi")
 STATE_FILE_ENV = "WALLETCONNECT_STATE_FILE"
 RELAY_URL_ENV = "WALLETCONNECT_RELAY_URL"
 
+INDEX_HTML = (Path(__file__).parent / "index.html").read_text(encoding="utf-8")
+# The page is self-contained (inline CSS/JS, no CDN). It only talks to this server and renders
+# the QR SVG through an <img> data URL, so the policy can stay this tight.
+INDEX_CSP = (
+    "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; "
+    "img-src data:; connect-src 'self'; base-uri 'none'; form-action 'none'; "
+    "frame-ancestors 'none'"
+)
+
 METADATA = Metadata(
-    name="WalletConnect FastAPI example",
+    name="WalletConnect Python Demo",
     description="Pair a wallet over HTTP and request signatures",
     url="https://github.com/ApeWorX/walletconnect-py",
 )
@@ -145,7 +156,7 @@ def create_app(client_factory: Callable[[], SignClient] | None = None) -> FastAP
                 task.cancel()
             await client.close()
 
-    app = FastAPI(title="WalletConnect FastAPI example", lifespan=lifespan)
+    app = FastAPI(title="WalletConnect Python Demo", lifespan=lifespan)
 
     def client_of(request: Request) -> SignClient:
         return request.app.state.client  # type: ignore[no-any-return]
@@ -160,6 +171,14 @@ def create_app(client_factory: Callable[[], SignClient] | None = None) -> FastAP
         else:
             status.status, status.session_topic = "settled", session.topic
             logger.info("Pairing %s… settled with %s", pairing_topic[:8], session.peer_name)
+
+    @app.get("/", response_class=HTMLResponse, include_in_schema=False)
+    async def index() -> HTMLResponse:
+        """A minimal demo page: pair, list sessions, sign, disconnect."""
+        return HTMLResponse(
+            INDEX_HTML,
+            headers={"content-security-policy": INDEX_CSP, "x-content-type-options": "nosniff"},
+        )
 
     @app.post("/pair")
     async def pair(request: Request, qr: Literal["svg"] | None = None) -> PairResponse:
@@ -178,7 +197,10 @@ def create_app(client_factory: Callable[[], SignClient] | None = None) -> FastAP
                 import segno
             except ImportError as exc:
                 raise HTTPException(501, 'QR rendering needs "walletconnect[qr]"') from exc
-            svg = segno.make(uri, error="m").svg_inline(scale=4)
+            # Keep the xmlns so the SVG also works standalone (e.g. as an <img> data URL).
+            buf = io.BytesIO()
+            segno.make(uri, error="m").save(buf, kind="svg", scale=4, xmldecl=False, nl=False)
+            svg = buf.getvalue().decode("utf-8")
         return PairResponse(uri=uri, pairing_topic=pairing_topic, qr_svg=svg)
 
     @app.get("/pairings/{pairing_topic}")
