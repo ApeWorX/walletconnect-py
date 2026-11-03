@@ -216,6 +216,15 @@ client.on("session_request", async (event) => {
   }
 });
 
+// SignClient.init() schedules processPendingMessageEvents() after requestQueueDelay (1s). That
+// replays every session message not yet acked in relayer.messages, including requests we have
+// already answered. If we pair and serve personal_sign inside that first second, the replayed
+// personal_sign lands at the head of the request queue, is skipped as a duplicate without the
+// queue advancing, and the next request (eth_signTypedData_v4) is never emitted, so the dApp
+// times out. Real wallets start long before a dApp pairs, so wait out the replay window first.
+const INIT_SETTLE_MS = 1500;
+await new Promise((resolve) => setTimeout(resolve, INIT_SETTLE_MS));
+
 const uri = await waitForUri(uriFile);
 console.log(`[wallet] pairing with ${uri.slice(0, 48)}…`);
 await client.core.pairing.pair({ uri });
