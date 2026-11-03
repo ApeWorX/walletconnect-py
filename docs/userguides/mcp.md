@@ -73,8 +73,16 @@ session_status(pairing_topic=None, check_reachable=False)
 disconnect(topic=None)
 sign_message(message, address=None, topic=None, chain_id=None, timeout_s=None)
 sign_typed_data(typed_data, address=None, topic=None, chain_id=None, timeout_s=None)
-send_transaction(to, value_wei="0", data=None, gas=None, from_address=None, topic=None,
-                 chain_id=None, timeout_s=None)
+send_transaction(
+    to,
+    value_wei="0",
+    data=None,
+    gas=None,
+    from_address=None,
+    topic=None,
+    chain_id=None,
+    timeout_s=None,
+)
 ```
 
 | Tool               | What it does                                                                                                                                                 |
