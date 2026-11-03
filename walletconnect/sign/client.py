@@ -399,7 +399,7 @@ class SignClient:
         try:
             try:
                 result = await asyncio.wait_for(propose_fut, timeout=self.connect_timeout)
-            except TimeoutError as exc:
+            except asyncio.TimeoutError as exc:
                 raise WalletConnectTimeoutError(
                     "Timed out waiting for the wallet to approve the session proposal"
                 ) from exc
@@ -418,7 +418,7 @@ class SignClient:
                 self._settle_waiters[topic] = settle_fut
                 try:
                     settle_req = await asyncio.wait_for(settle_fut, timeout=self.connect_timeout)
-                except TimeoutError as exc:
+                except asyncio.TimeoutError as exc:
                     self._sym_keys.pop(topic, None)
                     raise WalletConnectTimeoutError(
                         "Timed out waiting for wc_sessionSettle from the wallet"
@@ -494,7 +494,7 @@ class SignClient:
         try:
             await self.relay.publish(session.topic, envelope, ttl=opts.ttl, tag=opts.tag)
             return await asyncio.wait_for(fut, timeout=timeout or self.request_timeout)
-        except TimeoutError as exc:
+        except asyncio.TimeoutError as exc:
             raise WalletConnectTimeoutError(
                 f"Timed out waiting for wallet response to {method}"
             ) from exc
@@ -533,7 +533,7 @@ class SignClient:
             await self.relay.publish(session.topic, envelope, ttl=opts.ttl, tag=opts.tag)
             await asyncio.wait_for(fut, timeout=timeout)
             return True
-        except TimeoutError as exc:
+        except asyncio.TimeoutError as exc:
             raise WalletConnectTimeoutError("Timed out waiting for wallet ping response") from exc
         finally:
             self._pending.pop(request_id, None)

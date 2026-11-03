@@ -358,7 +358,7 @@ class RelayClient:
             logger.exception("Relay connection handler failed")
 
     async def _wait_ready(self, timeout: float) -> None:
-        with contextlib.suppress(TimeoutError):
+        with contextlib.suppress(asyncio.TimeoutError):
             await asyncio.wait_for(self._ready.wait(), timeout=max(0.0, timeout))
 
     # --------------------------------------------------------------- requests
@@ -411,7 +411,7 @@ class RelayClient:
             try:
                 await self._send(payload)
                 return await asyncio.wait_for(fut, timeout=max(0.0, deadline - loop.time()))
-            except TimeoutError as exc:
+            except asyncio.TimeoutError as exc:
                 raise WalletConnectTimeoutError(
                     f"Relay did not respond to {method} within {self.request_timeout}s"
                 ) from exc
