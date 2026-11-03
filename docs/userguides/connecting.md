@@ -198,6 +198,35 @@ They raise `NoActiveSessionError` when there's no session or the choice is ambig
 
 The default relay is `wss://relay.walletconnect.org`. Pass `relay_url=` to use another one.
 
+### Reconnects
+
+Long-running processes will see the relay WebSocket drop now and then (deploys, load
+balancing, network blips, an expired auth token). The client reconnects on its own:
+
+- **Backoff**: after an unexpected drop it waits 0.25–0.5s, then doubles up to a 30s cap,
+  with random jitter so many clients don't reconnect in lockstep. Close codes 1001 and 4010
+  ("going away" / rebalancing) reconnect at once. A connection that dies within 10s of
+  opening does not reset the backoff, so a flapping relay is not hammered.
+- **Fresh auth**: every attempt signs a new relay JWT with the same client key (`client_id` does
+  not change).
+- **Resubscribe + catch up**: every subscribed topic (sessions and open pairings) is
+  re-subscribed, then `irn_fetchMessages` pulls anything published while offline. Duplicates
+  are dropped.
+- **In-flight requests**:
+  - Relay calls (publish, subscribe, and so on) made while disconnected, or whose reply was
+    lost in the drop, are re-sent after reconnecting. The relay and the wallet treat a repeated
+    publish as the same message.
+  - If the relay is not back within the relay request timeout (30s or more), the call raises
+    {py:class}`~walletconnect.exceptions.RelayDisconnectedError`.
+  - A wallet request that was already sent (for example `personal_sign` waiting for the user)
+    keeps waiting. The wallet's answer is queued on the relay and fetched after reconnecting.
+- **Giving up**: if the relay rejects the handshake with HTTP 400/401/403 (for example, a bad
+  project ID), it stops retrying. Later calls raise `RelayDisconnectedError` until you call
+  `open()` again.
+
+Pass `auto_reconnect=False` to turn this off. Calls then raise `RelayDisconnectedError` as
+soon as the socket drops.
+
 ## Examples
 
 The repository ships two runnable demos:

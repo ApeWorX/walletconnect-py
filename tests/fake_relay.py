@@ -7,6 +7,7 @@ delivers published messages to subscribers on the same topic.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import time
 from collections import defaultdict
@@ -15,6 +16,8 @@ from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from typing import Any
 from urllib.parse import parse_qs, urlparse
+
+from websockets.exceptions import ConnectionClosed
 
 from walletconnect.utils.ids import payload_id
 
@@ -31,6 +34,26 @@ class FakeRelay:
         self.clients: list[_ClientState] = []
         self.mailbox: dict[str, list[dict[str, Any]]] = defaultdict(list)
         self._sub_counter = 0
+        # When set, the WebSocket upgrade is refused with this HTTP status (simulated outage).
+        self.reject_status: int | None = None
+        self.connection_count = 0
+        # When set to an irn method, the next such request is processed but the connection is
+        # aborted before the response is sent (the "response lost in flight" case).
+        self.drop_after: str | None = None
+
+    def process_request(self, connection: Any, request: Any) -> Any:
+        if self.reject_status is not None:
+            return connection.respond(self.reject_status, "unavailable\n")
+        return None
+
+    async def drop_all(self, code: int = 1006) -> None:
+        """Abruptly close every client connection (server side)."""
+        for state in list(self.clients):
+            if code == 1006:
+                # No close frame: what a network drop looks like to the client.
+                state.ws.transport.abort()
+            else:
+                await state.ws.close(code, "dropped by test")
 
     def _next_sub_id(self) -> str:
         self._sub_counter += 1
@@ -45,6 +68,7 @@ class FakeRelay:
             await websocket.close(4001, "missing auth or projectId")
             return
 
+        self.connection_count += 1
         state = _ClientState(ws=websocket)
         self.clients.append(state)
         try:
@@ -53,6 +77,8 @@ class FakeRelay:
                     raw = raw.decode("utf-8")
                 message = json.loads(raw)
                 await self._dispatch(state, message)
+        except ConnectionClosed:
+            pass
         finally:
             if state in self.clients:
                 self.clients.remove(state)
@@ -65,6 +91,12 @@ class FakeRelay:
         request_id = message["id"]
         params = message.get("params") or {}
 
+        if method == self.drop_after:
+            self.drop_after = None
+            if method == "irn_publish":
+                await self._publish(params)
+            state.ws.transport.abort()
+            return
         if method == "irn_publish":
             await self._publish(params)
             await state.ws.send(json.dumps({"id": request_id, "jsonrpc": "2.0", "result": True}))
@@ -120,7 +152,8 @@ class FakeRelay:
         for client in list(self.clients):
             sub_id = client.subscriptions.get(topic)
             if sub_id is not None:
-                await self._deliver(client, sub_id, item)
+                with contextlib.suppress(ConnectionClosed):
+                    await self._deliver(client, sub_id, item)
 
     async def _deliver(self, state: _ClientState, sub_id: str, item: dict[str, Any]) -> None:
         request = {
@@ -135,10 +168,10 @@ class FakeRelay:
 @asynccontextmanager
 async def run_fake_relay(host: str = "127.0.0.1") -> AsyncIterator[tuple[FakeRelay, str]]:
     """Yield ``(fake, ws_url)`` where ``ws_url`` is ``ws://host:port`` (no query)."""
-    import websockets
+    from websockets.asyncio.server import serve
 
     fake = FakeRelay()
-    async with websockets.serve(fake.handler, host, 0) as server:
+    async with serve(fake.handler, host, 0, process_request=fake.process_request) as server:
         sock_list = list(server.sockets or [])
         port = sock_list[0].getsockname()[1]
         yield fake, f"ws://{host}:{port}"

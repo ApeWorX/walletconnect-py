@@ -113,6 +113,13 @@ class SignClient:
     ``on_state_change`` (optional) is called with a fresh :class:`ClientState` snapshot whenever
     the persistable state changes (session settled, updated, extended, deleted or expired), so
     you can save it.
+
+    ``auto_reconnect`` (default ``True``): if the relay WebSocket drops, reconnect with capped,
+    jittered backoff, re-subscribe every session/pairing topic and fetch anything published
+    meanwhile. Wallet requests in flight keep waiting (their responses are queued by the relay);
+    relay calls made while down are re-sent once reconnected, or raise
+    :class:`~walletconnect.exceptions.RelayDisconnectedError` if the relay is not back within
+    the relay request timeout.
     """
 
     def __init__(
@@ -126,6 +133,7 @@ class SignClient:
         origin: str | None = None,
         connect_timeout: float = _CONNECT_TIMEOUT,
         request_timeout: float = _REQUEST_TIMEOUT,
+        auto_reconnect: bool = True,
     ) -> None:
         self.metadata = _resolve_metadata(metadata)
         self.connect_timeout = connect_timeout
@@ -143,6 +151,7 @@ class SignClient:
             auth_key=self.auth_key,
             origin=origin,
             request_timeout=max(30.0, min(request_timeout, 60.0)),
+            auto_reconnect=auto_reconnect,
         )
         self.relay.on_message(self._on_relay_message)
 

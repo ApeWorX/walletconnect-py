@@ -52,6 +52,16 @@ class RelayConnectionError(RelayError, ConnectionError):
     """Raised when the relay WebSocket cannot be established or drops unexpectedly."""
 
 
+class RelayDisconnectedError(RelayConnectionError):
+    """
+    Raised when a relay request cannot complete because the WebSocket dropped.
+
+    Relay requests (publish, subscribe, ...) are retried transparently after an automatic
+    reconnect; this is raised only when the connection was not restored within the request
+    timeout, when auto-reconnect is disabled, or when the client was closed.
+    """
+
+
 class WalletConnectTimeoutError(WalletConnectError, TimeoutError):
     """Raised when the peer or relay does not respond in time."""
 
