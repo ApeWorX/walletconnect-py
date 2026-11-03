@@ -94,22 +94,31 @@ METADATA = Metadata(
 
 QR_RESOURCE_TEMPLATE = "walletconnect://pairing/{pairing_topic}/qr.png"
 
-SHOW_QR_GUIDANCE = (
-    "After calling pair, check qr_opened. If it is true, the QR code is already open in an"
-    " image viewer window on the user's screen: tell them so and ask them to scan it with their"
-    " wallet app. If it is false, show the QR code to the user prominently in your reply: render"
-    " the image, or give them the PNG path (or file:// link) to open. The image inside the tool"
-    " result may be collapsed or small in the client, so do not rely on it alone. Then call"
-    " wait_for_pairing (or session_status) with the pairing_topic. Never paste the wc: URI"
-    " unless the user asks for it: it contains a short-lived secret key."
+SVG_INLINE_GUIDANCE = (
+    "After pair, render the returned SVG exactly as given with your inline widget/artifact tool"
+    " at a large size, tell the user to scan it with their wallet, then call wait_for_pairing."
+    ' If you cannot render widgets, call pair again with qr="text" or qr="png".'
 )
+
+SHOW_QR_GUIDANCE = (
+    f'{SVG_INLINE_GUIDANCE} With qr="png" (or "svg"), check qr_opened: if it is true, the QR'
+    " code is already open in an image viewer window on the user's screen, so tell them so;"
+    " otherwise show the QR code prominently in your reply (render the image, or give them the"
+    " file path or file:// link to open; the image inside the tool result may be collapsed in"
+    " the client). Then call wait_for_pairing (or session_status) with the pairing_topic. Never"
+    " paste the wc: URI unless the user asks for it: it contains a short-lived secret key."
+)
+
+SVG_BEGIN = "-----BEGIN QR SVG-----"
+SVG_END = "-----END QR SVG-----"
 
 INSTRUCTIONS = f"""\
 Tools for a WalletConnect mobile wallet. Nothing is signed by this server: each signing tool sends
 a request to the user's wallet app and waits until they approve or reject it there.
-1. If session_status shows no sessions, call pair. It writes a QR image (PNG) to a file, opens it
-   in the system image viewer when it runs in a desktop session (qr_opened), returns its path, a
-   file:// link and the image itself, and exposes it as the resource {QR_RESOURCE_TEMPLATE}.
+1. If session_status shows no sessions, call pair. By default (qr="svg_inline") it returns the QR
+   code as SVG markup between {SVG_BEGIN} and {SVG_END}, and never the wc: URI. qr="png"
+   writes a PNG file instead, opens it in the system image viewer on a desktop (qr_opened),
+   returns its path and the image, and exposes it as the resource {QR_RESOURCE_TEMPLATE}.
 2. {SHOW_QR_GUIDANCE}
 3. wait_for_pairing returns as soon as the wallet approves, or "pending" with seconds_remaining;
    call it again while pending.
@@ -293,6 +302,48 @@ def _qr_target(qr_path: str | None, pairing_topic: str, suffix: str) -> Path:
     return Path(tmp)
 
 
+def svg_inline_qr(uri: str) -> tuple[str, int]:
+    """
+    The QR as compact inline SVG markup, and its size in modules (quiet zone included).
+
+    All dark modules are ONE ``<path>``: a 1-unit-wide stroke along each run of dark modules in
+    a row (``h`` segments, relative moves), so a typical pairing URI comes to about 5 KB. A
+    4-module white quiet zone and an explicit white ``<rect>`` keep it scannable in dark mode.
+    The viewBox is square with no fixed size (``width="100%"``) and ``crispEdges``, so it scales
+    up sharply. No XML declaration, title or description: the URI is only in the pattern.
+    """
+    import segno
+
+    qr = segno.make(uri, error="m", micro=False)
+    size = len(qr.matrix) + 2 * QR_BORDER
+    parts: list[str] = []
+    pen: tuple[int, int] | None = None  # where the last run ended (x, row)
+    for row, line in enumerate(qr.matrix):
+        y = row + QR_BORDER
+        x = 0
+        width = len(line)
+        while x < width:
+            if not line[x]:
+                x += 1
+                continue
+            start = x
+            while x < width and line[x]:
+                x += 1
+            sx = start + QR_BORDER
+            if pen is None:
+                parts.append(f"M{sx} {y}.5h{x - start}")
+            else:
+                parts.append(f"m{sx - pen[0]} {y - pen[1]}h{x - start}")
+            pen = (x + QR_BORDER, y)
+    path = "".join(parts)
+    svg = (
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {size} {size}" width="100%"'
+        f' shape-rendering="crispEdges"><rect width="{size}" height="{size}" fill="#fff"/>'
+        f'<path stroke="#000" d="{path}"/></svg>'
+    )
+    return svg, size
+
+
 def _render_qr_bytes(
     uri: str, kind: Literal["png", "svg"], scale: int | None = None
 ) -> tuple[bytes, int]:
@@ -320,8 +371,12 @@ _TRUE = {"1", "true", "yes", "on"}
 _FALSE = {"0", "false", "no", "off"}
 
 
-def _open_qr_decision(open_qr: bool | None) -> tuple[bool, str]:
-    """Whether ``pair`` should open the QR in a viewer, and why (argument, env, then platform)."""
+def _open_qr_decision(open_qr: bool | None, inline: bool = False) -> tuple[bool, str]:
+    """
+    Whether ``pair`` should open the QR in a viewer, and why (argument, env, then platform).
+    With ``inline`` (``qr="svg_inline"``) the chat renders the QR, so only an explicit
+    ``open_qr=true`` or ``WALLETCONNECT_OPEN_QR=1`` opens a viewer.
+    """
     if open_qr is not None:
         return open_qr, f"open_qr={'true' if open_qr else 'false'}"
     raw = os.environ.get(OPEN_QR_ENV, "").strip().lower()
@@ -329,6 +384,8 @@ def _open_qr_decision(open_qr: bool | None) -> tuple[bool, str]:
         return True, f"{OPEN_QR_ENV}={raw}"
     if raw in _FALSE:
         return False, f"{OPEN_QR_ENV}={raw}"
+    if inline:
+        return False, "qr='svg_inline' renders in the chat (open_qr=true also opens a viewer)"
     if sys.platform in ("darwin", "win32"):
         return True, f"desktop platform ({sys.platform})"
     if os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"):
@@ -386,13 +443,21 @@ def _text_qr(uri: str) -> str:
 def _pair_text(result: dict[str, Any]) -> str:
     """The short text block of ``pair``: where the QR is, the topic and what to do next."""
     lines = []
+    if "qr_svg" in result:
+        lines.append(
+            "Render this SVG QR code exactly as given (everything between the markers) with your"
+            f" inline widget/artifact tool at a large size ({result['qr_svg_bytes']} bytes):"
+        )
+        lines.append(SVG_BEGIN)
+        lines.append(result["qr_svg"])
+        lines.append(SVG_END)
     if result.get("qr_opened"):
         lines.append(
             "The QR code was opened in an image viewer window on the user's screen; tell them to"
             f" scan it with their wallet app. File: {result['qr_path']}"
         )
         lines.append(f"file URI: {result['qr_file_uri']}")
-    elif "qr_path" in result:
+    elif "qr_path" in result and "qr_svg" not in result:
         lines.append(f"Show this QR code to the user so they can scan it: {result['qr_path']}")
         lines.append(f"file URI: {result['qr_file_uri']}")
         lines.append(f"(not opened in a viewer: {result['qr_open_reason']})")
@@ -578,7 +643,7 @@ def create_server(client_factory: Callable[[], SignClient] | None = None) -> MCP
 
     @server.tool()
     async def pair(
-        qr: Literal["png", "svg", "text", "none"] = "png",
+        qr: Literal["svg_inline", "png", "svg", "text", "none"] = "svg_inline",
         qr_path: str | None = None,
         include_uri: bool = False,
         include_image: bool = True,
@@ -586,8 +651,14 @@ def create_server(client_factory: Callable[[], SignClient] | None = None) -> MCP
         open_qr: bool | None = None,
     ) -> CallToolResult:
         """
-        Start pairing a mobile wallet (asks for eip155:1). Writes the QR code to a file and
-        returns its path as ``qr_path`` (``png`` default, or ``svg``). The file goes to
+        Start pairing a mobile wallet (asks for eip155:1). By default (``qr="svg_inline"``) the
+        result text holds the QR code as SVG markup (one path, white background, square
+        viewBox, a few KB) between -----BEGIN QR SVG----- and -----END QR SVG-----, and the wc:
+        URI never appears (``include_uri`` is refused with it). ``open_qr=true`` (or
+        ``WALLETCONNECT_OPEN_QR=1``) also writes and opens a PNG in the image viewer.
+
+        ``qr="png"`` or ``"svg"`` writes the QR code to a file and returns its path as
+        ``qr_path``. The file goes to
         ``qr_path`` if given, else ``$WALLETCONNECT_QR_DIR``, else the system temp dir, and is
         deleted once the pairing settles or fails. With ``include_image`` (PNG only) the QR is
         also attached as an image, about 600px wide; ``qr_scale`` (pixels per module, 1-20)
@@ -601,17 +672,23 @@ def create_server(client_factory: Callable[[], SignClient] | None = None) -> MCP
         while the pairing is pending. ``include_uri=true`` adds the ``wc:`` URI to the result:
         it contains a short-lived secret key, so only request it when the user asks to paste it.
 
-        IMPORTANT: after calling pair, if qr_opened is true, tell the user the QR code opened in
-        a window on their screen and to scan it with their wallet app. Otherwise show the QR code
-        prominently in your reply: render the image, or give them the PNG path (or file:// link)
-        to open. The image inside this tool result may be collapsed or small in the client, so
-        do not rely on it alone. Then call wait_for_pairing (or session_status) with the
-        pairing_topic. Never paste the wc: URI unless the user asks.
+        IMPORTANT: After pair, render the returned SVG exactly as given with your inline
+        widget/artifact tool at a large size, tell the user to scan it with their wallet, then
+        call wait_for_pairing. If you cannot render widgets, call pair again with qr="text" or
+        qr="png". With qr="png": if qr_opened is true, tell the user the QR code opened in a
+        window on their screen; otherwise show the QR code prominently in your reply (render the
+        image, or give them the PNG path or file:// link). Never paste the wc: URI unless the
+        user asks.
         """
         if qr_scale is not None and not QR_MIN_SCALE <= qr_scale <= QR_MAX_SCALE:
             raise ToolError(
                 f"invalid_argument: qr_scale must be {QR_MIN_SCALE}-{QR_MAX_SCALE}"
                 " pixels per module"
+            )
+        if include_uri and qr == "svg_inline":
+            raise ToolError(
+                "invalid_argument: qr='svg_inline' never puts the wc: URI in the transcript; drop"
+                " include_uri, or use another qr mode if the user wants to paste the URI"
             )
         if not include_uri and qr == "none":
             raise ToolError("invalid_argument: qr='none' with include_uri=false returns nothing")
@@ -662,6 +739,19 @@ def create_server(client_factory: Callable[[], SignClient] | None = None) -> MCP
                     )
             elif qr == "text":
                 result["qr"] = _text_qr(uri)
+            elif qr == "svg_inline":
+                svg, modules = svg_inline_qr(uri)
+                result["qr_svg"] = svg
+                result["qr_svg_bytes"] = len(svg.encode())
+                result["qr_modules"] = modules
+                wanted, _ = _open_qr_decision(open_qr, inline=True)
+                if wanted:  # explicitly asked for: also put a PNG on screen
+                    data, width = _render_qr_bytes(uri, "png", qr_scale)
+                    path = _qr_target(qr_path, pairing_topic, ".png")
+                    _write_private(path, data)
+                    qr_files[pairing_topic] = path
+                    result["qr_path"] = str(path)
+                    result["qr_file_uri"] = path.as_uri()
         except ImportError:
             if not include_uri:
                 task.cancel()
@@ -677,7 +767,7 @@ def create_server(client_factory: Callable[[], SignClient] | None = None) -> MCP
             raise ToolError(f"qr_write_failed: could not write the QR file: {exc}") from exc
         if "qr_path" in result:
             # The file stays until the pairing settles, fails or expires, so the viewer can load it.
-            wanted, reason = _open_qr_decision(open_qr)
+            wanted, reason = _open_qr_decision(open_qr, inline=qr == "svg_inline")
             opened = False
             if wanted:
                 opened, reason = await _open_in_viewer(Path(result["qr_path"]), track)
@@ -685,12 +775,22 @@ def create_server(client_factory: Callable[[], SignClient] | None = None) -> MCP
             result["qr_open_reason"] = reason
         else:
             result["qr_opened"] = False
-            result["qr_open_reason"] = f"no QR file (qr={qr!r})"
+            result["qr_open_reason"] = (
+                _open_qr_decision(open_qr, inline=True)[1]
+                if qr == "svg_inline"
+                else f"no QR file (qr={qr!r})"
+            )
         if include_uri:
             result["uri"] = uri
         result["expires_at"] = _iso(deadline)
         result["seconds_remaining"] = int(timeout)
-        if result["qr_opened"]:
+        if qr == "svg_inline":
+            result["next"] = SVG_INLINE_GUIDANCE + (
+                " The QR code was also opened in an image viewer window."
+                if result["qr_opened"]
+                else ""
+            )
+        elif result["qr_opened"]:
             result["next"] = (
                 "Tell the user: 'The QR code was opened in your image viewer; scan it with your"
                 " wallet.' Then call wait_for_pairing with pairing_topic. Don't paste the wc: URI"

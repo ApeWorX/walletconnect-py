@@ -6,6 +6,7 @@ import asyncio
 import base64
 import json
 import os
+import re
 import stat
 import subprocess
 import sys
@@ -23,12 +24,15 @@ from examples.mcp_server.server import (  # noqa: E402
     METADATA,
     OPEN_QR_ENV,
     QR_DIR_ENV,
+    SVG_BEGIN,
+    SVG_END,
     _open_in_viewer,
     _open_qr_decision,
     _viewer_command,
     create_server,
     normalize_chain_id,
     parse_quantity,
+    svg_inline_qr,
     with_eip712_domain,
 )
 from tests.fake_relay import run_fake_relay  # noqa: E402
@@ -101,6 +105,7 @@ def _factory(url: str):
 
 
 async def _pair(mcp: Client, url: str, **arguments) -> tuple[dict, FakeWallet]:
+    arguments.setdefault("qr", "png")
     pair = await _call(mcp, "pair", include_uri=True, **arguments)
     wallet = await FakeWallet(url, pair["uri"]).start()
     status = await _call(mcp, "wait_for_pairing", pairing_topic=pair["pairing_topic"], timeout_s=5)
@@ -126,19 +131,25 @@ async def test_mcp_example_end_to_end(tmp_path, monkeypatch):
         assert (await _error(mcp, "sign_message", message="hi")).startswith("session_ended:")
 
         instructions = mcp.instructions or ""
-        assert "show the QR code to the user prominently" in instructions
+        render = (
+            "After pair, render the returned SVG exactly as given with your inline widget/artifact"
+            " tool at a large size, tell the user to scan it with their wallet, then call"
+            ' wait_for_pairing. If you cannot render widgets, call pair again with qr="text" or'
+            ' qr="png".'
+        )
+        assert render in " ".join(instructions.split())
         assert "Never paste the wc: URI" in instructions
+        assert "check qr_opened" in instructions
         pair_tool = next(t for t in (await mcp.list_tools()).tools if t.name == "pair")
         description = " ".join((pair_tool.description or "").split())
-        assert "show the QR code prominently" in description
+        assert render in description
         assert "if qr_opened is true, tell the user the QR code opened in a window" in description
-        assert "check qr_opened" in instructions
 
-        quiet = await mcp.call_tool("pair", {})  # default: no URI anywhere in the result
+        quiet = await mcp.call_tool("pair", {"qr": "png"})  # no URI anywhere in the result
         assert "symKey" not in quiet.content[0].text
         assert "uri" not in quiet.structured_content
 
-        raw = await mcp.call_tool("pair", {"include_uri": True})
+        raw = await mcp.call_tool("pair", {"qr": "png", "include_uri": True})
         assert not raw.is_error
         pair = raw.structured_content
         assert pair["qr_format"] == "png"
@@ -295,15 +306,15 @@ async def test_mcp_example_pair_options(tmp_path, monkeypatch):
             assert len(lines) <= 32
             assert max(map(len, lines)) <= 64
 
-            small = await _call(mcp, "pair", qr_scale=4)
-            big = await _call(mcp, "pair", qr_scale=12)
+            small = await _call(mcp, "pair", qr="png", qr_scale=4)
+            big = await _call(mcp, "pair", qr="png", qr_scale=12)
             assert small["qr_width_px"] * 3 == big["qr_width_px"]
             bad_scale = await _error(mcp, "pair", qr_scale=0)
             assert bad_scale.startswith("invalid_argument:")
 
-            default = await _call(mcp, "pair", include_image=False)
+            default = await _call(mcp, "pair", qr="png", include_image=False)
             assert Path(default["qr_path"]).exists()  # system temp dir
-            raw = await mcp.call_tool("pair", {"include_image": False})
+            raw = await mcp.call_tool("pair", {"qr": "png", "include_image": False})
             assert [c.type for c in raw.content] == ["text", "resource_link"]
 
             pending = await _call(
@@ -448,7 +459,7 @@ async def test_mcp_example_pair_opens_the_qr(tmp_path, monkeypatch):
     fake = FakeOpener()
     monkeypatch.setattr(server_module.asyncio, "create_subprocess_exec", fake)
     async with run_fake_relay() as (_fake, url), Client(create_server(_factory(url))) as mcp:
-        raw = await mcp.call_tool("pair", {"open_qr": True, "include_uri": True})
+        raw = await mcp.call_tool("pair", {"qr": "png", "open_qr": True, "include_uri": True})
         pair = raw.structured_content
         assert pair["qr_opened"] is True
         ((cmd, _),) = fake.calls
@@ -466,7 +477,7 @@ async def test_mcp_example_pair_opens_the_qr(tmp_path, monkeypatch):
         await wallet.close()
 
         # Default with WALLETCONNECT_OPEN_QR=0 (see the autouse fixture): not opened, path shown.
-        raw = await mcp.call_tool("pair", {})
+        raw = await mcp.call_tool("pair", {"qr": "png"})
         pair = raw.structured_content
         assert pair["qr_opened"] is False
         assert pair["qr_open_reason"] == f"{OPEN_QR_ENV}=0"
@@ -475,9 +486,134 @@ async def test_mcp_example_pair_opens_the_qr(tmp_path, monkeypatch):
 
         # A failing opener falls back to showing the path.
         monkeypatch.setattr(server_module.asyncio, "create_subprocess_exec", FakeOpener(code=1))
-        raw = await mcp.call_tool("pair", {"open_qr": True})
+        raw = await mcp.call_tool("pair", {"qr": "png", "open_qr": True})
         assert raw.structured_content["qr_opened"] is False
         assert "exited with status 1" in raw.content[0].text  # type: ignore[union-attr]
 
         text_pair = await _call(mcp, "pair", qr="text", open_qr=True)
         assert text_pair["qr_opened"] is False
+
+
+URI = (
+    "wc:" + "7f" * 32 + "@2?relay-protocol=irn&symKey=" + "a1" * 32 + "&expiryTimestamp=1794274459"
+)
+
+
+def _rasterize(svg: str) -> tuple[int, list[list[bool]]]:
+    """Paint the single stroked path of an inline SVG QR back into a module grid."""
+    match = re.search(r'viewBox="0 0 (\d+) (\d+)"', svg)
+    assert match is not None
+    (size,) = {int(n) for n in match.groups()}
+    (d,) = re.findall(r'<path stroke="#000" d="([^"]*)"/>', svg)
+    grid = [[False] * size for _ in range(size)]
+    x = y = 0.0
+    for op, a, b in re.findall(r"([Mmh])(-?[\d.]+)(?: (-?[\d.]+))?", d):
+        if op == "M":
+            x, y = float(a), float(b)
+        elif op == "m":
+            x, y = x + float(a), y + float(b)
+        else:
+            for col in range(int(x), int(x + float(a))):
+                grid[int(y)][col] = True
+            x += float(a)
+    return size, grid
+
+
+def _matrix(uri: str, border: int = 4) -> list[list[bool]]:
+    import segno
+
+    rows = [[bool(v) for v in row] for row in segno.make(uri, error="m", micro=False).matrix]
+    width = len(rows) + 2 * border
+    pad = [[False] * width for _ in range(border)]
+    return pad + [[False] * border + row + [False] * border for row in rows] + pad
+
+
+def test_svg_inline_qr_shape():
+    svg, size = svg_inline_qr(URI)
+    assert svg.startswith('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ')
+    assert not svg.startswith("<?xml")
+    assert svg.count("<path") == 1  # every dark module in ONE path
+    assert f'viewBox="0 0 {size} {size}"' in svg  # square
+    assert 'width="100%"' in svg
+    assert "height=" not in svg.split("<rect")[0]  # no fixed size on the <svg>
+    assert 'shape-rendering="crispEdges"' in svg
+    assert f'<rect width="{size}" height="{size}" fill="#fff"/>' in svg  # white background
+    assert "<title" not in svg
+    assert "<desc" not in svg
+    assert "wc:" not in svg
+    assert "symKey" not in svg
+    assert len(svg.encode()) < 6000
+    raster_size, grid = _rasterize(svg)
+    assert raster_size == size
+    assert grid == _matrix(URI)  # same modules, 4-module white quiet zone
+
+
+async def test_mcp_example_pair_svg_inline_is_the_default(tmp_path, monkeypatch):
+    monkeypatch.setenv(QR_DIR_ENV, str(tmp_path))
+    monkeypatch.delenv(OPEN_QR_ENV)  # svg_inline must not auto-open without being asked
+    monkeypatch.setenv("DISPLAY", ":0")
+    opener = FakeOpener()
+    monkeypatch.setattr(server_module.asyncio, "create_subprocess_exec", opener)
+    uris: list[str] = []
+
+    class Recording(SignClient):
+        async def connect(self, *args, **kwargs):
+            uri, task = await super().connect(*args, **kwargs)
+            uris.append(uri)
+            return uri, task
+
+    def factory() -> SignClient:
+        return Recording(project_id="test", relay_url=url, metadata=METADATA, connect_timeout=10)
+
+    async with run_fake_relay() as (_fake, url), Client(create_server(factory)) as mcp:
+        raw = await mcp.call_tool("pair", {})
+        assert not raw.is_error, raw.content
+        pair = raw.structured_content
+        (uri,) = uris
+        assert pair["qr_format"] == "svg_inline"
+        assert pair["qr_opened"] is False
+        assert "svg_inline" in pair["qr_open_reason"]
+        assert opener.calls == []
+        assert "qr_path" not in pair
+        assert not list(tmp_path.iterdir())  # no file
+        [text] = raw.content  # no image, no resource link: just the text
+        body = text.text  # type: ignore[union-attr]
+        # The URI (and its secret) never appears as text anywhere in the result.
+        for dumped in (body, json.dumps(pair)):
+            assert uri not in dumped
+            assert "symKey" not in dumped
+            assert uri.split("symKey=")[1].split("&")[0] not in dumped
+        assert "uri" not in pair
+        block = body.split(SVG_BEGIN + "\n")[1].split("\n" + SVG_END)[0]
+        assert block == pair["qr_svg"]
+        assert "wc:" not in block
+        assert pair["qr_svg_bytes"] == len(block.encode()) < 6000
+        assert f"({pair['qr_svg_bytes']} bytes)" in body
+        _, grid = _rasterize(block)
+        assert grid == _matrix(uri)
+        assert pair["qr_modules"] == len(grid)
+        assert "render the returned SVG exactly as given" in pair["next"]
+
+        # The rendered QR pairs.
+        wallet = await FakeWallet(url, uri).start()
+        try:
+            status = await _call(
+                mcp, "wait_for_pairing", pairing_topic=pair["pairing_topic"], timeout_s=5
+            )
+            assert status["status"] == "settled"
+        finally:
+            await wallet.close()
+
+        refused = await _error(mcp, "pair", include_uri=True)
+        assert refused.startswith("invalid_argument:")
+        assert len(uris) == 1  # refused before starting a pairing
+
+        # Asking explicitly also opens a PNG in the viewer.
+        raw = await mcp.call_tool("pair", {"open_qr": True})
+        pair = raw.structured_content
+        assert pair["qr_opened"] is True
+        assert Path(pair["qr_path"]).read_bytes().startswith(PNG_MAGIC)
+        assert "qr_svg" in pair
+        assert len(opener.calls) == 1
+        monkeypatch.setenv(OPEN_QR_ENV, "1")
+        assert (await _call(mcp, "pair"))["qr_opened"] is True
