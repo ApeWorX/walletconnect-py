@@ -66,6 +66,8 @@ class Session(BaseModel):
     namespaces: dict[str, Any] = Field(default_factory=dict)
     relay_protocol: str = RELAY_PROTOCOL
     pairing_topic: str | None = None
+    last_update_id: int | None = None
+    """JSON-RPC id of the newest ``wc_sessionUpdate`` applied (older updates are rejected)."""
 
     @field_validator("sym_key")
     @classmethod

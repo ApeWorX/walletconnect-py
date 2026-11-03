@@ -227,6 +227,12 @@ balancing, network blips, an expired auth token). The client reconnects on its o
 Pass `auto_reconnect=False` to turn this off. Calls then raise `RelayDisconnectedError` as
 soon as the socket drops.
 
+## Long-running sessions
+
+Sessions last 7 days unless extended, and the wallet can update or end them at any time. See
+[Long-running sessions](long-running) for session events (`client.on(...)`), `extend()` and
+`auto_extend=True`, reachability checks, and re-pairing.
+
 ## Examples
 
 The repository ships these runnable demos:

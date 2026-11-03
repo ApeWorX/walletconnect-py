@@ -184,6 +184,14 @@ async function signWith(topic, btn) {
 
 $("refresh").onclick = loadSessions;
 loadSessions();
+
+// Live updates: refresh the list when a session changes (GET /events is Server-Sent Events).
+if (window.EventSource) {
+  const events = new EventSource("/events");
+  for (const name of ["session_update", "session_delete", "session_expire", "session_extend"]) {
+    events.addEventListener(name, loadSessions);
+  }
+}
 </script>
 </body>
 </html>

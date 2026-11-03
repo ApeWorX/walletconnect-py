@@ -71,7 +71,23 @@ class NoActiveSessionError(WalletConnectError):
 
 
 class SessionExpiredError(WalletConnectError):
-    """Raised when using a session whose ``expiry`` has passed (it is dropped from state)."""
+    """
+    Raised when using a session whose ``expiry`` has passed (it is dropped from state).
+
+    Also raised for requests still waiting on a session when it expires.
+    """
+
+
+class SessionDeletedError(WalletConnectError):
+    """
+    Raised for requests still waiting on a session when the wallet deletes it
+    (``wc_sessionDelete``). The session is dropped; pair again to continue.
+    """
+
+    def __init__(self, message: str, *, code: int | None = None, reason: str | None = None):
+        super().__init__(message)
+        self.code = code
+        self.reason = reason
 
 
 class SdkError(WalletConnectError):
