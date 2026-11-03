@@ -116,14 +116,16 @@ data-aria-dark="Switch to auto color mode">
         <li><a href="methoddocs/state.html#walletconnect.sign.state.ClientState.client_id">(walletconnect.sign.state.ClientState property)</a>
 </li>
       </ul></li>
+      <li><a href="methoddocs/sign.html#walletconnect.sign.ClientEvent">ClientEvent (class in walletconnect.sign)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="methoddocs/sign.html#walletconnect.sign.ClientState">ClientState (class in walletconnect.sign)</a>
 
       <ul>
         <li><a href="methoddocs/state.html#walletconnect.sign.state.ClientState">(class in walletconnect.sign.state)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="methoddocs/relay.html#walletconnect.relay.RelayClient.close">close() (walletconnect.relay.RelayClient method)</a>
 
       <ul>
@@ -194,6 +196,8 @@ data-aria-dark="Switch to auto color mode">
         <li><a href="methoddocs/sign.html#walletconnect.sign.SyncSignClient.export_state">(walletconnect.sign.SyncSignClient method)</a>
 </li>
       </ul></li>
+      <li><a href="methoddocs/sign.html#walletconnect.sign.SignClient.extend">extend() (walletconnect.sign.SignClient method)</a>
+</li>
       <li><a href="methoddocs/pairing.html#walletconnect.pairing.PairingURI.extra">extra (walletconnect.pairing.PairingURI attribute)</a>
 </li>
   </ul></td>
@@ -248,10 +252,10 @@ data-aria-dark="Switch to auto color mode">
 </li>
       <li><a href="methoddocs/exceptions.html#walletconnect.exceptions.InvalidJWTError">InvalidJWTError</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="methoddocs/exceptions.html#walletconnect.exceptions.InvalidKeyError">InvalidKeyError</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="methoddocs/exceptions.html#walletconnect.exceptions.InvalidMethodError">InvalidMethodError</a>
 </li>
       <li><a href="methoddocs/exceptions.html#walletconnect.exceptions.InvalidPairingURIError">InvalidPairingURIError</a>
@@ -261,6 +265,8 @@ data-aria-dark="Switch to auto color mode">
       <li><a href="methoddocs/exceptions.html#walletconnect.exceptions.InvalidUpdateRequestError">InvalidUpdateRequestError</a>
 </li>
       <li><a href="methoddocs/pairing.html#walletconnect.pairing.PairingURI.is_expired">is_expired() (walletconnect.pairing.PairingURI method)</a>
+</li>
+      <li><a href="methoddocs/sign.html#walletconnect.sign.SignClient.is_reachable">is_reachable() (walletconnect.sign.SignClient method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -275,6 +281,14 @@ data-aria-dark="Switch to auto color mode">
 
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="methoddocs/sign.html#walletconnect.sign.Session.last_update_id">last_update_id (walletconnect.sign.Session attribute)</a>
+
+      <ul>
+        <li><a href="methoddocs/state.html#walletconnect.sign.state.Session.last_update_id">(walletconnect.sign.state.Session attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="methoddocs/sign.html#walletconnect.sign.ClientState.load">load() (walletconnect.sign.ClientState class method)</a>
 
@@ -333,12 +347,20 @@ data-aria-dark="Switch to auto color mode">
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="methoddocs/sign.html#walletconnect.sign.SignClient.off">off() (walletconnect.sign.SignClient method)</a>
+</li>
+      <li><a href="methoddocs/sign.html#walletconnect.sign.SignClient.on">on() (walletconnect.sign.SignClient method)</a>
+
+      <ul>
+        <li><a href="methoddocs/sign.html#walletconnect.sign.SyncSignClient.on">(walletconnect.sign.SyncSignClient method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="methoddocs/relay.html#walletconnect.relay.RelayClient.on_connection_event">on_connection_event() (walletconnect.relay.RelayClient method)</a>
 </li>
       <li><a href="methoddocs/relay.html#walletconnect.relay.RelayClient.on_message">on_message() (walletconnect.relay.RelayClient method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="methoddocs/sign.html#walletconnect.sign.SignClient.open">open() (walletconnect.sign.SignClient method)</a>
 
       <ul>
@@ -451,16 +473,22 @@ data-aria-dark="Switch to auto color mode">
         <li><a href="methoddocs/state.html#walletconnect.sign.state.Session">(class in walletconnect.sign.state)</a>
 </li>
       </ul></li>
-      <li><a href="methoddocs/sign.html#walletconnect.sign.SignClient.session">session (walletconnect.sign.SignClient property)</a>
+      <li><a href="methoddocs/sign.html#walletconnect.sign.ClientEvent.session">session (walletconnect.sign.ClientEvent attribute)</a>
+
+      <ul>
+        <li><a href="methoddocs/sign.html#walletconnect.sign.SignClient.session">(walletconnect.sign.SignClient property)</a>
+</li>
+      </ul></li>
+      <li><a href="methoddocs/exceptions.html#walletconnect.exceptions.SessionDeletedError">SessionDeletedError</a>
 </li>
       <li><a href="methoddocs/exceptions.html#walletconnect.exceptions.SessionExpiredError">SessionExpiredError</a>
 </li>
       <li><a href="methoddocs/types.html#walletconnect.types.SessionNamespace">SessionNamespace (class in walletconnect.types)</a>
 </li>
-      <li><a href="methoddocs/exceptions.html#walletconnect.exceptions.SessionRequestExpiredError">SessionRequestExpiredError</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="methoddocs/exceptions.html#walletconnect.exceptions.SessionRequestExpiredError">SessionRequestExpiredError</a>
+</li>
       <li><a href="methoddocs/sign.html#walletconnect.sign.ClientState.sessions">sessions (walletconnect.sign.ClientState attribute)</a>
 
       <ul>
@@ -493,6 +521,8 @@ data-aria-dark="Switch to auto color mode">
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="methoddocs/qr.html#walletconnect.qr.terminal_qr">terminal_qr() (in module walletconnect.qr)</a>
 </li>
+      <li><a href="methoddocs/sign.html#walletconnect.sign.ClientEvent.to_dict">to_dict() (walletconnect.sign.ClientEvent method)</a>
+</li>
       <li><a href="methoddocs/exceptions.html#walletconnect.exceptions.SdkError.to_json">to_json() (walletconnect.exceptions.SdkError method)</a>
 
       <ul>
@@ -501,9 +531,11 @@ data-aria-dark="Switch to auto color mode">
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="methoddocs/sign.html#walletconnect.sign.Session.topic">topic (walletconnect.sign.Session attribute)</a>
+      <li><a href="methoddocs/sign.html#walletconnect.sign.ClientEvent.topic">topic (walletconnect.sign.ClientEvent attribute)</a>
 
       <ul>
+        <li><a href="methoddocs/sign.html#walletconnect.sign.Session.topic">(walletconnect.sign.Session attribute)</a>
+</li>
         <li><a href="methoddocs/state.html#walletconnect.sign.state.Session.topic">(walletconnect.sign.state.Session attribute)</a>
 </li>
       </ul></li>
@@ -524,6 +556,8 @@ data-aria-dark="Switch to auto color mode">
       <li><a href="methoddocs/exceptions.html#walletconnect.exceptions.UnauthorizedMethodError">UnauthorizedMethodError</a>
 </li>
       <li><a href="methoddocs/exceptions.html#walletconnect.exceptions.UnauthorizedUpdateRequestError">UnauthorizedUpdateRequestError</a>
+</li>
+      <li><a href="methoddocs/sign.html#walletconnect.sign.SignClient.unreachable">unreachable (walletconnect.sign.SignClient property)</a>
 </li>
       <li><a href="methoddocs/exceptions.html#walletconnect.exceptions.UnsupportedAccountsError">UnsupportedAccountsError</a>
 </li>

@@ -2,7 +2,7 @@
 <html lang="en" data-accent-color="lime" data-content_root="../">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>FastAPI example app - walletconnect documentation</title><link rel="shortcut icon" href="../_static/favicon.ico"/><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Testing" href="testing.html" /><link rel="prev" title="Connecting to a Mobile Wallet" href="connecting.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>FastAPI example app - walletconnect documentation</title><link rel="shortcut icon" href="../_static/favicon.ico"/><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Long-running sessions" href="long-running.html" /><link rel="prev" title="Connecting to a Mobile Wallet" href="connecting.html" />
       <link rel="canonical" href="walletconnect/userguides/fastapi.html" /><script>
     function setColorMode(t){let e=document.documentElement;e.setAttribute("data-color-mode",t);let a=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,s=t;"auto"===t&&(s=a?"dark":"light"),"light"===s?(e.classList.remove("dark"),e.classList.add("light")):(e.classList.remove("light"),e.classList.add("dark"))}
     setColorMode(localStorage._theme||"auto");
@@ -63,6 +63,7 @@ data-aria-dark="Switch to auto color mode">
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">WalletConnect (Python)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="connecting.html">Connecting to a Mobile Wallet</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">FastAPI example app</a></li>
+<li class="toctree-l1"><a class="reference internal" href="long-running.html">Long-running sessions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a></li>
 </ul>
 <p class="caption" role="heading" aria-level="3"><span class="caption-text">Python Reference</span></p>
@@ -90,6 +91,7 @@ data-aria-dark="Switch to auto color mode">
 <li><a class="reference internal" href="#run-it">Run it</a></li>
 <li><a class="reference internal" href="#demo-page">Demo page</a></li>
 <li><a class="reference internal" href="#endpoints">Endpoints</a></li>
+<li><a class="reference internal" href="#live-events-sse">Live events (SSE)</a></li>
 <li><a class="reference internal" href="#how-it-s-wired">How it&#8217;s wired</a></li>
 </ul>
 </div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div></div>
@@ -217,6 +219,9 @@ carries a strict <code class="docutils literal notranslate"><span class="pre">Co
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">DELETE</span> <span class="pre">/sessions/{topic}</span></code></p></td>
 <td><p>Disconnects the session (<code class="docutils literal notranslate"><span class="pre">wc_sessionDelete</span></code>).</p></td>
 </tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/events</span></code></p></td>
+<td><p>Streams session and relay events as Server-Sent Events.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -245,6 +250,25 @@ background. Poll <code class="docutils literal notranslate"><span class="pre">GE
 <li><p>409: the wallet rejected the request.</p></li>
 <li><p>504: the user didn’t respond in time.</p></li>
 </ul>
+</section>
+<section id="live-events-sse">
+<h2>Live events (SSE)<a class="headerlink" href="#live-events-sse" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/events</span></code> is a <a class="reference external" href="https://developer.mozilla.org/docs/Web/API/Server-sent_events">Server-Sent Events</a>
+stream of the client’s <a class="reference external" href="long-running#session-events">session events</a>. Each message has the
+event name and a JSON body from <code class="docutils literal notranslate"><span class="pre">ClientEvent.to_dict()</span></code>, which never includes session keys:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span><span data-line="1">$ curl -N localhost:8000/events
+</span><span data-line="2">: connected
+</span><span data-line="3">
+</span><span data-line="4">event: session_update
+</span><span data-line="5">data: {"name": "session_update", "topic": "9f…", "session": {"topic": "9f…", "expiry": 1767225600, "peer_name": "MetaMask Wallet", "accounts": ["eip155:1:0xab…"], "namespaces": {…}}, "data": {"namespaces": {…}}}
+</span><span data-line="6">
+</span><span data-line="7">event: session_delete
+</span><span data-line="8">data: {"name": "session_delete", "topic": "9f…", "session": {…}, "data": {"code": 6000, "message": "User disconnected."}}
+</span></pre></div>
+</div>
+<p>A <code class="docutils literal notranslate"><span class="pre">:</span> <span class="pre">keep-alive</span></code> comment is sent every 15 seconds. Each connection has its own bounded queue, so
+a slow reader only drops its own events. The demo page listens to this stream and refreshes the
+session list when a session is updated, extended, deleted or expires.</p>
 </section>
 <section id="how-it-s-wired">
 <h2>How it’s wired<a class="headerlink" href="#how-it-s-wired" title="Link to this heading">#</a></h2>
@@ -280,10 +304,10 @@ keep it out of version control.</p>
         <span>Previous</span><div class="title">Connecting to a Mobile Wallet</div></div>
     </a>
   </div><div class="navigation-next">
-    <a href="testing.html">
+    <a href="long-running.html">
       <div class="page-info">
         <span>Next</span>
-        <div class="title">Testing</div>
+        <div class="title">Long-running sessions</div>
       </div>
       <i class="i-lucide chevron-right"></i>
     </a>

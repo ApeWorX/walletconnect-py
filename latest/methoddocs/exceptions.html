@@ -63,6 +63,7 @@ data-aria-dark="Switch to auto color mode">
 <li class="toctree-l1"><a class="reference internal" href="../userguides/quickstart.html">WalletConnect (Python)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../userguides/connecting.html">Connecting to a Mobile Wallet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../userguides/fastapi.html">FastAPI example app</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguides/long-running.html">Long-running sessions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../userguides/testing.html">Testing</a></li>
 </ul>
 <p class="caption" role="heading" aria-level="3"><span class="caption-text">Python Reference</span></p>
@@ -108,6 +109,7 @@ data-aria-dark="Switch to auto color mode">
 <li><a class="reference internal" href="#walletconnect.exceptions.SdkError.to_json"><code class="docutils literal notranslate"><span class="pre">SdkError.to_json()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#walletconnect.exceptions.SessionDeletedError"><code class="docutils literal notranslate"><span class="pre">SessionDeletedError</span></code></a></li>
 <li><a class="reference internal" href="#walletconnect.exceptions.SessionExpiredError"><code class="docutils literal notranslate"><span class="pre">SessionExpiredError</span></code></a></li>
 <li><a class="reference internal" href="#walletconnect.exceptions.SessionRequestExpiredError"><code class="docutils literal notranslate"><span class="pre">SessionRequestExpiredError</span></code></a></li>
 <li><a class="reference internal" href="#walletconnect.exceptions.SessionSettlementFailedError"><code class="docutils literal notranslate"><span class="pre">SessionSettlementFailedError</span></code></a></li>
@@ -330,10 +332,19 @@ timeout, when auto-reconnect is disabled, or when the client was closed.</p>
 </dd></dl>
 
 <dl class="py exception">
+<dt class="sig sig-object py" id="walletconnect.exceptions.SessionDeletedError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">SessionDeletedError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reason</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#walletconnect.exceptions.SessionDeletedError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.WalletConnectError" title="walletconnect.exceptions.WalletConnectError"><code class="xref py py-class docutils literal notranslate"><span class="pre">WalletConnectError</span></code></a></p>
+<p>Raised for requests still waiting on a session when the wallet deletes it
+(<code class="docutils literal notranslate"><span class="pre">wc_sessionDelete</span></code>). The session is dropped; pair again to continue.</p>
+</dd></dl>
+
+<dl class="py exception">
 <dt class="sig sig-object py" id="walletconnect.exceptions.SessionExpiredError">
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">walletconnect.exceptions.</span></span><span class="sig-name descname"><span class="pre">SessionExpiredError</span></span><a class="headerlink" href="#walletconnect.exceptions.SessionExpiredError" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#walletconnect.exceptions.WalletConnectError" title="walletconnect.exceptions.WalletConnectError"><code class="xref py py-class docutils literal notranslate"><span class="pre">WalletConnectError</span></code></a></p>
 <p>Raised when using a session whose <code class="docutils literal notranslate"><span class="pre">expiry</span></code> has passed (it is dropped from state).</p>
+<p>Also raised for requests still waiting on a session when it expires.</p>
 </dd></dl>
 
 <dl class="py exception">

@@ -63,6 +63,7 @@ data-aria-dark="Switch to auto color mode">
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">WalletConnect (Python)</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Connecting to a Mobile Wallet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="fastapi.html">FastAPI example app</a></li>
+<li class="toctree-l1"><a class="reference internal" href="long-running.html">Long-running sessions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a></li>
 </ul>
 <p class="caption" role="heading" aria-level="3"><span class="caption-text">Python Reference</span></p>
@@ -105,6 +106,7 @@ data-aria-dark="Switch to auto color mode">
 <li><a class="reference internal" href="#reconnects">Reconnects</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#long-running-sessions">Long-running sessions</a></li>
 <li><a class="reference internal" href="#examples">Examples</a></li>
 </ul>
 </div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div></div>
@@ -393,6 +395,12 @@ project ID), it stops retrying. Later calls raise <code class="docutils literal 
 <p>Pass <code class="docutils literal notranslate"><span class="pre">auto_reconnect=False</span></code> to turn this off. Calls then raise <code class="docutils literal notranslate"><span class="pre">RelayDisconnectedError</span></code> as
 soon as the socket drops.</p>
 </section>
+</section>
+<section id="long-running-sessions">
+<h2>Long-running sessions<a class="headerlink" href="#long-running-sessions" title="Link to this heading">#</a></h2>
+<p>Sessions last 7 days unless extended, and the wallet can update or end them at any time. See
+<a class="reference external" href="long-running">Long-running sessions</a> for session events (<code class="docutils literal notranslate"><span class="pre">client.on(...)</span></code>), <code class="docutils literal notranslate"><span class="pre">extend()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">auto_extend=True</span></code>, reachability checks, and re-pairing.</p>
 </section>
 <section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h2>

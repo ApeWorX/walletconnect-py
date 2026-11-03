@@ -44,6 +44,7 @@ carries a strict `Content-Security-Policy` (no external sources, `connect-src 's
 | `GET /sessions`                 | Lists active sessions with their topic, wallet name, accounts and expiry.          |
 | `POST /sessions/{topic}/sign`   | Sends `personal_sign` or `eth_signTypedData_v4` and waits for the user.            |
 | `DELETE /sessions/{topic}`      | Disconnects the session (`wc_sessionDelete`).                                      |
+| `GET /events`                   | Streams session and relay events as Server-Sent Events.                            |
 
 `POST /pair` returns right away. Show the URI or QR code to the user, and the session settles in the
 background. Poll `GET /pairings/{pairing_topic}` (or `GET /sessions`) to see when it's ready.
@@ -71,6 +72,27 @@ Errors map to HTTP status codes:
 - 410: the session expired.
 - 409: the wallet rejected the request.
 - 504: the user didn't respond in time.
+
+## Live events (SSE)
+
+`GET /events` is a [Server-Sent Events](https://developer.mozilla.org/docs/Web/API/Server-sent_events)
+stream of the client's [session events](long-running#session-events). Each message has the
+event name and a JSON body from `ClientEvent.to_dict()`, which never includes session keys:
+
+```text
+$ curl -N localhost:8000/events
+: connected
+
+event: session_update
+data: {"name": "session_update", "topic": "9f…", "session": {"topic": "9f…", "expiry": 1767225600, "peer_name": "MetaMask Wallet", "accounts": ["eip155:1:0xab…"], "namespaces": {…}}, "data": {"namespaces": {…}}}
+
+event: session_delete
+data: {"name": "session_delete", "topic": "9f…", "session": {…}, "data": {"code": 6000, "message": "User disconnected."}}
+```
+
+A `: keep-alive` comment is sent every 15 seconds. Each connection has its own bounded queue, so
+a slow reader only drops its own events. The demo page listens to this stream and refreshes the
+session list when a session is updated, extended, deleted or expires.
 
 ## How it's wired
 
