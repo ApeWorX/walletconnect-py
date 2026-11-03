@@ -84,6 +84,14 @@ HTTP service variant ([FastAPI](https://fastapi.tiangolo.com): pair over `POST /
 uv run --group examples --extra qr uvicorn examples.fastapi_app.app:app  # demo page at http://localhost:8000/
 ```
 
+MCP server variant (an AI assistant pairs a wallet and requests signatures; you approve on your phone):
+
+```bash
+uv run --group examples --extra qr python -m examples.mcp_server  # stdio; see docs/userguides/mcp.md
+```
+
+The production MCP integration is planned as a feature of the `ape-walletconnect` plugin.
+
 ```python
 from walletconnect.qr import print_qr
 from walletconnect.sign import SyncSignClient

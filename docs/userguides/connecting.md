@@ -241,6 +241,7 @@ The repository ships these runnable demos:
 - `examples/async_cli.py` is an async [Cyclopts](https://cyclopts.readthedocs.io) CLI (install the
   `cli` extra).
 - `examples/fastapi_app/` is an HTTP service for pairing and signing (see the [FastAPI example](fastapi)).
+- `examples/mcp_server/` is an MCP server so an AI assistant can request signatures (see the [MCP server example](mcp)).
 
 The two CLI demos show up in the wallet as "WalletConnect CLI Demo"; pass `--name`, `--url`, `--description`,
 and `--icon` to change what the wallet displays.

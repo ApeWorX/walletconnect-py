@@ -61,6 +61,7 @@ examples = [
     "fastapi>=0.115",
     "uvicorn>=0.30",
     "httpx>=0.27",  # fastapi.testclient
+    "mcp>=2.3",  # examples/mcp_server (MCPServer, formerly FastMCP)
 ]
 lint = [
     "mypy>=1.15.0,<2",
