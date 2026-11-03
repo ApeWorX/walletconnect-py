@@ -87,13 +87,13 @@ dev = [
 include-package-data = true
 
 [tool.setuptools.packages.find]
-exclude = ["tests", "tests.*", "docs", "docs.*", "e2e-js", "e2e-js.*", "examples", "examples.*"]
+where = ["src"]
 
 [tool.setuptools.package-data]
 walletconnect = ["py.typed"]
 
 [tool.setuptools_scm]
-write_to = "walletconnect/version.py"
+write_to = "src/walletconnect/version.py"
 
 [tool.mypy]
 exclude = ["build/", "examples/", "e2e-js/"]
