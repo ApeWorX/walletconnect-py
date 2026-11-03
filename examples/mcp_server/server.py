@@ -42,7 +42,7 @@ from typing import Any, Literal
 
 from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
-from mcp.types import CallToolResult, ImageContent, TextContent
+from mcp.types import CallToolResult, ImageContent, ResourceLink, TextContent
 
 from walletconnect import DEFAULT_RELAY_URL, ClientState, Metadata, PairingURI
 from walletconnect.constants import PAIRING_PROPOSAL_EXPIRY
@@ -68,6 +68,10 @@ QR_DIR_ENV = "WALLETCONNECT_QR_DIR"
 DEFAULT_REQUEST_TIMEOUT = 300.0  # the user has to notice the request on their phone
 DEFAULT_WAIT_TIMEOUT = 60.0
 MAX_WAIT_TIMEOUT = float(PAIRING_PROPOSAL_EXPIRY)
+QR_TARGET_PX = 600  # inline image width: big enough to scan off a laptop screen
+QR_BORDER = 4  # quiet zone (modules) for PNG/SVG, as the QR spec recommends
+QR_MIN_SCALE, QR_MAX_SCALE = 1, 20
+TEXT_QR_BORDER = 2  # the smallest quiet zone that still scans reliably from a screen
 
 # EIP-712 fields of the domain, in the order the standard lists them.
 EIP712_DOMAIN_FIELDS = (
@@ -84,14 +88,27 @@ METADATA = Metadata(
     url="https://github.com/ApeWorX/walletconnect-py",
 )
 
-INSTRUCTIONS = """\
+QR_RESOURCE_TEMPLATE = "walletconnect://pairing/{pairing_topic}/qr.png"
+
+SHOW_QR_GUIDANCE = (
+    "After calling pair, show the QR code to the user prominently in your reply: render the"
+    " image, or give them the PNG path (or file:// link) to open. The image inside the tool"
+    " result may be collapsed or small in the client, so do not rely on it alone. Tell them to"
+    " scan it with their wallet app, then call wait_for_pairing (or session_status) with the"
+    " pairing_topic. Never paste the wc: URI unless the user asks for it: it contains a"
+    " short-lived secret key."
+)
+
+INSTRUCTIONS = f"""\
 Tools for a WalletConnect mobile wallet. Nothing is signed by this server: each signing tool sends
 a request to the user's wallet app and waits until they approve or reject it there.
-1. If session_status shows no sessions, call pair. It writes a QR image to a file and returns its
-   path (qr_path) plus the image itself. Show or point the user to it.
-2. Call wait_for_pairing with the pairing_topic. It returns as soon as the wallet approves, or
-   "pending" with seconds_remaining; call it again while pending.
-3. Use sign_message, sign_typed_data or send_transaction. Tell the user to check their phone.
+1. If session_status shows no sessions, call pair. It writes a QR image (PNG) to a file, returns
+   its path, a file:// link and the image itself, and exposes it as the resource
+   {QR_RESOURCE_TEMPLATE}.
+2. {SHOW_QR_GUIDANCE}
+3. wait_for_pairing returns as soon as the wallet approves, or "pending" with seconds_remaining;
+   call it again while pending.
+4. Use sign_message, sign_typed_data or send_transaction. Tell the user to check their phone.
    With several sessions, pass topic. Errors start with a category such as "rejected:",
    "timeout:" or "session_ended:".
 """
@@ -271,16 +288,52 @@ def _qr_target(qr_path: str | None, pairing_topic: str, suffix: str) -> Path:
     return Path(tmp)
 
 
-def _render_qr_bytes(uri: str, kind: Literal["png", "svg"]) -> bytes:
-    import segno  # PNG and SVG are written by segno itself: no Pillow needed
+def _render_qr_bytes(
+    uri: str, kind: Literal["png", "svg"], scale: int | None = None
+) -> tuple[bytes, int]:
+    """
+    Draw the QR as PNG or SVG (segno writes both itself: no Pillow needed).
 
+    Without ``scale`` it is picked so the image is about ``QR_TARGET_PX`` wide, large enough
+    to scan straight off the screen. Returns ``(data, width_px)``.
+    """
+    import segno
+
+    qr = segno.make(uri, error="m", micro=False)
+    if scale is None:
+        modules = qr.symbol_size(scale=1, border=QR_BORDER)[0]
+        scale = max(QR_MIN_SCALE, min(QR_MAX_SCALE, round(QR_TARGET_PX / modules)))
     buf = io.BytesIO()
-    qr = segno.make(uri, error="m")
     if kind == "png":
-        qr.save(buf, kind="png", scale=6, border=4)
+        qr.save(buf, kind="png", scale=scale, border=QR_BORDER)
     else:
-        qr.save(buf, kind="svg", scale=6, border=4, xmldecl=False, nl=False)
-    return buf.getvalue()
+        qr.save(buf, kind="svg", scale=scale, border=QR_BORDER, xmldecl=False, nl=False)
+    return buf.getvalue(), int(qr.symbol_size(scale=scale, border=QR_BORDER)[0])
+
+
+def _text_qr(uri: str) -> str:
+    """The most compact text QR: half blocks (two module rows per line), error level L."""
+    from walletconnect.qr import terminal_qr  # half blocks, level L, never Micro QR
+
+    return terminal_qr(uri, compact=True, border=TEXT_QR_BORDER)
+
+
+def _pair_text(result: dict[str, Any]) -> str:
+    """The short text block of ``pair``: where the QR is, the topic and what to do next."""
+    lines = []
+    if "qr_path" in result:
+        lines.append(f"Show this QR code to the user so they can scan it: {result['qr_path']}")
+        lines.append(f"file URI: {result['qr_file_uri']}")
+    if "qr" in result:
+        lines.append(f"QR code:\n{result['qr']}")
+    if "qr_error" in result:
+        lines.append(result["qr_error"])
+    lines.append(f"pairing_topic: {result['pairing_topic']}")
+    lines.append(f"expires: {result['expires_at']} ({result['seconds_remaining']}s)")
+    if "uri" in result:
+        lines.append(f"uri (short-lived secret): {result['uri']}")
+    lines.append(result["next"])
+    return "\n".join(lines)
 
 
 # ---------------------------------------------------------------- server
@@ -292,9 +345,11 @@ def create_server(client_factory: Callable[[], SignClient] | None = None) -> MCP
     pairings: dict[str, dict[str, Any]] = {}
     settlers: dict[str, asyncio.Task[Any]] = {}
     qr_files: dict[str, Path] = {}
+    qr_pngs: dict[str, bytes] = {}
     tasks: set[asyncio.Task[Any]] = set()
 
     def forget_qr(pairing_topic: str) -> None:
+        qr_pngs.pop(pairing_topic, None)
         path = qr_files.pop(pairing_topic, None)
         if path is not None:
             with contextlib.suppress(OSError):
@@ -442,19 +497,34 @@ def create_server(client_factory: Callable[[], SignClient] | None = None) -> MCP
     async def pair(
         qr: Literal["png", "svg", "text", "none"] = "png",
         qr_path: str | None = None,
-        include_uri: bool = True,
+        include_uri: bool = False,
         include_image: bool = True,
+        qr_scale: int | None = None,
     ) -> CallToolResult:
         """
         Start pairing a mobile wallet (asks for eip155:1). Writes the QR code to a file and
         returns its path as ``qr_path`` (``png`` default, or ``svg``). The file goes to
         ``qr_path`` if given, else ``$WALLETCONNECT_QR_DIR``, else the system temp dir, and is
-        deleted once the pairing settles or fails. ``qr="text"`` returns Unicode blocks inline
-        instead; ``"none"`` makes no QR. With ``include_image`` (PNG only) the QR is also
-        attached as an image. ``include_uri=false`` leaves the ``wc:`` URI out of the result:
-        it contains a short-lived secret key, so only include it if the user needs to paste it.
-        Then call wait_for_pairing with the returned pairing_topic.
+        deleted once the pairing settles or fails. With ``include_image`` (PNG only) the QR is
+        also attached as an image, about 600px wide; ``qr_scale`` (pixels per module, 1-20)
+        overrides the size. Always tell the user the qr_path too: some clients collapse the
+        image, and ``xdg-open <path>`` (Linux) or ``open <path>`` (macOS) shows it full size.
+        ``qr="text"`` returns a compact Unicode QR inline instead; ``"none"`` makes no QR.
+        The PNG is also readable as the resource ``walletconnect://pairing/<topic>/qr.png``
+        while the pairing is pending. ``include_uri=true`` adds the ``wc:`` URI to the result:
+        it contains a short-lived secret key, so only request it when the user asks to paste it.
+
+        IMPORTANT: after calling pair, show the QR code to the user prominently in your reply:
+        render the image, or give them the PNG path (or file:// link) to open. The image inside
+        this tool result may be collapsed or small in the client, so do not rely on it alone.
+        Tell them to scan it with their wallet app, then call wait_for_pairing (or
+        session_status) with the pairing_topic. Never paste the wc: URI unless the user asks.
         """
+        if qr_scale is not None and not QR_MIN_SCALE <= qr_scale <= QR_MAX_SCALE:
+            raise ToolError(
+                f"invalid_argument: qr_scale must be {QR_MIN_SCALE}-{QR_MAX_SCALE}"
+                " pixels per module"
+            )
         if not include_uri and qr == "none":
             raise ToolError("invalid_argument: qr='none' with include_uri=false returns nothing")
         client = current()
@@ -472,23 +542,38 @@ def create_server(client_factory: Callable[[], SignClient] | None = None) -> MCP
         content: list[Any] = []
         try:
             if qr in ("png", "svg"):
-                data = _render_qr_bytes(uri, qr)
+                data, width = _render_qr_bytes(uri, qr, qr_scale)
+                result["qr_width_px"] = width
                 path = _qr_target(qr_path, pairing_topic, f".{qr}")
                 _write_private(path, data)
                 qr_files[pairing_topic] = path
                 result["qr_path"] = str(path)
-                if qr == "png" and include_image:
+                result["qr_file_uri"] = path.as_uri()
+                if qr == "png":
+                    qr_pngs[pairing_topic] = data
+                    resource_uri = QR_RESOURCE_TEMPLATE.format(pairing_topic=pairing_topic)
+                    result["qr_resource"] = resource_uri
                     content.append(
+                        ResourceLink(
+                            type="resource_link",
+                            name="walletconnect-pairing-qr",
+                            title="WalletConnect pairing QR code",
+                            uri=resource_uri,
+                            mime_type="image/png",
+                            size=len(data),
+                        )
+                    )
+                if qr == "png" and include_image:
+                    content.insert(
+                        0,
                         ImageContent(
                             type="image",
                             data=base64.b64encode(data).decode(),
                             mime_type="image/png",
-                        )
+                        ),
                     )
             elif qr == "text":
-                from walletconnect.qr import terminal_qr
-
-                result["qr"] = terminal_qr(uri)
+                result["qr"] = _text_qr(uri)
         except ImportError:
             if not include_uri:
                 task.cancel()
@@ -507,16 +592,31 @@ def create_server(client_factory: Callable[[], SignClient] | None = None) -> MCP
         result["expires_at"] = _iso(deadline)
         result["seconds_remaining"] = int(timeout)
         result["next"] = (
-            "Show the user the QR code (or the file at qr_path) to scan in their wallet app"
-            + (", or let them paste the URI" if include_uri else "")
-            + ". Then call wait_for_pairing with pairing_topic."
+            "Show the QR code to the user prominently in your reply (render the image, or give"
+            " them qr_path / qr_file_uri to open; `xdg-open` on Linux or `open` on macOS shows it"
+            " full size) and tell them to scan it with their wallet app. Then call"
+            " wait_for_pairing with pairing_topic. Don't paste the wc: URI unless asked."
         )
         bg = asyncio.create_task(settle(pairing_topic, task))
         settlers[pairing_topic] = bg
         tasks.add(bg)
         bg.add_done_callback(tasks.discard)
-        content.insert(0, TextContent(type="text", text=json.dumps(result, indent=2)))
+        content.insert(0, TextContent(type="text", text=_pair_text(result)))
         return CallToolResult(content=content, structured_content=result)
+
+    @server.resource(
+        QR_RESOURCE_TEMPLATE,
+        name="walletconnect-pairing-qr",
+        description="The PNG QR code of a pending pairing (gone once it settles or fails)",
+        mime_type="image/png",
+    )
+    def pairing_qr(pairing_topic: str) -> bytes:
+        try:
+            return qr_pngs[pairing_topic]
+        except KeyError:
+            raise ValueError(
+                f"No pending PNG QR code for pairing {pairing_topic}; call pair again"
+            ) from None
 
     @server.tool()
     async def wait_for_pairing(

@@ -67,7 +67,7 @@ Environment variables:
 ## Tools
 
 ```python
-pair(qr="png", qr_path=None, include_uri=True, include_image=True)
+pair(qr="png", qr_path=None, include_uri=False, include_image=True, qr_scale=None)
 wait_for_pairing(pairing_topic, timeout_s=60)
 session_status(pairing_topic=None, check_reachable=False)
 disconnect(topic=None)
@@ -87,7 +87,7 @@ send_transaction(
 
 | Tool               | What it does                                                                                                                                                 |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `pair`             | Starts a pairing (asking for `eip155:1`). Writes the QR code to a file and returns `qr_path`, `pairing_topic`, `expires_at` and `seconds_remaining`.         |
+| `pair`             | Starts a pairing (asking for `eip155:1`). Writes a PNG QR file and returns `qr_path`, `qr_file_uri`, the image, `pairing_topic` and `seconds_remaining`.     |
 | `wait_for_pairing` | Waits up to `timeout_s` (max 300) for the wallet to approve. Returns `settled` (with the session), `failed` (with `error`) or `pending` with seconds left.   |
 | `session_status`   | Lists sessions: topic, wallet name, accounts, approved `chains`, `expiry` (unix), `expiry_iso` (UTC), `expires_in_s`, `reachable`.                           |
 | `disconnect`       | Ends a session: tells the wallet (`wc_sessionDelete`) and forgets it.                                                                                        |
@@ -100,10 +100,30 @@ send_transaction(
 `pair` writes a PNG by default (`qr="svg"` for SVG; both are drawn by `segno`, so no Pillow is
 needed). The file goes to `qr_path` if you pass one, else `$WALLETCONNECT_QR_DIR`, else a new file
 in the system temp directory. It's written with `0600` permissions and deleted as soon as the
-pairing settles or fails, or the server stops. With `include_image=true` (the default) the PNG is
-also attached to the result as an MCP image, so clients that render images can show it directly
-and the assistant never copies QR data by hand. `qr="text"` returns Unicode blocks inline for a
-terminal instead, and `qr="none"` makes no QR at all. The QR needs the `qr` extra
+pairing settles or fails, or the server stops. The PNG is about 600 pixels wide (a 4-module quiet
+zone, scale picked to fit), big enough to scan straight off a laptop screen. `qr_scale` (pixels
+per module, 1 to 20) overrides that, and the result reports `qr_width_px`.
+
+The QR reaches the user in several ways at once, because what a client shows varies:
+
+- **The file.** The result's text is short: a line `Show this QR code to the user so they can scan it: <path>`, the `file://` URI, the `pairing_topic` and the expiry. `xdg-open <path>` (Linux) or
+  `open <path>` (macOS) shows it full size.
+- **An inline image.** With `include_image=true` (the default) the PNG is attached as MCP image
+  content. Claude Desktop renders it, but inside the collapsible `pair` tool-result panel, where it
+  can be easy to miss.
+- **A resource.** While the pairing is pending, the PNG is also the MCP resource
+  `walletconnect://pairing/<pairing_topic>/qr.png`, and the result links to it (`resource_link`),
+  so clients that support resources can attach it.
+
+How (and whether) the image is rendered depends on the client, so the server tells the assistant to
+present the QR itself. The server-level `instructions` (sent when the client connects) and the
+`pair` description both say: after `pair`, show the QR code prominently in the reply (render the
+image, or give the path to open), tell the user to scan it with their wallet app, then call
+`wait_for_pairing`, and never paste the `wc:` URI unless asked.
+
+`qr="text"` returns the QR inline as text instead, in the most compact form: Unicode half blocks
+(two module rows per line), error correction level L, never a Micro QR, and a 2-module quiet zone
+(drawn for a dark background). `qr="none"` makes no QR at all. The QR needs the `qr` extra
 (`pip install "walletconnect[qr]"`).
 
 After showing the QR, call `wait_for_pairing(pairing_topic)`. It returns as soon as the wallet
@@ -115,9 +135,9 @@ has returned.)
 ```{warning}
 The `wc:` URI contains the pairing's symmetric key (`symKey`). It's a short-lived secret: anyone
 who sees it before the wallet scans it could answer the pairing. It's useless once the pairing has
-settled or expired (5 minutes), but it does stay in the chat transcript. Pass `include_uri=false`
-to leave it out of the result and rely on the QR file or image. The QR encodes the same URI, which
-is why its file is private and short-lived.
+settled or expired (5 minutes), but anything in a result stays in the chat transcript. So `pair`
+leaves it out by default; pass `include_uri=true` only when the user wants to paste it into their
+wallet. The QR encodes the same URI, which is why its file is private and short-lived.
 ```
 
 ### Choosing the session, account and chain
