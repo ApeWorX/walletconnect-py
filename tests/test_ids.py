@@ -33,3 +33,18 @@ def test_custom_entropy():
     assert len(str(payload_id(entropy=6))) == 19
     with pytest.raises(ValueError, match="entropy"):
         payload_id(entropy=-1)
+
+
+def test_payload_ids_never_repeat_in_a_burst():
+    # Clients key in-flight requests by id, so a same-millisecond burst must not collide.
+    ids = [payload_id() for _ in range(5000)]
+    assert len(set(ids)) == len(ids)
+    assert ids == sorted(ids)
+    assert all(abs(i) <= JS_MAX_SAFE_INTEGER for i in ids)
+
+
+def test_payload_id_entropies_are_tracked_separately():
+    big = payload_id(entropy=6)
+    small = payload_id()
+    assert len(str(big)) == 19
+    assert 15 <= len(str(small)) <= 16
