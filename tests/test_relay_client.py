@@ -28,13 +28,17 @@ async def test_publish_subscribe_round_trip():
     async with run_fake_relay() as (_fake, base_url):
         received: asyncio.Queue[RelayMessage] = asyncio.Queue()
 
-        async with RelayClient(project_id="test-project", relay_url=base_url) as client:
+        async with (
+            RelayClient(project_id="test-project", relay_url=base_url) as client,
+            RelayClient(project_id="test-project", relay_url=base_url) as peer,
+        ):
             client.on_message(received.put_nowait)
             topic = "aa" * 32
             sub_id = await client.subscribe(topic)
             assert sub_id.startswith("sub-")
 
-            ok = await client.publish(topic, "hello-envelope", ttl=300, tag=1100)
+            # The relay doesn't echo a message back to the connection that published it.
+            ok = await peer.publish(topic, "hello-envelope", ttl=300, tag=1100)
             assert ok is True
 
             msg = await asyncio.wait_for(received.get(), timeout=2)

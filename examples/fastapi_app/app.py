@@ -16,6 +16,7 @@ Then open http://localhost:8000/ for a small demo page (pair, sign, disconnect),
     curl -X POST localhost:8000/sessions/<topic>/sign \\
          -H 'content-type: application/json' -d '{"message": "hello"}'
     curl -X DELETE localhost:8000/sessions/<topic>
+    curl -N localhost:8000/events                      # live session/relay events (SSE)
 
 This is an example, not a production service: it has no authentication, so anyone who can
 reach it can ask the paired wallets to sign. Put it behind your own auth.
@@ -32,12 +33,12 @@ import io
 import json
 import logging
 import os
-from collections.abc import AsyncIterator, Callable
+from collections.abc import AsyncIterator, Awaitable, Callable
 from pathlib import Path
 from typing import Any, Literal
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 from walletconnect import DEFAULT_RELAY_URL, ClientState, Metadata, PairingURI
@@ -48,7 +49,7 @@ from walletconnect.exceptions import (
     WalletConnectError,
     WalletConnectTimeoutError,
 )
-from walletconnect.sign import SignClient
+from walletconnect.sign import ClientEvent, SignClient
 
 logger = logging.getLogger("walletconnect.examples.fastapi")
 
@@ -104,6 +105,47 @@ class SignRequest(BaseModel):
 
 class SignResponse(BaseModel):
     signature: str
+
+
+# --------------------------------------------------------------------- SSE
+
+SSE_HEARTBEAT = 15.0
+SSE_QUEUE_SIZE = 100
+
+
+async def sse_events(
+    client: SignClient,
+    is_disconnected: Callable[[], Awaitable[bool]],
+    *,
+    heartbeat: float = SSE_HEARTBEAT,
+) -> AsyncIterator[str]:
+    """
+    Yield Server-Sent Events for every client event until the HTTP client goes away.
+
+    Each event is ``event: <name>`` plus ``data: <ClientEvent.to_dict() as JSON>``, which has no
+    session keys. A comment line is sent every ``heartbeat`` seconds so proxies keep the stream
+    open. Each connection gets its own bounded queue; if a reader falls behind, new events are
+    dropped for that reader only.
+    """
+    queue: asyncio.Queue[ClientEvent] = asyncio.Queue(maxsize=SSE_QUEUE_SIZE)
+
+    def enqueue(event: ClientEvent) -> None:
+        with contextlib.suppress(asyncio.QueueFull):
+            queue.put_nowait(event)
+
+    client.on("*", enqueue)
+    try:
+        yield ": connected\n\n"
+        while not await is_disconnected():
+            try:
+                event = await asyncio.wait_for(queue.get(), heartbeat)
+            except asyncio.TimeoutError:
+                yield ": keep-alive\n\n"
+                continue
+            payload = json.dumps(event.to_dict(), default=str)
+            yield f"event: {event.name}\ndata: {payload}\n\n"
+    finally:
+        client.off("*", enqueue)
 
 
 # --------------------------------------------------------------------- app
@@ -254,6 +296,18 @@ def create_app(client_factory: Callable[[], SignClient] | None = None) -> FastAP
         except WalletConnectError as exc:
             raise HTTPException(502, str(exc)) from exc
         return SignResponse(signature=str(signature))
+
+    @app.get("/events", response_class=StreamingResponse)
+    async def events(request: Request) -> StreamingResponse:
+        """
+        Server-Sent Events: session_update/event/delete/expire/extend/expiring and relay
+        disconnect/reconnect, as they happen. Try ``curl -N localhost:8000/events``.
+        """
+        return StreamingResponse(
+            sse_events(client_of(request), request.is_disconnected),
+            media_type="text/event-stream",
+            headers={"cache-control": "no-cache", "x-accel-buffering": "no"},
+        )
 
     @app.delete("/sessions/{topic}", status_code=204)
     async def delete_session(request: Request, topic: str) -> None:

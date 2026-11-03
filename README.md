@@ -104,6 +104,10 @@ The client is stateless: it never writes to disk. To keep sessions across restar
 with `SyncSignClient(state=ClientState.model_validate_json(blob))`. The state contains secret
 keys, so store it securely. See the [connecting guide](docs/userguides/connecting.md).
 
+For sessions that stay open for weeks, the client emits events (`client.on("session_delete", ...)`),
+can extend sessions before they expire (`auto_extend=True`), and can check whether the wallet is
+online (`is_reachable()`). See [Long-running sessions](docs/userguides/long-running.md).
+
 Lower-level helpers still work without a relay connection:
 
 ```python

@@ -15,11 +15,20 @@ from walletconnect.constants import (
     DEFAULT_RELAY_URL,
 )
 
-from .client import _CONNECT_TIMEOUT, _REQUEST_TIMEOUT, SignClient
+from .client import (
+    _AUTO_EXTEND_THRESHOLD,
+    _CONNECT_TIMEOUT,
+    _EXPIRING_WARNING,
+    _MAINTENANCE_INTERVAL,
+    _PING_TIMEOUT,
+    _REQUEST_TIMEOUT,
+    SignClient,
+)
 
 if TYPE_CHECKING:
     from walletconnect.types import Metadata, ProposalNamespace
 
+    from .events import EventHandler
     from .state import ClientState, Session
 
 
@@ -32,6 +41,9 @@ class SyncSignClient:
 
     Takes the same ``state=`` / ``on_state_change=`` arguments as :class:`SignClient`
     (``on_state_change`` runs on the background loop thread).
+
+    Event handlers registered with :meth:`on` also run on the background loop thread, so keep
+    them quick and thread-safe (e.g. put the event on a :class:`queue.Queue`).
     """
 
     def __init__(
@@ -46,6 +58,10 @@ class SyncSignClient:
         connect_timeout: float = _CONNECT_TIMEOUT,
         request_timeout: float = _REQUEST_TIMEOUT,
         auto_reconnect: bool = True,
+        auto_extend: bool = False,
+        auto_extend_threshold: float = _AUTO_EXTEND_THRESHOLD,
+        expiring_warning: float = _EXPIRING_WARNING,
+        maintenance_interval: float = _MAINTENANCE_INTERVAL,
     ) -> None:
         self._client = SignClient(
             project_id,
@@ -57,6 +73,10 @@ class SyncSignClient:
             connect_timeout=connect_timeout,
             request_timeout=request_timeout,
             auto_reconnect=auto_reconnect,
+            auto_extend=auto_extend,
+            auto_extend_threshold=auto_extend_threshold,
+            expiring_warning=expiring_warning,
+            maintenance_interval=maintenance_interval,
         )
         self._loop = asyncio.new_event_loop()
         self._thread = threading.Thread(
@@ -155,8 +175,25 @@ class SyncSignClient:
             self._client.personal_sign(message, address, chain_id=chain_id, topic=topic)
         )
 
-    def ping(self, *, topic: str | None = None) -> bool:
-        return self._submit(self._client.ping(topic=topic))
+    @property
+    def unreachable(self) -> frozenset[str]:
+        return self._client.unreachable
+
+    def on(self, name: str, handler: EventHandler | None = None) -> Any:
+        """See :meth:`SignClient.on`. Handlers run on the background loop thread."""
+        return self._client.on(name, handler)
+
+    def off(self, name: str, handler: EventHandler) -> None:
+        self._client.off(name, handler)
+
+    def ping(self, *, topic: str | None = None, timeout: float = _PING_TIMEOUT) -> bool:
+        return self._submit(self._client.ping(topic=topic, timeout=timeout))
+
+    def is_reachable(self, *, topic: str | None = None, timeout: float = 10.0) -> bool:
+        return self._submit(self._client.is_reachable(topic=topic, timeout=timeout))
+
+    def extend(self, *, topic: str | None = None, timeout: float | None = None) -> int:
+        return self._submit(self._client.extend(topic=topic, timeout=timeout))
 
     def disconnect(self, reason: str = "User disconnected", *, topic: str | None = None) -> None:
         self._submit(self._client.disconnect(reason, topic=topic))

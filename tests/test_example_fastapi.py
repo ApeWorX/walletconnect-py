@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+import json
 import os
 import stat
 import sys
@@ -116,3 +118,44 @@ def test_fastapi_example_landing_page(monkeypatch):
             assert "default-src 'none'" in csp
             assert "connect-src 'self'" in csp
             assert "/" not in app.openapi()["paths"]
+
+
+async def test_fastapi_example_sse_stream():
+    from examples.fastapi_app.app import METADATA, sse_events
+
+    client = SignClient(project_id="test", metadata=METADATA)
+    gone = asyncio.Event()
+
+    async def is_disconnected() -> bool:
+        return gone.is_set()
+
+    stream = sse_events(client, is_disconnected, heartbeat=0.05)
+    assert await anext(stream) == ": connected\n\n"
+    assert await anext(stream) == ": keep-alive\n\n"
+
+    client._emit("relay_disconnect", data={"why": "test"})
+    chunk = await anext(stream)
+    while chunk.startswith(":"):
+        chunk = await anext(stream)
+    event_line, data_line, *_ = chunk.split("\n")
+    assert event_line == "event: relay_disconnect"
+    assert json.loads(data_line.removeprefix("data: ")) == {
+        "name": "relay_disconnect",
+        "topic": None,
+        "session": None,
+        "data": {"why": "test"},
+    }
+
+    gone.set()
+    with pytest.raises(StopAsyncIteration):
+        await anext(stream)
+    assert client._handlers["*"] == []  # the per-connection handler was removed
+
+
+def test_fastapi_example_lists_events_route(monkeypatch):
+    monkeypatch.setenv("WALLETCONNECT_PROJECT_ID", "test")
+    with relay_thread() as relay:
+        monkeypatch.setenv("WALLETCONNECT_RELAY_URL", relay.url)
+        with TestClient(create_app()) as http:
+            paths = http.get("/openapi.json").json()["paths"]
+    assert "get" in paths["/events"]

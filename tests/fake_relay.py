@@ -94,11 +94,11 @@ class FakeRelay:
         if method == self.drop_after:
             self.drop_after = None
             if method == "irn_publish":
-                await self._publish(params)
+                await self._publish(params, publisher=state)
             state.ws.transport.abort()
             return
         if method == "irn_publish":
-            await self._publish(params)
+            await self._publish(params, publisher=state)
             await state.ws.send(json.dumps({"id": request_id, "jsonrpc": "2.0", "result": True}))
         elif method == "irn_subscribe":
             topic = params["topic"]
@@ -138,7 +138,7 @@ class FakeRelay:
                 )
             )
 
-    async def _publish(self, params: dict[str, Any]) -> None:
+    async def _publish(self, params: dict[str, Any], publisher: _ClientState | None = None) -> None:
         topic = params["topic"]
         item = {
             "topic": topic,
@@ -150,6 +150,8 @@ class FakeRelay:
         # Always store briefly so fetchMessages works.
         self.mailbox[topic].append(item)
         for client in list(self.clients):
+            if client is publisher:
+                continue  # like the real relay: no echo to the publishing connection
             sub_id = client.subscriptions.get(topic)
             if sub_id is not None:
                 with contextlib.suppress(ConnectionClosed):
