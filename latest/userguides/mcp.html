@@ -225,7 +225,8 @@ last as long as the process.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">WALLETCONNECT_QR_DIR</span></code> (optional): the folder where <code class="docutils literal notranslate"><span class="pre">pair</span></code> writes QR images. Without it, and
 without a <code class="docutils literal notranslate"><span class="pre">qr_path</span></code> argument, they go to a new file in the system temp directory.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">WALLETCONNECT_OPEN_QR</span></code> (optional): <code class="docutils literal notranslate"><span class="pre">1</span></code> or <code class="docutils literal notranslate"><span class="pre">0</span></code> to always or never open the pairing QR in the
-system image viewer (see below). The <code class="docutils literal notranslate"><span class="pre">open_qr</span></code> argument of <code class="docutils literal notranslate"><span class="pre">pair</span></code> overrides it.</p></li>
+system image viewer (see below). The <code class="docutils literal notranslate"><span class="pre">open_qr</span></code> argument of <code class="docutils literal notranslate"><span class="pre">pair</span></code> overrides it. With the default
+<code class="docutils literal notranslate"><span class="pre">qr=&quot;svg_inline&quot;</span></code>, only <code class="docutils literal notranslate"><span class="pre">1</span></code> (or <code class="docutils literal notranslate"><span class="pre">open_qr=true</span></code>) opens a viewer.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">WALLETCONNECT_RELAY_URL</span></code> (optional): a different relay.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">WALLETCONNECT_REQUEST_TIMEOUT</span></code> (optional): how long to wait for the user to approve, in
 seconds. Defaults to 300.</p></li>
@@ -234,22 +235,29 @@ seconds. Defaults to 300.</p></li>
 </section>
 <section id="tools">
 <h2>Tools<a class="headerlink" href="#tools" title="Link to this heading">#</a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="n">pair</span><span class="p">(</span><span class="n">qr</span><span class="o">=</span><span class="s2">"png"</span><span class="p">,</span> <span class="n">qr_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_uri</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_image</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">qr_scale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">open_qr</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-</span><span data-line="2"><span class="n">wait_for_pairing</span><span class="p">(</span><span class="n">pairing_topic</span><span class="p">,</span> <span class="n">timeout_s</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
-</span><span data-line="3"><span class="n">session_status</span><span class="p">(</span><span class="n">pairing_topic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">check_reachable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</span><span data-line="4"><span class="n">disconnect</span><span class="p">(</span><span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-</span><span data-line="5"><span class="n">sign_message</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chain_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout_s</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-</span><span data-line="6"><span class="n">sign_typed_data</span><span class="p">(</span><span class="n">typed_data</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chain_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout_s</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-</span><span data-line="7"><span class="n">send_transaction</span><span class="p">(</span>
-</span><span data-line="8">    <span class="n">to</span><span class="p">,</span>
-</span><span data-line="9">    <span class="n">value_wei</span><span class="o">=</span><span class="s2">"0"</span><span class="p">,</span>
-</span><span data-line="10">    <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span data-line="11">    <span class="n">gas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span data-line="12">    <span class="n">from_address</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span data-line="13">    <span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span data-line="14">    <span class="n">chain_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span data-line="15">    <span class="n">timeout_s</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span data-line="16"><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="n">pair</span><span class="p">(</span>
+</span><span data-line="2">    <span class="n">qr</span><span class="o">=</span><span class="s2">"svg_inline"</span><span class="p">,</span>  <span class="c1"># or "png", "svg", "text", "none"</span>
+</span><span data-line="3">    <span class="n">qr_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span data-line="4">    <span class="n">include_uri</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+</span><span data-line="5">    <span class="n">include_image</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span data-line="6">    <span class="n">qr_scale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span data-line="7">    <span class="n">open_qr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span data-line="8"><span class="p">)</span>
+</span><span data-line="9"><span class="n">wait_for_pairing</span><span class="p">(</span><span class="n">pairing_topic</span><span class="p">,</span> <span class="n">timeout_s</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+</span><span data-line="10"><span class="n">session_status</span><span class="p">(</span><span class="n">pairing_topic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">check_reachable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span data-line="11"><span class="n">disconnect</span><span class="p">(</span><span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span data-line="12"><span class="n">sign_message</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chain_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout_s</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span data-line="13"><span class="n">sign_typed_data</span><span class="p">(</span><span class="n">typed_data</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chain_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout_s</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span data-line="14"><span class="n">send_transaction</span><span class="p">(</span>
+</span><span data-line="15">    <span class="n">to</span><span class="p">,</span>
+</span><span data-line="16">    <span class="n">value_wei</span><span class="o">=</span><span class="s2">"0"</span><span class="p">,</span>
+</span><span data-line="17">    <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span data-line="18">    <span class="n">gas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span data-line="19">    <span class="n">from_address</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span data-line="20">    <span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span data-line="21">    <span class="n">chain_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span data-line="22">    <span class="n">timeout_s</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span data-line="23"><span class="p">)</span>
 </span></pre></div>
 </div>
 <div class="table-wrapper colwidths-auto docutils container">
@@ -261,7 +269,7 @@ seconds. Defaults to 300.</p></li>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pair</span></code></p></td>
-<td><p>Starts a pairing (asking for <code class="docutils literal notranslate"><span class="pre">eip155:1</span></code>). Writes a PNG QR file, opens it in the image viewer on a desktop, and returns <code class="docutils literal notranslate"><span class="pre">qr_opened</span></code>, <code class="docutils literal notranslate"><span class="pre">qr_path</span></code>, the image and <code class="docutils literal notranslate"><span class="pre">pairing_topic</span></code>.</p></td>
+<td><p>Starts a pairing (asking for <code class="docutils literal notranslate"><span class="pre">eip155:1</span></code>). Returns the QR code as inline SVG markup for the assistant to render (default), or writes a PNG file. Returns <code class="docutils literal notranslate"><span class="pre">pairing_topic</span></code> and <code class="docutils literal notranslate"><span class="pre">seconds_remaining</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">wait_for_pairing</span></code></p></td>
 <td><p>Waits up to <code class="docutils literal notranslate"><span class="pre">timeout_s</span></code> (max 300) for the wallet to approve. Returns <code class="docutils literal notranslate"><span class="pre">settled</span></code> (with the session), <code class="docutils literal notranslate"><span class="pre">failed</span></code> (with <code class="docutils literal notranslate"><span class="pre">error</span></code>) or <code class="docutils literal notranslate"><span class="pre">pending</span></code> with seconds left.</p></td>
@@ -286,13 +294,40 @@ seconds. Defaults to 300.</p></li>
 </div>
 <section id="pairing-and-the-qr-code">
 <h3>Pairing and the QR code<a class="headerlink" href="#pairing-and-the-qr-code" title="Link to this heading">#</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">pair</span></code> writes a PNG by default (<code class="docutils literal notranslate"><span class="pre">qr=&quot;svg&quot;</span></code> for SVG; both are drawn by <code class="docutils literal notranslate"><span class="pre">segno</span></code>, so no Pillow is
-needed). The file goes to <code class="docutils literal notranslate"><span class="pre">qr_path</span></code> if you pass one, else <code class="docutils literal notranslate"><span class="pre">$WALLETCONNECT_QR_DIR</span></code>, else a new file
+<p>By default (<code class="docutils literal notranslate"><span class="pre">qr=&quot;svg_inline&quot;</span></code>) <code class="docutils literal notranslate"><span class="pre">pair</span></code> returns the QR code as SVG markup in the result text, between
+<code class="docutils literal notranslate"><span class="pre">-----BEGIN</span> <span class="pre">QR</span> <span class="pre">SVG-----</span></code> and <code class="docutils literal notranslate"><span class="pre">-----END</span> <span class="pre">QR</span> <span class="pre">SVG-----</span></code>, for the assistant to copy verbatim into its
+inline widget or artifact tool. Nothing is written to disk, and the <code class="docutils literal notranslate"><span class="pre">wc:</span></code> URI never appears as text,
+only as the QR pattern (<code class="docutils literal notranslate"><span class="pre">include_uri=true</span></code> is refused in this mode). The markup is built to be easy
+to reproduce exactly and to scan:</p>
+<ul class="simple">
+<li><p>All dark modules are one <code class="docutils literal notranslate"><span class="pre">&lt;path&gt;</span></code> (a stroke along each run of dark modules in a row), so a typical
+pairing URI comes to about 5.3 KB (65×65 modules). The result reports <code class="docutils literal notranslate"><span class="pre">qr_svg_bytes</span></code> and
+<code class="docutils literal notranslate"><span class="pre">qr_modules</span></code>, and repeats the markup as <code class="docutils literal notranslate"><span class="pre">qr_svg</span></code>.</p></li>
+<li><p>A 4-module white quiet zone and an explicit white background <code class="docutils literal notranslate"><span class="pre">&lt;rect&gt;</span></code>, so it scans in dark mode.</p></li>
+<li><p>A square <code class="docutils literal notranslate"><span class="pre">viewBox</span></code> with <code class="docutils literal notranslate"><span class="pre">width=&quot;100%&quot;</span></code> and no fixed height, and <code class="docutils literal notranslate"><span class="pre">shape-rendering=&quot;crispEdges&quot;</span></code>,
+so it scales up sharply.</p></li>
+<li><p>No XML declaration, <code class="docutils literal notranslate"><span class="pre">&lt;title&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">&lt;desc&gt;</span></code>.</p></li>
+</ul>
+<p>The result looks like this (the markup is shortened here):</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span><span data-line="1">Render this SVG QR code exactly as given (everything between the markers) with your inline widget/artifact tool at a large size (5297 bytes):
+</span><span data-line="2">-----BEGIN QR SVG-----
+</span><span data-line="3">&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 65 65" width="100%" shape-rendering="crispEdges"&gt;&lt;rect width="65" height="65" fill="#fff"/&gt;&lt;path stroke="#000" d="M4 4.5h7m2 0h1…"/&gt;&lt;/svg&gt;
+</span><span data-line="4">-----END QR SVG-----
+</span><span data-line="5">pairing_topic: 67c7f3aa…
+</span><span data-line="6">expires: 2026-11-03T01:47:17Z (300s)
+</span><span data-line="7">After pair, render the returned SVG exactly as given with your inline widget/artifact tool at a large size, tell the user to scan it with their wallet, then call wait_for_pairing. If you cannot render widgets, call pair again with qr="text" or qr="png".
+</span></pre></div>
+</div>
+<p>In this mode the server doesn’t open an image viewer unless asked (<code class="docutils literal notranslate"><span class="pre">open_qr=true</span></code> or
+<code class="docutils literal notranslate"><span class="pre">WALLETCONNECT_OPEN_QR=1</span></code>); then it also writes a PNG file and opens it.</p>
+<p>If the client can’t render widgets, use one of the other modes. <code class="docutils literal notranslate"><span class="pre">qr=&quot;png&quot;</span></code> writes a PNG file
+(<code class="docutils literal notranslate"><span class="pre">qr=&quot;svg&quot;</span></code> an SVG file; both are drawn by <code class="docutils literal notranslate"><span class="pre">segno</span></code>, so no Pillow is needed). The file goes to <code class="docutils literal notranslate"><span class="pre">qr_path</span></code> if you pass one, else <code class="docutils literal notranslate"><span class="pre">$WALLETCONNECT_QR_DIR</span></code>, else a new file
 in the system temp directory. It’s written with <code class="docutils literal notranslate"><span class="pre">0600</span></code> permissions and deleted as soon as the
 pairing settles or fails, or the server stops. The PNG is about 600 pixels wide (a 4-module quiet
 zone, scale picked to fit), big enough to scan straight off a laptop screen. <code class="docutils literal notranslate"><span class="pre">qr_scale</span></code> (pixels
 per module, 1 to 20) overrides that, and the result reports <code class="docutils literal notranslate"><span class="pre">qr_width_px</span></code>.</p>
-<p>The QR reaches the user in several ways at once, because what a client shows varies:</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">qr=&quot;png&quot;</span></code> the QR reaches the user in several ways at once, because what a client shows
+varies:</p>
 <ul class="simple">
 <li><p><strong>A viewer window.</strong> When the server runs in a desktop session, <code class="docutils literal notranslate"><span class="pre">pair</span></code> opens the PNG in the
 system image viewer: <code class="docutils literal notranslate"><span class="pre">xdg-open</span></code> on Linux when <code class="docutils literal notranslate"><span class="pre">DISPLAY</span></code> or <code class="docutils literal notranslate"><span class="pre">WAYLAND_DISPLAY</span></code> is set, <code class="docutils literal notranslate"><span class="pre">open</span></code> on
@@ -312,12 +347,13 @@ can be easy to miss.</p></li>
 <code class="docutils literal notranslate"><span class="pre">walletconnect://pairing/&lt;pairing_topic&gt;/qr.png</span></code>, and the result links to it (<code class="docutils literal notranslate"><span class="pre">resource_link</span></code>),
 so clients that support resources can attach it.</p></li>
 </ul>
-<p>How (and whether) the image is rendered depends on the client, so the server tells the assistant to
+<p>How (and whether) a QR is rendered depends on the client, so the server tells the assistant to
 present the QR itself. The server-level <code class="docutils literal notranslate"><span class="pre">instructions</span></code> (sent when the client connects) and the
-<code class="docutils literal notranslate"><span class="pre">pair</span></code> description both say: after <code class="docutils literal notranslate"><span class="pre">pair</span></code>, if <code class="docutils literal notranslate"><span class="pre">qr_opened</span></code> is true, tell the user the QR code
-opened in a window and to scan it with their wallet app; otherwise show the QR code prominently in
-the reply (render the image, or give the path to open). Then call <code class="docutils literal notranslate"><span class="pre">wait_for_pairing</span></code>, and never
-paste the <code class="docutils literal notranslate"><span class="pre">wc:</span></code> URI unless asked.</p>
+<code class="docutils literal notranslate"><span class="pre">pair</span></code> description both say: “After pair, render the returned SVG exactly as given with your inline
+widget/artifact tool at a large size, tell the user to scan it with their wallet, then call
+wait_for_pairing. If you cannot render widgets, call pair again with qr=”text” or qr=”png”.” For
+<code class="docutils literal notranslate"><span class="pre">qr=&quot;png&quot;</span></code>, if <code class="docutils literal notranslate"><span class="pre">qr_opened</span></code> is true the assistant says the QR opened in a window; otherwise it shows
+the image or gives the path. It never pastes the <code class="docutils literal notranslate"><span class="pre">wc:</span></code> URI unless asked.</p>
 <p><code class="docutils literal notranslate"><span class="pre">qr=&quot;text&quot;</span></code> returns the QR inline as text instead, in the most compact form: Unicode half blocks
 (two module rows per line), error correction level L, never a Micro QR, and a 2-module quiet zone
 (drawn for a dark background). <code class="docutils literal notranslate"><span class="pre">qr=&quot;none&quot;</span></code> makes no QR at all. The QR needs the <code class="docutils literal notranslate"><span class="pre">qr</span></code> extra
@@ -413,8 +449,8 @@ back as tool errors that start with a category the assistant can act on:</p>
 wallet), and <code class="docutils literal notranslate"><span class="pre">reachable</span></code> shows the result.</p>
 <p>A typical conversation:</p>
 <ol class="arabic simple">
-<li><p>The assistant calls <code class="docutils literal notranslate"><span class="pre">session_status</span></code>, sees no sessions, then calls <code class="docutils literal notranslate"><span class="pre">pair</span></code> and shows the QR
-image (or tells the user where the file is).</p></li>
+<li><p>The assistant calls <code class="docutils literal notranslate"><span class="pre">session_status</span></code>, sees no sessions, then calls <code class="docutils literal notranslate"><span class="pre">pair</span></code> and renders the
+returned SVG QR code in the chat (or, with <code class="docutils literal notranslate"><span class="pre">qr=&quot;png&quot;</span></code>, shows the image or the file path).</p></li>
 <li><p>The user scans it, and the assistant calls <code class="docutils literal notranslate"><span class="pre">wait_for_pairing(pairing_topic=...)</span></code> until it’s
 <code class="docutils literal notranslate"><span class="pre">settled</span></code>.</p></li>
 <li><p>The assistant calls <code class="docutils literal notranslate"><span class="pre">send_transaction</span></code> and tells the user to check their phone. The user
