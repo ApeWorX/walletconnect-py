@@ -65,7 +65,7 @@ def _factory(url: str):
 
 
 async def _pair(mcp: Client, url: str, **arguments) -> tuple[dict, FakeWallet]:
-    pair = await _call(mcp, "pair", **arguments)
+    pair = await _call(mcp, "pair", include_uri=True, **arguments)
     wallet = await FakeWallet(url, pair["uri"]).start()
     status = await _call(mcp, "wait_for_pairing", pairing_topic=pair["pairing_topic"], timeout_s=5)
     assert status["status"] == "settled", status
@@ -89,21 +89,42 @@ async def test_mcp_example_end_to_end(tmp_path, monkeypatch):
         assert await _call(mcp, "session_status") == {"sessions": []}
         assert (await _error(mcp, "sign_message", message="hi")).startswith("session_ended:")
 
-        raw = await mcp.call_tool("pair", {})
+        instructions = mcp.instructions or ""
+        assert "show the QR code to the user prominently" in instructions
+        assert "Never paste the wc: URI" in instructions
+        pair_tool = next(t for t in (await mcp.list_tools()).tools if t.name == "pair")
+        assert "show the QR code to the user prominently" in pair_tool.description
+
+        quiet = await mcp.call_tool("pair", {})  # default: no URI anywhere in the result
+        assert "symKey" not in quiet.content[0].text
+        assert "uri" not in quiet.structured_content
+
+        raw = await mcp.call_tool("pair", {"include_uri": True})
         assert not raw.is_error
         pair = raw.structured_content
         assert pair["qr_format"] == "png"
         assert pair["uri"].startswith("wc:")
+        assert 512 <= pair["qr_width_px"] <= 700  # big enough to scan inline
         assert pair["seconds_remaining"] > 0
         qr_file = Path(pair["qr_path"])
         assert qr_file.parent == tmp_path
         assert qr_file.read_bytes().startswith(PNG_MAGIC)
         assert stat.S_IMODE(os.stat(qr_file).st_mode) == 0o600
-        image = raw.content[1]
+        text, image, link = raw.content
+        assert text.type == "text"
+        assert f"Show this QR code to the user so they can scan it: {qr_file}" in text.text
+        assert qr_file.as_uri() in text.text
+        assert f"pairing_topic: {pair['pairing_topic']}" in text.text
+        assert len(text.text) < 1000  # short: no inline QR data
         assert image.type == "image"
         assert image.mime_type == "image/png"
         assert base64.b64decode(image.data) == qr_file.read_bytes()
         assert "<svg" not in json.dumps(pair)
+        assert link.type == "resource_link"
+        assert link.uri == pair["qr_resource"]
+        assert pair["qr_resource"] == f"walletconnect://pairing/{pair['pairing_topic']}/qr.png"
+        resource = await mcp.read_resource(pair["qr_resource"])
+        assert base64.b64decode(resource.contents[0].blob) == qr_file.read_bytes()
 
         pending = await _call(mcp, "session_status", pairing_topic=pair["pairing_topic"])
         assert pending["pairing"]["status"] == "pending"
@@ -222,18 +243,27 @@ async def test_mcp_example_pair_options(tmp_path, monkeypatch):
             target = tmp_path / "nested" / "qr.svg"
             pair = await _call(mcp, "pair", qr="svg", qr_path=str(target), include_uri=False)
             assert "uri" not in pair
-            assert "wc:" not in json.dumps(pair)
+            assert "symKey" not in json.dumps(pair)
             assert Path(pair["qr_path"]) == target.resolve()
             assert target.read_text().startswith("<svg")
 
             text = await _call(mcp, "pair", qr="text")
             assert "qr_path" not in text
-            assert text["qr"].strip()
+            lines = text["qr"].splitlines()
+            assert set("".join(lines)) <= set("█▀▄ ")  # half blocks: two module rows per line
+            assert len(lines) <= 32
+            assert max(map(len, lines)) <= 64
+
+            small = await _call(mcp, "pair", qr_scale=4)
+            big = await _call(mcp, "pair", qr_scale=12)
+            assert small["qr_width_px"] * 3 == big["qr_width_px"]
+            bad_scale = await _error(mcp, "pair", qr_scale=0)
+            assert bad_scale.startswith("invalid_argument:")
 
             default = await _call(mcp, "pair", include_image=False)
             assert Path(default["qr_path"]).exists()  # system temp dir
             raw = await mcp.call_tool("pair", {"include_image": False})
-            assert [c.type for c in raw.content] == ["text"]
+            assert [c.type for c in raw.content] == ["text", "resource_link"]
 
             pending = await _call(
                 mcp, "wait_for_pairing", pairing_topic=pair["pairing_topic"], timeout_s=0.1
