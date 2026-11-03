@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import asyncio
 import base64
 import json
 import os
 import stat
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -15,9 +18,14 @@ pytest.importorskip("segno")
 from mcp import Client  # noqa: E402
 from mcp.server.mcpserver.exceptions import ToolError  # noqa: E402
 
+from examples.mcp_server import server as server_module  # noqa: E402
 from examples.mcp_server.server import (  # noqa: E402
     METADATA,
+    OPEN_QR_ENV,
     QR_DIR_ENV,
+    _open_in_viewer,
+    _open_qr_decision,
+    _viewer_command,
     create_server,
     normalize_chain_id,
     parse_quantity,
@@ -35,6 +43,34 @@ TYPED = {
 }
 ADDRESS = "0x" + "11" * 20
 PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
+
+
+@pytest.fixture(autouse=True)
+def _no_viewer(monkeypatch):
+    """Never pop up a real image viewer from the test suite."""
+    monkeypatch.setenv(OPEN_QR_ENV, "0")
+
+
+class FakeOpener:
+    """Stands in for asyncio.create_subprocess_exec: records the call, exits with ``code``."""
+
+    def __init__(self, code: int | None = 0, error: OSError | None = None):
+        self.code, self.error = code, error
+        self.calls: list[tuple[tuple, dict]] = []
+        self.waited = asyncio.Event()
+
+    async def __call__(self, *cmd, **kwargs):
+        self.calls.append((cmd, kwargs))
+        if self.error:
+            raise self.error
+        return self
+
+    async def wait(self) -> int:
+        if self.code is None:  # a viewer that keeps running
+            await asyncio.sleep(0.2)
+            self.waited.set()
+            return 0
+        return self.code
 
 
 async def _call(mcp: Client, tool: str, **arguments) -> dict:
@@ -93,7 +129,10 @@ async def test_mcp_example_end_to_end(tmp_path, monkeypatch):
         assert "show the QR code to the user prominently" in instructions
         assert "Never paste the wc: URI" in instructions
         pair_tool = next(t for t in (await mcp.list_tools()).tools if t.name == "pair")
-        assert "show the QR code to the user prominently" in pair_tool.description
+        description = " ".join((pair_tool.description or "").split())
+        assert "show the QR code prominently" in description
+        assert "if qr_opened is true, tell the user the QR code opened in a window" in description
+        assert "check qr_opened" in instructions
 
         quiet = await mcp.call_tool("pair", {})  # default: no URI anywhere in the result
         assert "symKey" not in quiet.content[0].text
@@ -325,3 +364,120 @@ def test_eip712_domain_passthrough_and_auto_add():
         with_eip712_domain({**TYPED, "domain": {"name": "x", "extra": 1}})
     with pytest.raises(ToolError, match="missing 'domain'"):
         with_eip712_domain({"types": {}, "primaryType": "Mail", "message": {}})
+
+
+@pytest.mark.parametrize(
+    ("arg", "env", "platform", "display", "expected"),
+    [
+        (True, "0", "linux", None, True),
+        (False, "1", "darwin", ":0", False),
+        (None, "1", "linux", None, True),
+        (None, "yes", "linux", None, True),
+        (None, "0", "darwin", ":0", False),
+        (None, "", "darwin", None, True),
+        (None, "", "win32", None, True),
+        (None, "", "linux", ":0", True),
+        (None, "", "linux", None, False),
+    ],
+)
+def test_open_qr_decision(monkeypatch, arg, env, platform, display, expected):
+    monkeypatch.setenv(OPEN_QR_ENV, env)
+    monkeypatch.delenv("WAYLAND_DISPLAY", raising=False)
+    if display:
+        monkeypatch.setenv("DISPLAY", display)
+    else:
+        monkeypatch.delenv("DISPLAY", raising=False)
+    monkeypatch.setattr(sys, "platform", platform)
+    opened, reason = _open_qr_decision(arg)
+    assert opened is expected
+    assert reason
+
+
+def test_open_qr_decision_wayland(monkeypatch):
+    monkeypatch.setenv(OPEN_QR_ENV, "")
+    monkeypatch.delenv("DISPLAY", raising=False)
+    monkeypatch.setenv("WAYLAND_DISPLAY", "wayland-0")
+    monkeypatch.setattr(sys, "platform", "linux")
+    assert _open_qr_decision(None)[0] is True
+
+
+@pytest.mark.parametrize(("platform", "opener"), [("linux", "xdg-open"), ("darwin", "open")])
+async def test_open_in_viewer_is_silent_and_non_blocking(monkeypatch, tmp_path, platform, opener):
+    monkeypatch.setattr(sys, "platform", platform)
+    fake = FakeOpener()
+    monkeypatch.setattr(server_module.asyncio, "create_subprocess_exec", fake)
+    path = tmp_path / "qr.png"
+    assert await _open_in_viewer(path, lambda _aw: None) == (True, f"opened with {opener}")
+    ((cmd, kwargs),) = fake.calls
+    assert list(cmd) == [opener, str(path)]
+    for stream in ("stdin", "stdout", "stderr"):  # stdout is the MCP channel
+        assert kwargs[stream] is subprocess.DEVNULL
+    assert kwargs["start_new_session"] is True
+
+
+async def test_open_in_viewer_failures(monkeypatch, tmp_path):
+    monkeypatch.setattr(sys, "platform", "linux")
+    path = tmp_path / "qr.png"
+    monkeypatch.setattr(server_module.asyncio, "create_subprocess_exec", FakeOpener(code=3))
+    assert await _open_in_viewer(path, lambda _aw: None) == (
+        False,
+        "xdg-open exited with status 3",
+    )
+    missing = FakeOpener(error=FileNotFoundError("xdg-open"))
+    monkeypatch.setattr(server_module.asyncio, "create_subprocess_exec", missing)
+    opened, reason = await _open_in_viewer(path, lambda _aw: None)
+    assert not opened
+    assert reason.startswith("could not run xdg-open")
+
+
+async def test_open_in_viewer_reaps_a_slow_opener(monkeypatch, tmp_path):
+    monkeypatch.setattr(sys, "platform", "linux")
+    monkeypatch.setattr(server_module, "VIEWER_CHECK_S", 0.01)
+    slow = FakeOpener(code=None)
+    monkeypatch.setattr(server_module.asyncio, "create_subprocess_exec", slow)
+    reaped = []
+    opened, _ = await _open_in_viewer(tmp_path / "qr.png", reaped.append)
+    assert opened
+    assert len(reaped) == 1
+    await reaped[0]
+    assert slow.waited.is_set()
+
+
+async def test_mcp_example_pair_opens_the_qr(tmp_path, monkeypatch):
+    monkeypatch.setenv(QR_DIR_ENV, str(tmp_path))
+    fake = FakeOpener()
+    monkeypatch.setattr(server_module.asyncio, "create_subprocess_exec", fake)
+    async with run_fake_relay() as (_fake, url), Client(create_server(_factory(url))) as mcp:
+        raw = await mcp.call_tool("pair", {"open_qr": True, "include_uri": True})
+        pair = raw.structured_content
+        assert pair["qr_opened"] is True
+        ((cmd, _),) = fake.calls
+        assert list(cmd) == _viewer_command(Path(pair["qr_path"]))
+        text = raw.content[0].text  # type: ignore[union-attr]
+        assert "The QR code was opened in an image viewer window" in text
+        assert "Show this QR code" not in text
+        assert "opened in your image viewer" in pair["next"]
+        # The file outlives the call so the viewer can load it; it goes once the pairing settles.
+        qr_file = Path(pair["qr_path"])
+        assert qr_file.exists()
+        wallet = await FakeWallet(url, pair["uri"]).start()
+        await _call(mcp, "wait_for_pairing", pairing_topic=pair["pairing_topic"], timeout_s=5)
+        assert not qr_file.exists()
+        await wallet.close()
+
+        # Default with WALLETCONNECT_OPEN_QR=0 (see the autouse fixture): not opened, path shown.
+        raw = await mcp.call_tool("pair", {})
+        pair = raw.structured_content
+        assert pair["qr_opened"] is False
+        assert pair["qr_open_reason"] == f"{OPEN_QR_ENV}=0"
+        assert "Show this QR code to the user" in raw.content[0].text  # type: ignore[union-attr]
+        assert len(fake.calls) == 1
+
+        # A failing opener falls back to showing the path.
+        monkeypatch.setattr(server_module.asyncio, "create_subprocess_exec", FakeOpener(code=1))
+        raw = await mcp.call_tool("pair", {"open_qr": True})
+        assert raw.structured_content["qr_opened"] is False
+        assert "exited with status 1" in raw.content[0].text  # type: ignore[union-attr]
+
+        text_pair = await _call(mcp, "pair", qr="text", open_qr=True)
+        assert text_pair["qr_opened"] is False
