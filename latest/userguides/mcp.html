@@ -95,6 +95,7 @@ data-aria-dark="Switch to auto color mode">
 </li>
 <li><a class="reference internal" href="#tools">Tools</a><ul>
 <li><a class="reference internal" href="#pairing-and-the-qr-code">Pairing and the QR code</a></li>
+<li><a class="reference internal" href="#wallet-deep-links">Wallet deep links</a></li>
 <li><a class="reference internal" href="#choosing-the-session-account-and-chain">Choosing the session, account and chain</a></li>
 <li><a class="reference internal" href="#typed-data">Typed data</a></li>
 <li><a class="reference internal" href="#amounts">Amounts</a></li>
@@ -242,22 +243,23 @@ seconds. Defaults to 300.</p></li>
 </span><span data-line="5">    <span class="n">include_image</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 </span><span data-line="6">    <span class="n">qr_scale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 </span><span data-line="7">    <span class="n">open_qr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span data-line="8"><span class="p">)</span>
-</span><span data-line="9"><span class="n">wait_for_pairing</span><span class="p">(</span><span class="n">pairing_topic</span><span class="p">,</span> <span class="n">timeout_s</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
-</span><span data-line="10"><span class="n">session_status</span><span class="p">(</span><span class="n">pairing_topic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">check_reachable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</span><span data-line="11"><span class="n">disconnect</span><span class="p">(</span><span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-</span><span data-line="12"><span class="n">sign_message</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chain_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout_s</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-</span><span data-line="13"><span class="n">sign_typed_data</span><span class="p">(</span><span class="n">typed_data</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chain_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout_s</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-</span><span data-line="14"><span class="n">send_transaction</span><span class="p">(</span>
-</span><span data-line="15">    <span class="n">to</span><span class="p">,</span>
-</span><span data-line="16">    <span class="n">value_wei</span><span class="o">=</span><span class="s2">"0"</span><span class="p">,</span>
-</span><span data-line="17">    <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span data-line="18">    <span class="n">gas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span data-line="19">    <span class="n">from_address</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span data-line="20">    <span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span data-line="21">    <span class="n">chain_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span data-line="22">    <span class="n">timeout_s</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span data-line="23"><span class="p">)</span>
+</span><span data-line="8">    <span class="n">deep_link</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># "metamask", "rainbow", "trust", "uniswap", "zerion", "generic"</span>
+</span><span data-line="9"><span class="p">)</span>
+</span><span data-line="10"><span class="n">wait_for_pairing</span><span class="p">(</span><span class="n">pairing_topic</span><span class="p">,</span> <span class="n">timeout_s</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+</span><span data-line="11"><span class="n">session_status</span><span class="p">(</span><span class="n">pairing_topic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">check_reachable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span data-line="12"><span class="n">disconnect</span><span class="p">(</span><span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span data-line="13"><span class="n">sign_message</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chain_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout_s</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span data-line="14"><span class="n">sign_typed_data</span><span class="p">(</span><span class="n">typed_data</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chain_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout_s</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span data-line="15"><span class="n">send_transaction</span><span class="p">(</span>
+</span><span data-line="16">    <span class="n">to</span><span class="p">,</span>
+</span><span data-line="17">    <span class="n">value_wei</span><span class="o">=</span><span class="s2">"0"</span><span class="p">,</span>
+</span><span data-line="18">    <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span data-line="19">    <span class="n">gas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span data-line="20">    <span class="n">from_address</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span data-line="21">    <span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span data-line="22">    <span class="n">chain_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span data-line="23">    <span class="n">timeout_s</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span data-line="24"><span class="p">)</span>
 </span></pre></div>
 </div>
 <div class="table-wrapper colwidths-auto docutils container">
@@ -269,7 +271,7 @@ seconds. Defaults to 300.</p></li>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pair</span></code></p></td>
-<td><p>Starts a pairing (asking for <code class="docutils literal notranslate"><span class="pre">eip155:1</span></code>). Returns the QR code as inline SVG markup for the assistant to render (default), or writes a PNG file. Returns <code class="docutils literal notranslate"><span class="pre">pairing_topic</span></code> and <code class="docutils literal notranslate"><span class="pre">seconds_remaining</span></code>.</p></td>
+<td><p>Starts a pairing (asking for <code class="docutils literal notranslate"><span class="pre">eip155:1</span></code>). Returns the QR code as inline SVG markup for the assistant to render (default), or writes a PNG file. Returns <code class="docutils literal notranslate"><span class="pre">pairing_topic</span></code> and <code class="docutils literal notranslate"><span class="pre">seconds_remaining</span></code>, and a wallet <code class="docutils literal notranslate"><span class="pre">deep_link</span></code> on request.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">wait_for_pairing</span></code></p></td>
 <td><p>Waits up to <code class="docutils literal notranslate"><span class="pre">timeout_s</span></code> (max 300) for the wallet to approve. Returns <code class="docutils literal notranslate"><span class="pre">settled</span></code> (with the session), <code class="docutils literal notranslate"><span class="pre">failed</span></code> (with <code class="docutils literal notranslate"><span class="pre">error</span></code>) or <code class="docutils literal notranslate"><span class="pre">pending</span></code> with seconds left.</p></td>
@@ -300,18 +302,23 @@ inline widget or artifact tool. Nothing is written to disk, and the <code class=
 only as the QR pattern (<code class="docutils literal notranslate"><span class="pre">include_uri=true</span></code> is refused in this mode). The markup is built to be easy
 to reproduce exactly and to scan:</p>
 <ul class="simple">
-<li><p>All dark modules are one <code class="docutils literal notranslate"><span class="pre">&lt;path&gt;</span></code> (a stroke along each run of dark modules in a row), so a typical
-pairing URI comes to about 5.3 KB (65×65 modules). The result reports <code class="docutils literal notranslate"><span class="pre">qr_svg_bytes</span></code> and
-<code class="docutils literal notranslate"><span class="pre">qr_modules</span></code>, and repeats the markup as <code class="docutils literal notranslate"><span class="pre">qr_svg</span></code>.</p></li>
+<li><p>Error correction level L, exactly (no automatic boost to a higher level), and never a Micro QR.
+L needs the fewest modules, and a QR on a screen doesn’t get scratched or dirty. A typical
+pairing URI (about 190 characters) is a version 8 code: 57×57 modules with the quiet zone,
+instead of 65×65 at level M. The PNG and SVG files use level L too, as does <code class="docutils literal notranslate"><span class="pre">qr=&quot;text&quot;</span></code>.</p></li>
+<li><p>All dark modules are one <code class="docutils literal notranslate"><span class="pre">&lt;path&gt;</span></code>: a stroke along each run of dark modules in a row, with
+relative moves and integer coordinates. That’s about 4.0 KB for a typical pairing URI (it was
+5.3 KB at level M). The result reports <code class="docutils literal notranslate"><span class="pre">qr_svg_bytes</span></code> and <code class="docutils literal notranslate"><span class="pre">qr_modules</span></code>, and repeats the markup as
+<code class="docutils literal notranslate"><span class="pre">qr_svg</span></code>.</p></li>
 <li><p>A 4-module white quiet zone and an explicit white background <code class="docutils literal notranslate"><span class="pre">&lt;rect&gt;</span></code>, so it scans in dark mode.</p></li>
 <li><p>A square <code class="docutils literal notranslate"><span class="pre">viewBox</span></code> with <code class="docutils literal notranslate"><span class="pre">width=&quot;100%&quot;</span></code> and no fixed height, and <code class="docutils literal notranslate"><span class="pre">shape-rendering=&quot;crispEdges&quot;</span></code>,
 so it scales up sharply.</p></li>
 <li><p>No XML declaration, <code class="docutils literal notranslate"><span class="pre">&lt;title&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">&lt;desc&gt;</span></code>.</p></li>
 </ul>
 <p>The result looks like this (the markup is shortened here):</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span><span data-line="1">Render this SVG QR code exactly as given (everything between the markers) with your inline widget/artifact tool at a large size (5297 bytes):
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span><span data-line="1">Render this SVG QR code exactly as given (everything between the markers) with your inline widget/artifact tool at a large size (3960 bytes):
 </span><span data-line="2">-----BEGIN QR SVG-----
-</span><span data-line="3">&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 65 65" width="100%" shape-rendering="crispEdges"&gt;&lt;rect width="65" height="65" fill="#fff"/&gt;&lt;path stroke="#000" d="M4 4.5h7m2 0h1…"/&gt;&lt;/svg&gt;
+</span><span data-line="3">&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 57 57" width="100%" shape-rendering="crispEdges"&gt;&lt;rect width="57" height="57" fill="#fff"/&gt;&lt;path stroke="#000" d="M4 4.5h7m2 0h1…"/&gt;&lt;/svg&gt;
 </span><span data-line="4">-----END QR SVG-----
 </span><span data-line="5">pairing_topic: 67c7f3aa…
 </span><span data-line="6">expires: 2026-11-03T01:47:17Z (300s)
@@ -371,6 +378,64 @@ settled or expired (5 minutes), but anything in a result stays in the chat trans
 leaves it out by default; pass <code class="docutils literal notranslate"><span class="pre">include_uri=true</span></code> only when the user wants to paste it into their
 wallet. The QR encodes the same URI, which is why its file is private and short-lived.</p>
 </div>
+</section>
+<section id="wallet-deep-links">
+<h3>Wallet deep links<a class="headerlink" href="#wallet-deep-links" title="Link to this heading">#</a></h3>
+<p>If the user is chatting on the same phone as their wallet, they can’t scan the QR. For that case (or
+when scanning fails), <code class="docutils literal notranslate"><span class="pre">pair(deep_link=&quot;&lt;wallet&gt;&quot;)</span></code> also returns a link that opens the wallet with
+the pairing request. It’s off by default, and the server instructions tell the assistant to offer
+it only when the user is on the same phone or can’t scan. It works with every <code class="docutils literal notranslate"><span class="pre">qr</span></code> mode, including
+the default <code class="docutils literal notranslate"><span class="pre">svg_inline</span></code> (and with <code class="docutils literal notranslate"><span class="pre">qr=&quot;none&quot;</span></code>, the link alone). The result gets <code class="docutils literal notranslate"><span class="pre">deep_link</span></code>,
+<code class="docutils literal notranslate"><span class="pre">deep_link_wallet</span></code> and <code class="docutils literal notranslate"><span class="pre">deep_link_warning</span></code>, and the text has a line with the link.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The deep link contains the URL-encoded <code class="docutils literal notranslate"><span class="pre">wc:</span></code> URI, symmetric key included: it’s the same short-lived
+secret as the URI (see above). Only ask for it when the user needs it, and only give it to them.</p>
+</div>
+<p>Each link is the wallet’s WalletConnect link with <code class="docutils literal notranslate"><span class="pre">?uri=</span></code> followed by the <code class="docutils literal notranslate"><span class="pre">wc:</span></code> URI, URL-encoded
+like JavaScript’s <code class="docutils literal notranslate"><span class="pre">encodeURIComponent</span></code>. This is the format in WalletConnect’s
+<a class="reference external" href="https://docs.walletconnect.com/wallets/ios/mobile-linking">mobile linking docs</a>. Only wallets whose
+link we could check against the wallet’s own docs or code, and against the wallet’s entry in the
+<a class="reference external" href="https://explorer.walletconnect.com/">WalletConnect Explorer</a> registry, are included. The https
+universal links open the app if it’s installed and a web page otherwise.</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">deep_link</span></code></p></th>
+<th class="head"><p>Link</p></th>
+<th class="head"><p>Sources</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">metamask</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">https://metamask.app.link/wc?uri=&lt;uri&gt;</span></code></p></td>
+<td><p>Registry (<code class="docutils literal notranslate"><span class="pre">mobile.universal</span></code>: <code class="docutils literal notranslate"><span class="pre">https://metamask.app.link</span></code>); MetaMask Mobile’s <a class="reference external" href="https://github.com/MetaMask/metamask-mobile/blob/main/app/constants/deeplinks.ts">deep link actions</a> (<code class="docutils literal notranslate"><span class="pre">wc</span></code>) and <a class="reference external" href="https://github.com/MetaMask/metamask-mobile/blob/main/app/core/AppConstants.ts">universal link host</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rainbow</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">https://rnbwapp.com/wc?uri=&lt;uri&gt;</span></code></p></td>
+<td><p>Registry (<code class="docutils literal notranslate"><span class="pre">mobile.universal</span></code>: <code class="docutils literal notranslate"><span class="pre">https://rnbwapp.com</span></code>); Rainbow’s <a class="reference external" href="https://github.com/rainbow-me/rainbowkit/blob/main/packages/rainbowkit/src/wallets/walletConnectors/rainbowWallet/rainbowWallet.ts">RainbowKit connector</a></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">trust</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">https://link.trustwallet.com/wc?uri=&lt;uri&gt;</span></code></p></td>
+<td><p>Registry (<code class="docutils literal notranslate"><span class="pre">mobile.universal</span></code>: <code class="docutils literal notranslate"><span class="pre">https://link.trustwallet.com</span></code>); Trust Wallet’s <a class="reference external" href="https://developer.trustwallet.com/developer/develop-for-trust/deeplinking">deep linking docs</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">uniswap</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">https://uniswap.org/app/wc?uri=&lt;uri&gt;</span></code></p></td>
+<td><p>Registry (<code class="docutils literal notranslate"><span class="pre">mobile.universal</span></code>: <code class="docutils literal notranslate"><span class="pre">https://uniswap.org/app</span></code>); the Uniswap Wallet’s <a class="reference external" href="https://github.com/Uniswap/interface/blob/main/apps/mobile/src/features/deepLinking/constants.ts">deep link constants</a> (<code class="docutils literal notranslate"><span class="pre">UNISWAP_WALLETCONNECT_URL</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">zerion</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">zerion://wc?uri=&lt;uri&gt;</span></code></p></td>
+<td><p>Registry (<code class="docutils literal notranslate"><span class="pre">mobile.native</span></code>: <code class="docutils literal notranslate"><span class="pre">zerion://</span></code>); the <a class="reference external" href="https://github.com/rainbow-me/rainbowkit/blob/main/packages/rainbowkit/src/wallets/walletConnectors/zerionWallet/zerionWallet.ts">RainbowKit Zerion connector</a>. Zerion’s registry universal link (<code class="docutils literal notranslate"><span class="pre">https://wallet.zerion.io/wc</span></code>) has no documented <code class="docutils literal notranslate"><span class="pre">?uri=</span></code> form, so this is the app’s URL scheme: it only works with Zerion installed.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">generic</span></code> or <code class="docutils literal notranslate"><span class="pre">universal</span></code></p></td>
+<td><p>the <code class="docutils literal notranslate"><span class="pre">wc:</span></code> URI itself</p></td>
+<td><p>WalletConnect’s <a class="reference external" href="https://docs.walletconnect.com/wallets/android/mobile-linking">Android mobile linking docs</a>: wallets register the <code class="docutils literal notranslate"><span class="pre">wc:</span></code> scheme, so Android offers a choice of installed wallets. iOS doesn’t route <code class="docutils literal notranslate"><span class="pre">wc:</span></code> links reliably; name the wallet there.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Other wallets (Coinbase Wallet, Phantom, Ledger Live and so on) aren’t included. An unknown name
+is refused with <code class="docutils literal notranslate"><span class="pre">invalid_argument:</span></code> and the list of supported names, before any pairing starts.</p>
 </section>
 <section id="choosing-the-session-account-and-chain">
 <h3>Choosing the session, account and chain<a class="headerlink" href="#choosing-the-session-account-and-chain" title="Link to this heading">#</a></h3>
