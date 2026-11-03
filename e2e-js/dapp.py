@@ -14,10 +14,10 @@ import os
 import sys
 from pathlib import Path
 
-# Prefer the local checkout (parent of e2e-js/).
-REPO = Path(__file__).resolve().parents[1]
-if (REPO / "walletconnect").is_dir():
-    sys.path.insert(0, str(REPO))
+# Prefer the local checkout (src/ under the parent of e2e-js/).
+SRC = Path(__file__).resolve().parents[1] / "src"
+if (SRC / "walletconnect").is_dir():
+    sys.path.insert(0, str(SRC))
 
 from walletconnect.sign import ClientState, SyncSignClient
 from walletconnect.types import Metadata
