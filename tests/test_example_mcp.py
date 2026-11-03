@@ -115,7 +115,9 @@ async def test_mcp_example_end_to_end(tmp_path, monkeypatch):
         assert f"Show this QR code to the user so they can scan it: {qr_file}" in text.text
         assert qr_file.as_uri() in text.text
         assert f"pairing_topic: {pair['pairing_topic']}" in text.text
-        assert len(text.text) < 1000  # short: no inline QR data
+        # Short: no inline QR data (paths and the opt-in URI vary in length).
+        short = text.text.replace(pair["uri"], "").replace(qr_file.as_uri(), "")
+        assert len(short.replace(str(qr_file), "")) < 800
         assert image.type == "image"
         assert image.mime_type == "image/png"
         assert base64.b64decode(image.data) == qr_file.read_bytes()
